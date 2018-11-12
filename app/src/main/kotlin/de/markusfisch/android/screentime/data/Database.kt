@@ -3,7 +3,6 @@ package de.markusfisch.android.screentime.data
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
@@ -11,7 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-data class Stats(val time: Long, val count: Int)
+data class Stats(val millisecs: Long, val count: Int)
 
 class Database {
 	private lateinit var db: SQLiteDatabase
@@ -21,50 +20,43 @@ class Database {
 	}
 
 	fun getStatsOfDay(timestamp: Long): Stats {
-		val date = Date(timestamp);
-		val from = SimpleDateFormat(
-			"yyyy-MM-dd 00:00:00",
-			Locale.US
-		).format(date)
-		val to = SimpleDateFormat(
-			"yyyy-MM-dd 23:59:59",
-			Locale.US
-		).format(date)
 		val cursor = db.rawQuery(
 			"""SELECT
-				SUM(strftime('%s', $TIMES_TO) - strftime('%s', $TIMES_FROM)),
+				SUM($TIMES_TO - $TIMES_FROM),
 				COUNT(*)
 				FROM $TIMES
-				WHERE $TIMES_TO BETWEEN '$from' AND '$to'""",
+				WHERE $TIMES_TO ${getDayBounds(timestamp)}""",
 			null
 		)
-		var time = 0L
+		var millisecs = 0L
 		var count = 0
 		if (cursor.moveToFirst()) {
-			time = cursor.getLong(0)
+			millisecs = cursor.getLong(0)
 			count = cursor.getInt(1)
 		}
 		cursor.close()
-		return Stats(time, count)
+		return Stats(millisecs, count)
 	}
 
-	fun getTimes(): Cursor {
+	fun getTimes(timestamp: Long): Cursor {
 		return db.rawQuery(
 			"""SELECT
-				d.$TIMES_ID,
-				strftime('%s', d.$TIMES_FROM, 'utc')
-					AS $TIMES_FROM,
-				strftime('%s', d.$TIMES_TO, 'utc')
-					AS $TIMES_TO
-				FROM $TIMES AS d
-				ORDER BY d.$TIMES_TO DESC""", null
+				$TIMES_ID,
+				$TIMES_FROM,
+				$TIMES_TO
+				FROM $TIMES
+				WHERE $TIMES_TO ${getDayBounds(timestamp)}
+				ORDER BY $TIMES_TO""", null
 		)
 	}
 
 	fun insertTime(from: Long, to: Long): Long {
+		if (to <= from) {
+			return -1
+		}
 		val cv = ContentValues()
-		cv.put(TIMES_FROM, getDateTimeString(from))
-		cv.put(TIMES_TO, getDateTimeString(to))
+		cv.put(TIMES_FROM, from)
+		cv.put(TIMES_TO, to)
 		return db.insert(TIMES, null, cv)
 	}
 
@@ -97,16 +89,22 @@ class Database {
 			db.execSQL(
 				"""CREATE TABLE $TIMES (
 					$TIMES_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-					$TIMES_FROM DATETIME,
-					$TIMES_TO DATETIME)"""
+					$TIMES_FROM TIMESTAMP,
+					$TIMES_TO TIMESTAMP)"""
 			)
 		}
-
-		private fun getDateTimeString(timestamp: Long): String {
-			return SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss",
-				Locale.US
-			).format(Date(timestamp))
-		}
 	}
+}
+
+fun getDayBounds(timestamp: Long): String {
+	val date = getDateString(timestamp)
+	return """BETWEEN strftime('%s', '$date 00:00:00') * 1000
+		AND strftime('%s', '$date 23:59:59') * 1000"""
+}
+
+fun getDateString(timestamp: Long): String {
+	return SimpleDateFormat(
+		"yyyy-MM-dd",
+		Locale.US
+	).format(Date(timestamp))
 }

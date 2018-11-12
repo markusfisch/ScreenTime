@@ -30,11 +30,13 @@ class MainActivity() : Activity() {
 		launch {
 			val stats = db.getStatsOfDay(System.currentTimeMillis())
 			launch(UI) {
-				timeView.text = hoursAndSeconds(stats.time)
+				timeView.text = hoursAndSeconds(stats.millisecs)
 				countView.text = String.format(
 					getString(R.string.count),
 					stats.count,
-					Math.round(stats.time.toFloat() / stats.count.toFloat())
+					Math.round(
+						stats.millisecs.toFloat() / stats.count.toFloat() / 1000
+					)
 				)
 			}
 		}
