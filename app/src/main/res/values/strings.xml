@@ -1,0 +1,4 @@
+<resources>
+	<string name="app_name">Screen Time</string>
+	<string name="count">%d activations, %ds on average</string>
+</resources>

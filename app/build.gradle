@@ -1,0 +1,25 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+	compileSdkVersion sdk_version
+	buildToolsVersion build_tools_version
+
+	defaultConfig {
+		minSdkVersion 21
+		targetSdkVersion sdk_version
+
+		versionCode 1
+		versionName '0.0.0'
+	}
+
+	sourceSets {
+		main.java.srcDirs += 'src/main/kotlin'
+	}
+}
+
+dependencies {
+	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.21"
+}
