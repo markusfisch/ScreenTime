@@ -1,6 +1,8 @@
 package de.markusfisch.android.screentime.activity
 
 import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.data.Stats
+import de.markusfisch.android.screentime.service.restoreFrom
 import de.markusfisch.android.screentime.R
 
 import android.app.Activity
@@ -11,8 +13,15 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
 class MainActivity() : Activity() {
-	private lateinit var timeView : TextView
-	private lateinit var countView : TextView
+	private val updateTimeRunnable = Runnable {
+		updateTime()
+		scheduleTimeUpdate()
+	}
+
+	private lateinit var timeView: TextView
+	private lateinit var countView: TextView
+	private lateinit var stats: Stats
+	private var lastActivation = 0L
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
@@ -26,28 +35,56 @@ class MainActivity() : Activity() {
 		update()
 	}
 
+	override fun onPause() {
+		super.onPause()
+		cancelTimeUpdate()
+	}
+
 	private fun update() {
 		launch {
-			val stats = db.getStatsOfDay(System.currentTimeMillis())
+			val s = db.getStatsOfDay(System.currentTimeMillis())
 			launch(UI) {
-				timeView.text = hoursAndSeconds(stats.millisecs)
-				countView.text = String.format(
-					getString(R.string.count),
-					stats.count,
-					Math.round(
-						stats.millisecs.toFloat() / stats.count.toFloat() / 1000
-					)
-				)
+				stats = s
+				lastActivation = restoreFrom(this@MainActivity)
+				updateTime()
+				updateCount()
+				scheduleTimeUpdate()
 			}
 		}
 	}
 
-	private fun hoursAndSeconds(seconds: Long): String {
+	private fun updateTime() {
+		timeView.text = hoursAndSeconds(
+			stats.millisecs + System.currentTimeMillis() - lastActivation
+		)
+	}
+
+	private fun hoursAndSeconds(ms: Long): String {
+		val seconds = ms / 1000;
 		return String.format(
 			"%02d:%02d:%02d",
 			seconds / 3600,
 			seconds / 60,
 			seconds % 60
 		)
+	}
+
+	private fun updateCount() {
+		countView.text = String.format(
+			getString(R.string.count),
+			stats.count,
+			Math.round(
+				stats.millisecs.toFloat() / stats.count.toFloat() / 1000f
+			)
+		)
+	}
+
+	private fun scheduleTimeUpdate() {
+		cancelTimeUpdate()
+		timeView.postDelayed(updateTimeRunnable, 1000)
+	}
+
+	private fun cancelTimeUpdate() {
+		timeView.removeCallbacks(updateTimeRunnable)
 	}
 }
