@@ -25,14 +25,15 @@ class TrackerService() : Service() {
 		startId: Int
 	): Int {
 		if (intent != null && intent.hasExtra(SCREEN_STATE)) {
+			val now = System.currentTimeMillis()
 			if (intent.getBooleanExtra(SCREEN_STATE, true)) {
-				from = System.currentTimeMillis()
+				from = now
 				saveFrom(this, from)
 			} else {
 				if (from == 0L) {
 					from = restoreFrom(this)
 				}
-				db.insertTime(from, System.currentTimeMillis())
+				db.insertTime(from, now)
 			}
 		}
 		return Service.START_NOT_STICKY
@@ -55,6 +56,8 @@ fun restoreFrom(context: Context): Long {
 	return try {
 		DataInputStream(context.openFileInput(FROM_FILE)).readLong()
 	} catch (e: FileNotFoundException) {
-		System.currentTimeMillis()
+		val now = System.currentTimeMillis()
+		saveFrom(context, now)
+		now
 	}
 }
