@@ -2,7 +2,6 @@ package de.markusfisch.android.screentime.activity
 
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.Stats
-import de.markusfisch.android.screentime.service.restoreFrom
 import de.markusfisch.android.screentime.R
 
 import android.app.Activity
@@ -21,7 +20,6 @@ class MainActivity() : Activity() {
 	private lateinit var timeView: TextView
 	private lateinit var countView: TextView
 	private lateinit var stats: Stats
-	private var lastActivation = 0L
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
@@ -45,7 +43,6 @@ class MainActivity() : Activity() {
 			val s = db.getStatsOfDay(System.currentTimeMillis())
 			launch(UI) {
 				stats = s
-				lastActivation = restoreFrom(this@MainActivity)
 				updateTime()
 				updateCount()
 				scheduleTimeUpdate()
@@ -54,8 +51,12 @@ class MainActivity() : Activity() {
 	}
 
 	private fun updateTime() {
+		val now = System.currentTimeMillis()
+		if (db.from == 0L) {
+			db.from = now
+		}
 		timeView.text = hoursAndSeconds(
-			stats.millisecs + System.currentTimeMillis() - lastActivation
+			stats.millisecs + now - db.from
 		)
 	}
 

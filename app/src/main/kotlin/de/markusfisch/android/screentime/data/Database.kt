@@ -2,9 +2,11 @@ package de.markusfisch.android.screentime.data
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.SharedPreferences
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.preference.PreferenceManager
 
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -13,9 +15,23 @@ import java.util.Locale
 data class Stats(val millisecs: Long, val count: Int)
 
 class Database {
+	var from = 0L
+		get() {
+			if (field == 0L) {
+				field = preferences.getLong(FROM, 0L)
+			}
+			return field
+		}
+		set(value) {
+			preferences.edit().putLong(FROM, value).apply()
+			field = value
+		}
+
+	private lateinit var preferences: SharedPreferences
 	private lateinit var db: SQLiteDatabase
 
 	fun open(context: Context) {
+		preferences = PreferenceManager.getDefaultSharedPreferences(context)
 		db = OpenHelper(context).writableDatabase
 	}
 
@@ -79,6 +95,7 @@ class Database {
 	}
 
 	companion object {
+		const val FROM = "from"
 		const val TIMES = "times"
 		const val TIMES_ID = "_id"
 		const val TIMES_FROM = "_from"
@@ -105,6 +122,13 @@ fun getDayBounds(timestamp: Long): String {
 fun getDateString(timestamp: Long): String {
 	return SimpleDateFormat(
 		"yyyy-MM-dd",
+		Locale.US
+	).format(Date(timestamp))
+}
+
+fun getDateTimeString(timestamp: Long): String {
+	return SimpleDateFormat(
+		"yyyy-MM-dd HH:mm:ss",
 		Locale.US
 	).format(Date(timestamp))
 }

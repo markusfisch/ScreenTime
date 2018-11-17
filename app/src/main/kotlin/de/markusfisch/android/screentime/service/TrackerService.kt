@@ -2,18 +2,21 @@ package de.markusfisch.android.screentime.service
 
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.receiver.SCREEN_STATE
+import de.markusfisch.android.screentime.receiver.ScreenReceiver
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.IBinder
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import java.io.FileNotFoundException
-
 class TrackerService() : Service() {
-	private var from = 0L
+	override fun onCreate() {
+		super.onCreate()
+		val filter = IntentFilter()
+		filter.addAction(Intent.ACTION_SCREEN_ON)
+		filter.addAction(Intent.ACTION_SCREEN_OFF)
+		registerReceiver(ScreenReceiver(), filter);
+	}
 
 	override fun onBind(intent: Intent): IBinder? {
 		return null
@@ -27,37 +30,12 @@ class TrackerService() : Service() {
 		if (intent != null && intent.hasExtra(SCREEN_STATE)) {
 			val now = System.currentTimeMillis()
 			if (intent.getBooleanExtra(SCREEN_STATE, true)) {
-				from = now
-				saveFrom(this, from)
-			} else {
-				if (from == 0L) {
-					from = restoreFrom(this)
-				}
-				db.insertTime(from, now)
+				db.from = now
+			} else if (db.from > 0L) {
+				db.insertTime(db.from, now)
+				db.from = 0L
 			}
 		}
-		return Service.START_NOT_STICKY
-	}
-}
-
-const val FROM_FILE = "from";
-
-fun saveFrom(context: Context, from: Long) {
-	try {
-		DataOutputStream(
-			context.openFileOutput(FROM_FILE, Context.MODE_PRIVATE)
-		).writeLong(from)
-	} catch (e: FileNotFoundException) {
-		// can never happen
-	}
-}
-
-fun restoreFrom(context: Context): Long {
-	return try {
-		DataInputStream(context.openFileInput(FROM_FILE)).readLong()
-	} catch (e: FileNotFoundException) {
-		val now = System.currentTimeMillis()
-		saveFrom(context, now)
-		now
+		return Service.START_STICKY
 	}
 }
