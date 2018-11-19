@@ -3,30 +3,23 @@ package de.markusfisch.android.screentime.data
 import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.preference.PreferenceManager
 
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-data class Stats(val millisecs: Long, val count: Int)
+data class Stats(
+	val millisecs: Long,
+	val count: Int,
+	val start: Long,
+	val average: Int
+)
 
 class Database {
-	var from = 0L
-		get() {
-			if (field == 0L) {
-				field = preferences.getLong(FROM, 0L)
-			}
-			return field
-		}
-		set(value) {
-			preferences.edit().putLong(FROM, value).apply()
-			field = value
-		}
-
 	private lateinit var preferences: SharedPreferences
 	private lateinit var db: SQLiteDatabase
 
@@ -36,54 +29,70 @@ class Database {
 	}
 
 	fun getStatsOfDay(timestamp: Long): Stats {
+		val startOfDay = getStartOfDay(timestamp)
+		val endOfDay = getEndOfDay(timestamp)
 		val cursor = db.rawQuery(
 			"""SELECT
-				SUM($TIMES_TO - $TIMES_FROM),
-				COUNT(*)
-				FROM $TIMES
-				WHERE $TIMES_TO ${getDayBounds(timestamp)}""",
+				$EVENTS_TIMESTAMP,
+				$EVENTS_NAME
+				FROM $EVENTS
+				WHERE $EVENTS_TIMESTAMP
+					BETWEEN $startOfDay
+					AND $endOfDay""",
 			null
 		)
 		var millisecs = 0L
 		var count = 0
+		var start = 0L
 		if (cursor.moveToFirst()) {
-			millisecs = cursor.getLong(0)
-			count = cursor.getInt(1)
+			var on = false
+			do {
+				val ts = cursor.getLong(0)
+				when (cursor.getString(1)) {
+					EVENT_SCREEN_ON -> {
+						start = Math.max(startOfDay, ts)
+						on = true
+					}
+					EVENT_SCREEN_OFF -> if (on) {
+						val ms = Math.min(endOfDay, ts) - start
+						millisecs += ms
+						++count
+						on = false
+					}
+					else -> throw IllegalArgumentException(
+						"Unknown event: ${cursor.getString(1)}"
+					)
+				}
+			} while (cursor.moveToNext())
 		}
 		cursor.close()
-		return Stats(millisecs, count)
-	}
-
-	fun getTimes(timestamp: Long): Cursor {
-		return db.rawQuery(
-			"""SELECT
-				$TIMES_ID,
-				$TIMES_FROM,
-				$TIMES_TO
-				FROM $TIMES
-				WHERE $TIMES_TO ${getDayBounds(timestamp)}
-				ORDER BY $TIMES_TO""", null
+		return Stats(
+			millisecs,
+			count,
+			if (start > 0L) {
+				start
+			} else {
+				System.currentTimeMillis()
+			},
+			Math.round(millisecs.toFloat() / count.toFloat() / 1000f)
 		)
 	}
 
-	fun insertTime(from: Long, to: Long): Long {
-		if (to <= from) {
-			return -1
-		}
+	fun insertEvent(timestamp: Long, name: String): Long {
 		val cv = ContentValues()
-		cv.put(TIMES_FROM, from)
-		cv.put(TIMES_TO, to)
-		return db.insert(TIMES, null, cv)
+		cv.put(EVENTS_TIMESTAMP, timestamp)
+		cv.put(EVENTS_NAME, name)
+		return db.insert(EVENTS, null, cv)
 	}
 
-	fun removeTime(id: Long) {
-		db.delete(TIMES, "$TIMES_ID = ?", arrayOf("$id"))
+	fun deleteEvent(id: Long) {
+		db.delete(EVENTS, "$EVENTS_ID = ?", arrayOf("$id"))
 	}
 
 	private class OpenHelper(context: Context) :
-		SQLiteOpenHelper(context, "times.db", null, 1) {
+		SQLiteOpenHelper(context, "events.db", null, 1) {
 		override fun onCreate(db: SQLiteDatabase) {
-			createTimes(db)
+			createEvents(db)
 		}
 
 		override fun onUpgrade(
@@ -95,35 +104,24 @@ class Database {
 	}
 
 	companion object {
-		const val FROM = "from"
-		const val TIMES = "times"
-		const val TIMES_ID = "_id"
-		const val TIMES_FROM = "_from"
-		const val TIMES_TO = "_to"
+		const val EVENT_SCREEN_ON = "screen_on"
+		const val EVENT_SCREEN_OFF = "screen_off"
 
-		private fun createTimes(db: SQLiteDatabase) {
-			db.execSQL("DROP TABLE IF EXISTS $TIMES")
+		const val EVENTS = "events"
+		const val EVENTS_ID = "_id"
+		const val EVENTS_TIMESTAMP = "_timestamp"
+		const val EVENTS_NAME = "name"
+
+		private fun createEvents(db: SQLiteDatabase) {
+			db.execSQL("DROP TABLE IF EXISTS $EVENTS")
 			db.execSQL(
-				"""CREATE TABLE $TIMES (
-					$TIMES_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-					$TIMES_FROM TIMESTAMP,
-					$TIMES_TO TIMESTAMP)"""
+				"""CREATE TABLE $EVENTS (
+					$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+					$EVENTS_TIMESTAMP EVENTSTAMP,
+					$EVENTS_NAME TEXT NOT NULL)"""
 			)
 		}
 	}
-}
-
-fun getDayBounds(timestamp: Long): String {
-	val date = getDateString(timestamp)
-	return """BETWEEN strftime('%s', '$date 00:00:00') * 1000
-		AND strftime('%s', '$date 23:59:59') * 1000"""
-}
-
-fun getDateString(timestamp: Long): String {
-	return SimpleDateFormat(
-		"yyyy-MM-dd",
-		Locale.US
-	).format(Date(timestamp))
 }
 
 fun getDateTimeString(timestamp: Long): String {
@@ -131,4 +129,22 @@ fun getDateTimeString(timestamp: Long): String {
 		"yyyy-MM-dd HH:mm:ss",
 		Locale.US
 	).format(Date(timestamp))
+}
+
+fun getStartOfDay(timestamp: Long): Long {
+	val cal = Calendar.getInstance()
+	cal.timeInMillis = timestamp
+	cal.set(Calendar.HOUR_OF_DAY, 0)
+	cal.set(Calendar.MINUTE, 0)
+	cal.set(Calendar.SECOND, 0)
+	return cal.timeInMillis
+}
+
+fun getEndOfDay(timestamp: Long): Long {
+	val cal = Calendar.getInstance()
+	cal.timeInMillis = timestamp
+	cal.set(Calendar.HOUR_OF_DAY, 23)
+	cal.set(Calendar.MINUTE, 59)
+	cal.set(Calendar.SECOND, 59)
+	return cal.timeInMillis
 }

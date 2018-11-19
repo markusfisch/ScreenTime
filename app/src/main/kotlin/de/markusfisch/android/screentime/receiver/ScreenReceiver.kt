@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 
 const val SCREEN_STATE = "screen_state"
+const val TIMESTAMP = "timestamp"
 
 class ScreenReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
@@ -20,6 +21,7 @@ class ScreenReceiver : BroadcastReceiver() {
 	private fun sendIntent(context: Context, state: Boolean) {
 		val intent = Intent(context, TrackerService::class.java)
 		intent.putExtra(SCREEN_STATE, state)
+		intent.putExtra(TIMESTAMP, System.currentTimeMillis())
 		context.startService(intent)
 	}
 }
