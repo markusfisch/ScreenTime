@@ -10,15 +10,15 @@ import android.preference.PreferenceManager
 import java.util.Calendar
 
 data class Stats(
-	val millisecs: Long,
+	val total: Long,
 	val count: Int,
 	val start: Long,
 	val average: Long
 ) {
-	fun duration(now: Long) = millisecs + now - start
-	fun durationInSeconds(now: Long) = duration(now) / 1000L
-	fun durationForHumans(now: Long) = timeForHumans(durationInSeconds(now))
-	fun averageForHumans() = timeForHumansPrecisely(average)
+	fun currently(now: Long) = total + Math.max(0, now - start)
+	fun currentlyInSeconds(now: Long) = currently(now) / 1000L
+	fun currentlyColloquial(now: Long) = timeColloquial(currentlyInSeconds(now))
+	fun averageColloquial() = timeColloquialPrecisely(average)
 }
 
 class Database {
@@ -58,7 +58,7 @@ class Database {
 			""",
 			null
 		)
-		var millisecs = 0L
+		var total = 0L
 		var count = 0
 		var start = 0L
 		if (cursor.moveToFirst()) {
@@ -70,7 +70,7 @@ class Database {
 					}
 					EVENT_SCREEN_OFF -> if (start > 0L) {
 						val ms = Math.min(endOfDay, ts) - start
-						millisecs += ms
+						total += ms
 						++count
 						start = 0L
 					}
@@ -82,14 +82,14 @@ class Database {
 		}
 		cursor.close()
 		return Stats(
-			millisecs,
+			total,
 			count,
 			if (start > 0L) {
 				start
 			} else {
 				System.currentTimeMillis()
 			},
-			Math.round(millisecs.toDouble() / count.toDouble() / 1000.0)
+			Math.round(total.toDouble() / count.toDouble() / 1000.0)
 		)
 	}
 
@@ -157,10 +157,10 @@ fun getEndOfDay(timestamp: Long): Long {
 	return cal.timeInMillis
 }
 
-fun timeForHumansPrecisely(seconds: Long): String {
+fun timeColloquialPrecisely(seconds: Long): String {
 	return when (seconds) {
-		in 0..60 -> String.format("%ds", seconds)
-		in 61..3600 -> String.format("%dm %ds",
+		in 0..59 -> String.format("%ds", seconds)
+		in 60..3599 -> String.format("%dm %ds",
 			(seconds / 60) % 60,
 			seconds % 60
 		)
@@ -172,10 +172,10 @@ fun timeForHumansPrecisely(seconds: Long): String {
 	}
 }
 
-fun timeForHumans(seconds: Long): String {
+fun timeColloquial(seconds: Long): String {
 	return when (seconds) {
-		in 0..60 -> String.format("%ds", seconds)
-		in 61..3600 -> String.format("%dm", (seconds / 60) % 60)
+		in 0..59 -> String.format("%ds", seconds)
+		in 60..3599 -> String.format("%dm", (seconds / 60) % 60)
 		else -> String.format("%dh %dm",
 			seconds / 3600,
 			(seconds / 60) % 60

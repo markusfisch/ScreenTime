@@ -28,7 +28,6 @@ val screenReceiver = ScreenReceiver()
 class TrackerService : Service() {
 	private val handler = Handler()
 	private val updateNotificationRunnable = Runnable {
-		scheduleNotificationUpdate()
 		updateNotification()
 	}
 
@@ -86,7 +85,6 @@ class TrackerService : Service() {
 			)
 			if (screenOn) {
 				updateNotification()
-				scheduleNotificationUpdate()
 			} else {
 				cancelNotificationUpdate()
 			}
@@ -98,43 +96,46 @@ class TrackerService : Service() {
 		handler.removeCallbacks(updateNotificationRunnable)
 	}
 
-	private fun scheduleNotificationUpdate() {
-		cancelNotificationUpdate()
-		if (powerManager.isInteractive) {
-			handler.postDelayed(
-				updateNotificationRunnable,
-				60000L - System.currentTimeMillis() % 60000L
-			)
-		}
-	}
-
 	private fun updateNotification() {
 		GlobalScope.launch {
-			val notification = createNotification(this@TrackerService)
+			val notification = createNotification(this@TrackerService, true)
 			GlobalScope.launch(Main) {
 				notificationManager.notify(ID, notification)
 			}
 		}
 	}
 
+	private fun createNotification(
+			context: Context,
+			schedule: Boolean = false
+	): Notification {
+		val now = System.currentTimeMillis()
+		val stats = db.getStatsOfDay(now)
+		val text = String.format(
+			getString(R.string.notification_text_template),
+			stats.count,
+			stats.averageColloquial()
+		)
+		if (schedule) {
+			scheduleNotificationUpdate(60000L - stats.currently(now) % 60000L)
+		}
+		return createNotification(
+			context,
+			R.drawable.notify,
+			stats.currentlyColloquial(now),
+			text,
+			getDefaultIntent(context)
+		)
+	}
+
+	private fun scheduleNotificationUpdate(delay: Long) {
+		cancelNotificationUpdate()
+		if (powerManager.isInteractive) {
+			handler.postDelayed(updateNotificationRunnable, delay)
+		}
+	}
+
 	companion object {
 		const val ID = 1
 	}
-}
-
-fun createNotification(context: Context): Notification {
-	val now = System.currentTimeMillis()
-	val stats = db.getStatsOfDay(now)
-	val text = String.format(
-		context.getString(R.string.notification_text_template),
-		stats.count,
-		stats.averageForHumans()
-	)
-	return createNotification(
-		context,
-		R.drawable.notify,
-		stats.durationForHumans(now),
-		text,
-		getDefaultIntent(context)
-	)
 }

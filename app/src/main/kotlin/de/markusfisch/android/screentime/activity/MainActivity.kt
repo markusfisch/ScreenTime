@@ -57,7 +57,7 @@ class MainActivity : Activity() {
 	}
 
 	private fun updateTime() {
-		val seconds = stats.durationInSeconds(System.currentTimeMillis())
+		val seconds = stats.currentlyInSeconds(System.currentTimeMillis())
 		timeView.text = String.format(
 			"%02d:%02d:%02d",
 			seconds / 3600,
@@ -70,7 +70,7 @@ class MainActivity : Activity() {
 		countView.text = String.format(
 			getString(R.string.count),
 			stats.count,
-			stats.averageForHumans()
+			stats.averageColloquial()
 		)
 	}
 
