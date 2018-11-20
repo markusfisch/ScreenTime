@@ -7,10 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.preference.PreferenceManager
 
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 data class Stats(
 	val millisecs: Long,
@@ -125,13 +122,6 @@ class Database {
 			)
 		}
 	}
-}
-
-fun getDateTimeString(timestamp: Long): String {
-	return SimpleDateFormat(
-		"yyyy-MM-dd HH:mm:ss",
-		Locale.US
-	).format(Date(timestamp))
 }
 
 fun getStartOfDay(timestamp: Long): Long {
