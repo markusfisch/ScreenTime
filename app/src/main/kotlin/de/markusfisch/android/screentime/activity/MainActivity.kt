@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 
 class MainActivity : Activity() {
 	private val updateTimeRunnable = Runnable {
-		updateTime()
 		scheduleTimeUpdate()
+		updateTime()
 	}
 
 	private lateinit var timeView: TextView
@@ -57,15 +57,8 @@ class MainActivity : Activity() {
 	}
 
 	private fun updateTime() {
-		val now = System.currentTimeMillis()
-		timeView.text = hoursAndSeconds(
-			stats.millisecs + now - stats.start
-		)
-	}
-
-	private fun hoursAndSeconds(ms: Long): String {
-		val seconds = ms / 1000
-		return String.format(
+		val seconds = stats.durationInSeconds(System.currentTimeMillis())
+		timeView.text = String.format(
 			"%02d:%02d:%02d",
 			seconds / 3600,
 			(seconds / 60) % 60,

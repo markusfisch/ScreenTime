@@ -15,7 +15,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Handler
 import android.os.IBinder
+import android.os.PowerManager
 
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
@@ -24,17 +26,30 @@ import kotlinx.coroutines.launch
 val screenReceiver = ScreenReceiver()
 
 class TrackerService : Service() {
-	private lateinit var notificationMan: NotificationManager
+	private val handler = Handler()
+	private val updateNotificationRunnable = Runnable {
+		scheduleNotificationUpdate()
+		updateNotification()
+	}
+
+	private lateinit var notificationManager: NotificationManager
+	private lateinit var powerManager: PowerManager
 
 	override fun onCreate() {
 		super.onCreate()
+
 		val filter = IntentFilter()
 		filter.addAction(Intent.ACTION_SCREEN_ON)
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		registerReceiver(screenReceiver, filter)
-		notificationMan = getSystemService(
+
+		notificationManager = getSystemService(
 			Context.NOTIFICATION_SERVICE
 		) as NotificationManager
+		powerManager = getSystemService(
+			Context.POWER_SERVICE
+		) as PowerManager
+
 		GlobalScope.launch() {
 			val notification = createNotification(this@TrackerService)
 			GlobalScope.launch(Main) {
@@ -71,16 +86,30 @@ class TrackerService : Service() {
 			)
 			if (screenOn) {
 				updateNotification()
+				scheduleNotificationUpdate()
+			} else {
+				cancelNotificationUpdate()
 			}
 		}
 		return Service.START_STICKY
+	}
+
+	private fun cancelNotificationUpdate() {
+		handler.removeCallbacks(updateNotificationRunnable)
+	}
+
+	private fun scheduleNotificationUpdate() {
+		cancelNotificationUpdate()
+		if (powerManager.isInteractive()) {
+			handler.postDelayed(updateNotificationRunnable, 60000)
+		}
 	}
 
 	private fun updateNotification() {
 		GlobalScope.launch() {
 			val notification = createNotification(this@TrackerService)
 			GlobalScope.launch(Main) {
-				notificationMan.notify(ID, notification)
+				notificationManager.notify(ID, notification)
 			}
 		}
 	}
@@ -93,7 +122,7 @@ class TrackerService : Service() {
 fun createNotification(context: Context): Notification {
 	val now = System.currentTimeMillis()
 	val stats = db.getStatsOfDay(now)
-	val seconds = (stats.millisecs + now - stats.start) / 1000
+	val seconds = stats.durationInSeconds(now)
 	val title = String.format(
 		"%02d:%02d",
 		seconds / 3600,

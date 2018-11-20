@@ -17,7 +17,10 @@ data class Stats(
 	val count: Int,
 	val start: Long,
 	val average: Int
-)
+) {
+	fun duration(now: Long) = millisecs + now - start
+	fun durationInSeconds(now: Long) = duration(now) / 1000L
+}
 
 class Database {
 	private lateinit var preferences: SharedPreferences
