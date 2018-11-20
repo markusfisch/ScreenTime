@@ -50,7 +50,7 @@ class TrackerService : Service() {
 			Context.POWER_SERVICE
 		) as PowerManager
 
-		GlobalScope.launch() {
+		GlobalScope.launch {
 			val notification = createNotification(this@TrackerService)
 			GlobalScope.launch(Main) {
 				startForeground(ID, notification)
@@ -100,13 +100,13 @@ class TrackerService : Service() {
 
 	private fun scheduleNotificationUpdate() {
 		cancelNotificationUpdate()
-		if (powerManager.isInteractive()) {
+		if (powerManager.isInteractive) {
 			handler.postDelayed(updateNotificationRunnable, 60000)
 		}
 	}
 
 	private fun updateNotification() {
-		GlobalScope.launch() {
+		GlobalScope.launch {
 			val notification = createNotification(this@TrackerService)
 			GlobalScope.launch(Main) {
 				notificationManager.notify(ID, notification)
