@@ -2,5 +2,5 @@
 	<string name="app_name">Screen Time</string>
 	<string name="count" formatted="false">%d activations, %ds on average</string>
 	<string name="recording">Recording screen events</string>
-	<string name="notification_message" formatted="false">%02d:%02d, %d times, Ø %ds</string>
+	<string name="notification_text_template" formatted="false">%d times, Ø %ds</string>
 </resources>

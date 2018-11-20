@@ -2,7 +2,8 @@ package de.markusfisch.android.screentime.service
 
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.Database
-import de.markusfisch.android.screentime.notification.createScreenTimeNotification
+import de.markusfisch.android.screentime.notification.createNotification
+import de.markusfisch.android.screentime.notification.getDefaultIntent
 import de.markusfisch.android.screentime.receiver.SCREEN_STATE
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import de.markusfisch.android.screentime.receiver.ScreenReceiver
@@ -93,12 +94,21 @@ fun createNotification(context: Context): Notification {
 	val now = System.currentTimeMillis()
 	val stats = db.getStatsOfDay(now)
 	val seconds = (stats.millisecs + now - stats.start) / 1000
-	val message = String.format(
-		context.getString(R.string.notification_message),
+	val title = String.format(
+		"%02d:%02d",
 		seconds / 3600,
-		(seconds / 60) % 60,
+		(seconds / 60) % 60
+	)
+	val text = String.format(
+		context.getString(R.string.notification_text_template),
 		stats.count,
 		stats.average
 	)
-	return createScreenTimeNotification(context, message)
+	return createNotification(
+		context,
+		R.drawable.notify,
+		title,
+		text,
+		getDefaultIntent(context)
+	)
 }
