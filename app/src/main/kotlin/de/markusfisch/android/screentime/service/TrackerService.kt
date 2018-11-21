@@ -101,7 +101,10 @@ class TrackerService : Service() {
 	private fun scheduleNotificationUpdate() {
 		cancelNotificationUpdate()
 		if (powerManager.isInteractive) {
-			handler.postDelayed(updateNotificationRunnable, 60000)
+			handler.postDelayed(
+				updateNotificationRunnable,
+				60000L - System.currentTimeMillis() % 60000L
+			)
 		}
 	}
 
