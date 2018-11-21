@@ -31,14 +31,29 @@ class Database {
 	fun getStatsOfDay(timestamp: Long): Stats {
 		val startOfDay = getStartOfDay(timestamp)
 		val endOfDay = getEndOfDay(timestamp)
-		val cursor = db.rawQuery(
-			"""SELECT
+		val cursor = db.rawQuery("""
+			SELECT * FROM (SELECT
+				$EVENTS_TIMESTAMP,
+				$EVENTS_NAME
+				FROM $EVENTS
+				WHERE $EVENTS_TIMESTAMP < $startOfDay
+				LIMIT 1)
+			UNION
+			SELECT
 				$EVENTS_TIMESTAMP,
 				$EVENTS_NAME
 				FROM $EVENTS
 				WHERE $EVENTS_TIMESTAMP
 					BETWEEN $startOfDay
-					AND $endOfDay""",
+					AND $endOfDay
+			UNION
+			SELECT * FROM (SELECT
+				$EVENTS_TIMESTAMP,
+				$EVENTS_NAME
+				FROM $EVENTS
+				WHERE $EVENTS_TIMESTAMP > $endOfDay
+				LIMIT 1)
+			""",
 			null
 		)
 		var millisecs = 0L
@@ -48,7 +63,7 @@ class Database {
 			do {
 				val ts = cursor.getLong(0)
 				when (cursor.getString(1)) {
-					EVENT_SCREEN_ON -> {
+					EVENT_SCREEN_ON -> if (ts < endOfDay) {
 						start = Math.max(startOfDay, ts)
 					}
 					EVENT_SCREEN_OFF -> if (start > 0L) {
@@ -115,7 +130,7 @@ class Database {
 			db.execSQL(
 				"""CREATE TABLE $EVENTS (
 					$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-					$EVENTS_TIMESTAMP EVENTSTAMP,
+					$EVENTS_TIMESTAMP TIMESTAMP,
 					$EVENTS_NAME TEXT NOT NULL)"""
 			)
 		}
