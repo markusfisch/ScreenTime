@@ -13,7 +13,7 @@ class ScreenReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
 		when (intent?.action) {
 			Intent.ACTION_SCREEN_OFF -> sendIntent(context, false)
-			Intent.ACTION_SCREEN_ON -> sendIntent(context, true)
+			Intent.ACTION_USER_PRESENT -> sendIntent(context, true)
 			else -> return
 		}
 	}

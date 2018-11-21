@@ -39,7 +39,7 @@ class TrackerService : Service() {
 		super.onCreate()
 
 		val filter = IntentFilter()
-		filter.addAction(Intent.ACTION_SCREEN_ON)
+		filter.addAction(Intent.ACTION_USER_PRESENT)
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		registerReceiver(screenReceiver, filter)
 
