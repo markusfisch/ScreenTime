@@ -13,10 +13,12 @@ data class Stats(
 	val millisecs: Long,
 	val count: Int,
 	val start: Long,
-	val average: Int
+	val average: Long
 ) {
 	fun duration(now: Long) = millisecs + now - start
 	fun durationInSeconds(now: Long) = duration(now) / 1000L
+	fun durationForHumans(now: Long) = timeForHumans(durationInSeconds(now))
+	fun averageForHumans() = timeForHumansPrecisely(average)
 }
 
 class Database {
@@ -87,7 +89,7 @@ class Database {
 			} else {
 				System.currentTimeMillis()
 			},
-			Math.round(millisecs.toFloat() / count.toFloat() / 1000f)
+			Math.round(millisecs.toDouble() / count.toDouble() / 1000.0)
 		)
 	}
 
@@ -153,4 +155,30 @@ fun getEndOfDay(timestamp: Long): Long {
 	cal.set(Calendar.MINUTE, 59)
 	cal.set(Calendar.SECOND, 59)
 	return cal.timeInMillis
+}
+
+fun timeForHumansPrecisely(seconds: Long): String {
+	return when (seconds) {
+		in 0..60 -> String.format("%ds", seconds)
+		in 61..3600 -> String.format("%dm %ds",
+			(seconds / 60) % 60,
+			seconds % 60
+		)
+		else -> String.format("%dh %dm %ds",
+			seconds / 3600,
+			(seconds / 60) % 60,
+			seconds % 60
+		)
+	}
+}
+
+fun timeForHumans(seconds: Long): String {
+	return when (seconds) {
+		in 0..60 -> String.format("%ds", seconds)
+		in 61..3600 -> String.format("%dm", (seconds / 60) % 60)
+		else -> String.format("%dh %dm",
+			seconds / 3600,
+			(seconds / 60) % 60
+		)
+	}
 }

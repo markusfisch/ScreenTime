@@ -125,21 +125,15 @@ class TrackerService : Service() {
 fun createNotification(context: Context): Notification {
 	val now = System.currentTimeMillis()
 	val stats = db.getStatsOfDay(now)
-	val seconds = stats.durationInSeconds(now)
-	val title = String.format(
-		"%02d:%02d",
-		seconds / 3600,
-		(seconds / 60) % 60
-	)
 	val text = String.format(
 		context.getString(R.string.notification_text_template),
 		stats.count,
-		stats.average
+		stats.averageForHumans()
 	)
 	return createNotification(
 		context,
 		R.drawable.notify,
-		title,
+		stats.durationForHumans(now),
 		text,
 		getDefaultIntent(context)
 	)

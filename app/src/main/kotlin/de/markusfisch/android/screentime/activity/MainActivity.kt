@@ -70,7 +70,7 @@ class MainActivity : Activity() {
 		countView.text = String.format(
 			getString(R.string.count),
 			stats.count,
-			stats.average
+			stats.averageForHumans()
 		)
 	}
 
