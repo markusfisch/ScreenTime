@@ -45,19 +45,17 @@ class Database {
 		var count = 0
 		var start = 0L
 		if (cursor.moveToFirst()) {
-			var on = false
 			do {
 				val ts = cursor.getLong(0)
 				when (cursor.getString(1)) {
 					EVENT_SCREEN_ON -> {
 						start = Math.max(startOfDay, ts)
-						on = true
 					}
-					EVENT_SCREEN_OFF -> if (on) {
+					EVENT_SCREEN_OFF -> if (start > 0L) {
 						val ms = Math.min(endOfDay, ts) - start
 						millisecs += ms
 						++count
-						on = false
+						start = 0L
 					}
 					else -> throw IllegalArgumentException(
 						"Unknown event: ${cursor.getString(1)}"
