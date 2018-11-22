@@ -1,9 +1,9 @@
 package de.markusfisch.android.screentime.service
 
+import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.Database
-import de.markusfisch.android.screentime.notification.createNotification
-import de.markusfisch.android.screentime.notification.getDefaultIntent
+import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.SCREEN_STATE
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import de.markusfisch.android.screentime.receiver.ScreenReceiver
@@ -50,7 +50,7 @@ class TrackerService : Service() {
 		) as PowerManager
 
 		GlobalScope.launch {
-			val notification = createNotification(this@TrackerService)
+			val notification = buildNotification(this@TrackerService)
 			GlobalScope.launch(Main) {
 				startForeground(ID, notification)
 			}
@@ -96,43 +96,43 @@ class TrackerService : Service() {
 		handler.removeCallbacks(updateNotificationRunnable)
 	}
 
+	private fun scheduleNotificationUpdate(delay: Long) {
+		cancelNotificationUpdate()
+		if (powerManager.isInteractive) {
+			handler.postDelayed(updateNotificationRunnable, delay)
+		}
+	}
+
 	private fun updateNotification() {
 		GlobalScope.launch {
-			val notification = createNotification(this@TrackerService, true)
+			val notification = buildNotification(this@TrackerService, true)
 			GlobalScope.launch(Main) {
 				notificationManager.notify(ID, notification)
 			}
 		}
 	}
 
-	private fun createNotification(
-			context: Context,
-			schedule: Boolean = false
+	private fun buildNotification(
+		context: Context,
+		schedule: Boolean = false
 	): Notification {
 		val now = System.currentTimeMillis()
 		val stats = db.getStatsOfDay(now)
-		val text = String.format(
-			getString(R.string.notification_text_template),
-			stats.count,
-			stats.averageColloquial()
-		)
 		if (schedule) {
+			// calculate milliseconds until the minute value changes
 			scheduleNotificationUpdate(60000L - stats.currently(now) % 60000L)
 		}
-		return createNotification(
+		return buildNotification(
 			context,
 			R.drawable.notify,
 			stats.currentlyColloquial(now),
-			text,
-			getDefaultIntent(context)
+			String.format(
+				getString(R.string.notification_text_template),
+				stats.count,
+				stats.averageColloquial()
+			),
+			Intent(context, MainActivity::class.java)
 		)
-	}
-
-	private fun scheduleNotificationUpdate(delay: Long) {
-		cancelNotificationUpdate()
-		if (powerManager.isInteractive) {
-			handler.postDelayed(updateNotificationRunnable, delay)
-		}
 	}
 
 	companion object {

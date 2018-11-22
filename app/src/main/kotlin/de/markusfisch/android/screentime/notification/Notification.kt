@@ -14,7 +14,7 @@ import android.os.Build
 
 const val CHANNEL_RECORDING = "screen_time_recording"
 
-fun createNotification(
+fun buildNotification(
 	context: Context,
 	icon: Int,
 	title: String,
@@ -57,13 +57,4 @@ fun createChannel(context: Context) {
 		channel.enableVibration(false)
 		nm.createNotificationChannel(channel)
 	}
-}
-
-fun getDefaultIntent(context: Context): Intent  {
-	val intent = Intent(context, MainActivity::class.java)
-	intent.addFlags(
-		Intent.FLAG_ACTIVITY_NEW_TASK or
-		Intent.FLAG_ACTIVITY_SINGLE_TOP
-	)
-	return intent
 }
