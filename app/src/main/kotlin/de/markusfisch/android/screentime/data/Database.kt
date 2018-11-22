@@ -160,10 +160,12 @@ fun getEndOfDay(timestamp: Long): Long {
 fun timeColloquialPrecisely(seconds: Long): String {
 	return when (seconds) {
 		in 0..59 -> String.format("%ds", seconds)
-		in 60..3599 -> String.format("%dm %ds",
+		60L -> "1m"
+		in 61..3599 -> String.format("%dm %ds",
 			(seconds / 60) % 60,
 			seconds % 60
 		)
+		3600L -> "1h"
 		else -> String.format("%dh %dm %ds",
 			seconds / 3600,
 			(seconds / 60) % 60,
@@ -176,6 +178,7 @@ fun timeColloquial(seconds: Long): String {
 	return when (seconds) {
 		in 0..59 -> String.format("%ds", seconds)
 		in 60..3599 -> String.format("%dm", (seconds / 60) % 60)
+		in 3600..3660 -> "1h"
 		else -> String.format("%dh %dm",
 			seconds / 3600,
 			(seconds / 60) % 60
