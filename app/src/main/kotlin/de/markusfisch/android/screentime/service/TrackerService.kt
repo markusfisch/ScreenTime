@@ -33,14 +33,10 @@ class TrackerService : Service() {
 
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
+	private lateinit var textTemplate: String
 
 	override fun onCreate() {
 		super.onCreate()
-
-		val filter = IntentFilter()
-		filter.addAction(Intent.ACTION_USER_PRESENT)
-		filter.addAction(Intent.ACTION_SCREEN_OFF)
-		registerReceiver(screenReceiver, filter)
 
 		notificationManager = getSystemService(
 			Context.NOTIFICATION_SERVICE
@@ -48,6 +44,12 @@ class TrackerService : Service() {
 		powerManager = getSystemService(
 			Context.POWER_SERVICE
 		) as PowerManager
+		textTemplate = getString(R.string.notification_text_template)
+
+		val filter = IntentFilter()
+		filter.addAction(Intent.ACTION_USER_PRESENT)
+		filter.addAction(Intent.ACTION_SCREEN_OFF)
+		registerReceiver(screenReceiver, filter)
 
 		GlobalScope.launch {
 			val notification = buildNotification(this@TrackerService)
@@ -127,7 +129,7 @@ class TrackerService : Service() {
 			R.drawable.notify,
 			stats.currentlyColloquial(now),
 			String.format(
-				getString(R.string.notification_text_template),
+				textTemplate,
 				stats.count,
 				stats.averageColloquial()
 			),
