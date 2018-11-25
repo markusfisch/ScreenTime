@@ -67,8 +67,8 @@ class MainActivity : Activity() {
 	}
 
 	private fun updateCount() {
-		countView.text = String.format(
-			getString(R.string.count),
+		countView.text = getString(
+			R.string.count,
 			stats.count,
 			stats.averageColloquial()
 		)

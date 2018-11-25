@@ -33,7 +33,6 @@ class TrackerService : Service() {
 
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
-	private lateinit var textTemplate: String
 
 	override fun onCreate() {
 		super.onCreate()
@@ -44,7 +43,6 @@ class TrackerService : Service() {
 		powerManager = getSystemService(
 			Context.POWER_SERVICE
 		) as PowerManager
-		textTemplate = getString(R.string.notification_text_template)
 
 		val filter = IntentFilter()
 		filter.addAction(Intent.ACTION_USER_PRESENT)
@@ -128,10 +126,10 @@ class TrackerService : Service() {
 			context,
 			R.drawable.notify,
 			stats.currentlyColloquial(now),
-			String.format(
-				textTemplate,
-				stats.count,
-				stats.averageColloquial()
+			context.getString(
+				R.string.notification_text_template,
+				stats.averageColloquial(),
+				stats.count
 			),
 			Intent(context, MainActivity::class.java)
 		)
