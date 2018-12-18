@@ -1,6 +1,5 @@
 <resources>
-	<color name="primary">#26df86</color>
-	<color name="primary_dark">#16cf76</color>
-	<color name="accent">#df8626</color>
-	<color name="launcher_background">#1a1a1a</color>
+	<color name="primary">#4dc4e5</color>
+	<color name="primary_dark">#1c9bbf</color>
+	<color name="accent">#c4e54d</color>
 </resources>

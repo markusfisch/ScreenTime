@@ -25,9 +25,9 @@
      borderopacity="1"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.8864392"
-     inkscape:cx="60.778367"
-     inkscape:cy="48.793675"
+     inkscape:zoom="4.432512"
+     inkscape:cx="58.25293"
+     inkscape:cy="54"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -50,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,6 +59,13 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-944.36218)">
+    <rect
+       style="opacity:0.98999999;fill:#4dc4e5;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect5566"
+       width="108"
+       height="108"
+       x="0"
+       y="944.36224" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot3776"
@@ -4386,14 +4393,9 @@
        transform="matrix(-0.21051359,0.36462023,-0.36462023,-0.21051359,-424.73486,2227.8647)"
        id="g6081-6-4-9-7-7" />
     <path
-       inkscape:connector-curvature="0"
-       style="opacity:0.98999999;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:7.6380105;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 41.940608,973.15195 c -1.755528,0 -3.168855,1.41332 -3.168855,3.16886 l 0,42.02849 30.456499,-34.26378 0,-7.76471 c 0,-1.75554 -1.413327,-3.16886 -3.168855,-3.16886 l -24.118789,0 z"
-       id="path6121" />
-    <path
-       inkscape:connector-curvature="0"
-       style="fill:#333333;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 69.228252,984.08552 -30.456499,34.26378 0,2.0542 c 0,1.7556 1.413327,3.1689 3.168855,3.1689 l 24.118789,0 c 1.755528,0 3.168855,-1.4133 3.168855,-3.1689 l 0,-36.31798 z"
-       id="path6125" />
+       style="fill:#1c9bbf;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 104.50781 0 L 8.5058594 108 L 108 108 L 108 0 L 104.50781 0 z "
+       transform="translate(0,944.36218)"
+       id="path6123" />
   </g>
 </svg>
