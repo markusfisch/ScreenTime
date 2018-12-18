@@ -6,7 +6,7 @@ import de.markusfisch.android.screentime.data.Database
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.SCREEN_STATE
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
-import de.markusfisch.android.screentime.receiver.ScreenReceiver
+import de.markusfisch.android.screentime.receiver.EventReceiver
 import de.markusfisch.android.screentime.R
 
 import android.app.Notification
@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-val screenReceiver = ScreenReceiver()
+val screenReceiver = EventReceiver()
 
 class TrackerService : Service() {
 	private val handler = Handler()
