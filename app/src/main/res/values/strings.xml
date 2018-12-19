@@ -2,5 +2,4 @@
 	<string name="app_name">Screen Time</string>
 	<string name="count">%1$d uses, %2$s on average</string>
 	<string name="recording">Recording screen events</string>
-	<string name="notification_text_template">%2$d uses, %1$s on average</string>
 </resources>

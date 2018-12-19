@@ -18,7 +18,6 @@ fun buildNotification(
 	context: Context,
 	icon: Int,
 	title: String,
-	text: String,
 	intent: Intent
 ): Notification {
 	return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -31,7 +30,6 @@ fun buildNotification(
 		.setOnlyAlertOnce(true)
 		.setSmallIcon(icon)
 		.setContentTitle(title)
-		.setContentText(text)
 		.setContentIntent(
 			PendingIntent.getActivity(context, 0, intent, 0)
 		)

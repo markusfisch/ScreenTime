@@ -126,11 +126,6 @@ class TrackerService : Service() {
 			context,
 			R.drawable.notify,
 			stats.currentlyColloquial(now),
-			context.getString(
-				R.string.notification_text_template,
-				stats.averageColloquial(),
-				stats.count
-			),
 			Intent(context, MainActivity::class.java)
 		)
 	}
