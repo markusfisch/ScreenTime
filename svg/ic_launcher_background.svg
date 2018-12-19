@@ -25,9 +25,9 @@
      borderopacity="1"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.432512"
-     inkscape:cx="58.25293"
-     inkscape:cy="54"
+     inkscape:zoom="3.324384"
+     inkscape:cx="54"
+     inkscape:cy="71.736628"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -50,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,13 +59,6 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-944.36218)">
-    <rect
-       style="opacity:0.98999999;fill:#4dc4e5;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect5566"
-       width="108"
-       height="108"
-       x="0"
-       y="944.36224" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot3776"
@@ -4392,10 +4385,22 @@
     <g
        transform="matrix(-0.21051359,0.36462023,-0.36462023,-0.21051359,-424.73486,2227.8647)"
        id="g6081-6-4-9-7-7" />
+    <circle
+       style="fill:#4dc4e5;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle5020"
+       cx="54"
+       cy="998.36218"
+       r="78.115211" />
     <path
-       style="fill:#1c9bbf;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 104.50781 0 L 8.5058594 108 L 108 108 L 108 0 L 104.50781 0 z "
-       transform="translate(0,944.36218)"
-       id="path6123" />
+       id="circle5027"
+       style="fill:#1c9bbf;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:type="arc"
+       sodipodi:cx="54"
+       sodipodi:cy="998.36218"
+       sodipodi:rx="78.115211"
+       sodipodi:ry="78.115211"
+       sodipodi:start="6.0213859"
+       sodipodi:end="3.9269908"
+       d="M 129.4535,978.14448 A 78.115211,78.115211 0 0 1 87.012916,1069.1586 78.115211,78.115211 0 0 1 -9.9882344,1043.1672 78.115211,78.115211 0 0 1 -1.2357967,943.12639 L 54,998.36218 Z" />
   </g>
 </svg>
