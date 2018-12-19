@@ -124,7 +124,7 @@ class TrackerService : Service() {
 		}
 		return buildNotification(
 			context,
-			R.drawable.notify,
+			R.drawable.ic_notify,
 			stats.currentlyColloquial(now),
 			Intent(context, MainActivity::class.java)
 		)
