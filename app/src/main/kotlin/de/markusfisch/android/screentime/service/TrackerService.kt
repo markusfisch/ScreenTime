@@ -4,6 +4,7 @@ import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.Database
 import de.markusfisch.android.screentime.notification.buildNotification
+import de.markusfisch.android.screentime.receiver.UPDATE_NOTIFICATION
 import de.markusfisch.android.screentime.receiver.SCREEN_STATE
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import de.markusfisch.android.screentime.receiver.EventReceiver
@@ -71,7 +72,9 @@ class TrackerService : Service() {
 		flags: Int,
 		startId: Int
 	): Int {
-		if (intent?.hasExtra(SCREEN_STATE) == true &&
+		if (intent?.hasExtra(UPDATE_NOTIFICATION) == true) {
+			updateNotification()
+		} else if (intent?.hasExtra(SCREEN_STATE) == true &&
 			intent.hasExtra(TIMESTAMP)
 		) {
 			val screenOn = intent.getBooleanExtra(SCREEN_STATE, true)
