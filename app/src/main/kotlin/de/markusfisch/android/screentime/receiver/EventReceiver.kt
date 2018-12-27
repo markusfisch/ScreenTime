@@ -1,6 +1,5 @@
 package de.markusfisch.android.screentime.receiver
 
-import de.markusfisch.android.screentime.service.TrackerService
 import de.markusfisch.android.screentime.service.startTrackerService
 
 import android.content.BroadcastReceiver
@@ -24,15 +23,15 @@ class EventReceiver : BroadcastReceiver() {
 	}
 
 	private fun sendNotificationIntent(context: Context) {
-		val intent = Intent(context, TrackerService::class.java)
-		intent.putExtra(UPDATE_NOTIFICATION, true)
-		startTrackerService(context, intent)
+		startTrackerService(context, { intent ->
+			intent.putExtra(UPDATE_NOTIFICATION, true)
+		})
 	}
 
 	private fun sendStateIntent(context: Context, state: Boolean) {
-		val intent = Intent(context, TrackerService::class.java)
-		intent.putExtra(SCREEN_STATE, state)
-		intent.putExtra(TIMESTAMP, System.currentTimeMillis())
-		startTrackerService(context, intent)
+		startTrackerService(context, { intent ->
+			intent.putExtra(SCREEN_STATE, state)
+			intent.putExtra(TIMESTAMP, System.currentTimeMillis())
+		})
 	}
 }

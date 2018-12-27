@@ -27,7 +27,14 @@ import kotlinx.coroutines.launch
 
 val screenReceiver = EventReceiver()
 
-fun startTrackerService(context: Context, intent: Intent) {
+fun startTrackerService(
+	context: Context,
+	callback: ((intent: Intent) -> Any)? = null
+) {
+	val intent = Intent(context, TrackerService::class.java)
+	callback?.let {
+		callback(intent)
+	}
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 		context.startForegroundService(intent)
 	} else {
