@@ -23,15 +23,15 @@ class EventReceiver : BroadcastReceiver() {
 	}
 
 	private fun sendNotificationIntent(context: Context) {
-		startTrackerService(context, { intent ->
+		startTrackerService(context) { intent ->
 			intent.putExtra(UPDATE_NOTIFICATION, true)
-		})
+		}
 	}
 
 	private fun sendStateIntent(context: Context, state: Boolean) {
-		startTrackerService(context, { intent ->
+		startTrackerService(context) { intent ->
 			intent.putExtra(SCREEN_STATE, state)
 			intent.putExtra(TIMESTAMP, System.currentTimeMillis())
-		})
+		}
 	}
 }
