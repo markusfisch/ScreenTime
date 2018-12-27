@@ -108,10 +108,6 @@ class Database {
 		return db.insert(EVENTS, null, cv)
 	}
 
-	fun deleteEvent(id: Long) {
-		db.delete(EVENTS, "$EVENTS_ID = ?", arrayOf("$id"))
-	}
-
 	private class OpenHelper(context: Context) :
 		SQLiteOpenHelper(context, "events.db", null, 1) {
 		override fun onCreate(db: SQLiteDatabase) {
