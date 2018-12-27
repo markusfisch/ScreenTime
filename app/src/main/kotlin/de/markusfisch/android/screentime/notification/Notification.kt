@@ -1,6 +1,5 @@
 package de.markusfisch.android.screentime.notification
 
-import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.R
 
 import android.annotation.TargetApi
