@@ -1,5 +1,7 @@
 package de.markusfisch.android.screentime.data
 
+import de.markusfisch.android.screentime.BuildConfig
+
 import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
@@ -77,9 +79,12 @@ class Database {
 						++count
 						start = 0L
 					}
-					else -> throw IllegalArgumentException(
-						"Unknown event: ${cursor.getString(1)}"
-					)
+					else -> if (BuildConfig.DEBUG) {
+						android.util.Log.d(
+							"TrackerService",
+							"Unknown event: ${cursor.getString(1)}"
+						)
+					}
 				}
 			} while (cursor.moveToNext())
 		}

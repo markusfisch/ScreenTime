@@ -16,6 +16,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.PowerManager
@@ -25,6 +26,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 val screenReceiver = EventReceiver()
+
+fun startTrackerService(context: Context, intent: Intent) {
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+		context.startForegroundService(intent)
+	} else {
+		context.startService(intent)
+	}
+}
 
 class TrackerService : Service() {
 	private val handler = Handler()

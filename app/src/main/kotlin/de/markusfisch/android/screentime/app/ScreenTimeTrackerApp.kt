@@ -2,6 +2,7 @@ package de.markusfisch.android.screentime.app
 
 import de.markusfisch.android.screentime.data.Database
 import de.markusfisch.android.screentime.service.TrackerService
+import de.markusfisch.android.screentime.service.startTrackerService
 
 import android.app.Application
 import android.content.Intent
@@ -12,6 +13,6 @@ class ScreenTimeTrackerApp : Application() {
 	override fun onCreate() {
 		super.onCreate()
 		db.open(this)
-		startService(Intent(this, TrackerService::class.java))
+		startTrackerService(this, Intent(this, TrackerService::class.java))
 	}
 }
