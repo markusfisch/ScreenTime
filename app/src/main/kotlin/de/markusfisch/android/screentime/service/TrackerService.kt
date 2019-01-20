@@ -4,9 +4,10 @@ import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.Database
 import de.markusfisch.android.screentime.notification.buildNotification
-import de.markusfisch.android.screentime.receiver.UPDATE_NOTIFICATION
+import de.markusfisch.android.screentime.receiver.BATTERY_LEVEL
 import de.markusfisch.android.screentime.receiver.SCREEN_STATE
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
+import de.markusfisch.android.screentime.receiver.UPDATE_NOTIFICATION
 import de.markusfisch.android.screentime.receiver.EventReceiver
 import de.markusfisch.android.screentime.R
 
@@ -100,7 +101,8 @@ class TrackerService : Service() {
 					Database.EVENT_SCREEN_ON
 				} else {
 					Database.EVENT_SCREEN_OFF
-				}
+				},
+				intent.getFloatExtra(BATTERY_LEVEL, 0f)
 			)
 			if (screenOn) {
 				updateNotification()

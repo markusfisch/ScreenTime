@@ -5,10 +5,13 @@ import de.markusfisch.android.screentime.service.startTrackerService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 
 const val UPDATE_NOTIFICATION = "update_notification"
 const val SCREEN_STATE = "screen_state"
 const val TIMESTAMP = "timestamp"
+const val BATTERY_LEVEL = "battery_level"
 
 class EventReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
@@ -32,6 +35,21 @@ class EventReceiver : BroadcastReceiver() {
 		startTrackerService(context) { intent ->
 			intent.putExtra(SCREEN_STATE, state)
 			intent.putExtra(TIMESTAMP, System.currentTimeMillis())
+			intent.putExtra(BATTERY_LEVEL, getBatteryLevel(context))
 		}
+	}
+}
+
+private fun getBatteryLevel(context: Context): Float {
+	val status = context.registerReceiver(
+		null,
+		IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+	)
+	return if (status != null) {
+		val level = status.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+		val scale = status.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+		return level.toFloat() / scale.toFloat()
+	} else {
+		0f
 	}
 }

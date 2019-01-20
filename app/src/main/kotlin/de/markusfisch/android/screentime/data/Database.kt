@@ -101,15 +101,16 @@ class Database {
 		)
 	}
 
-	fun insertEvent(timestamp: Long, name: String): Long {
+	fun insertEvent(timestamp: Long, name: String, battery: Float): Long {
 		val cv = ContentValues()
 		cv.put(EVENTS_TIMESTAMP, timestamp)
 		cv.put(EVENTS_NAME, name)
+		cv.put(EVENTS_BATTERY, battery)
 		return db.insert(EVENTS, null, cv)
 	}
 
 	private class OpenHelper(context: Context) :
-		SQLiteOpenHelper(context, "events.db", null, 1) {
+		SQLiteOpenHelper(context, "events.db", null, 2) {
 		override fun onCreate(db: SQLiteDatabase) {
 			createEvents(db)
 		}
@@ -119,6 +120,9 @@ class Database {
 			oldVersion: Int,
 			newVersion: Int
 		) {
+			if (oldVersion < 2) {
+				addBatteryLevel(db)
+			}
 		}
 	}
 
@@ -130,6 +134,7 @@ class Database {
 		const val EVENTS_ID = "_id"
 		const val EVENTS_TIMESTAMP = "_timestamp"
 		const val EVENTS_NAME = "name"
+		const val EVENTS_BATTERY = "battery"
 
 		private fun createEvents(db: SQLiteDatabase) {
 			db.execSQL("DROP TABLE IF EXISTS $EVENTS")
@@ -137,8 +142,13 @@ class Database {
 				"""CREATE TABLE $EVENTS (
 					$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
 					$EVENTS_TIMESTAMP TIMESTAMP,
-					$EVENTS_NAME TEXT NOT NULL)"""
+					$EVENTS_NAME TEXT NOT NULL,
+					$EVENTS_BATTERY REAL)"""
 			)
+		}
+
+		private fun addBatteryLevel(db: SQLiteDatabase) {
+			db.execSQL("ALTER TABLE $EVENTS ADD COLUMN $EVENTS_BATTERY REAL")
 		}
 	}
 }
