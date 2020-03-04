@@ -110,7 +110,7 @@ class TrackerService : Service() {
 				cancelNotificationUpdate()
 			}
 		}
-		return Service.START_STICKY
+		return START_STICKY
 	}
 
 	private fun cancelNotificationUpdate() {
