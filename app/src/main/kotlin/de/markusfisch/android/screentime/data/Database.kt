@@ -4,10 +4,8 @@ import de.markusfisch.android.screentime.BuildConfig
 
 import android.content.ContentValues
 import android.content.Context
-import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.preference.PreferenceManager
 
 import java.util.Calendar
 
@@ -24,11 +22,9 @@ data class Stats(
 }
 
 class Database {
-	private lateinit var preferences: SharedPreferences
 	private lateinit var db: SQLiteDatabase
 
 	fun open(context: Context) {
-		preferences = PreferenceManager.getDefaultSharedPreferences(context)
 		db = OpenHelper(context).writableDatabase
 	}
 
