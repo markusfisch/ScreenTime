@@ -23,5 +23,8 @@ start:
 uninstall:
 	adb $(TARGET) uninstall $(PACKAGE)
 
+avocado:
+	avocado $(shell fgrep -rl '<vector' app/src/main/res)
+
 clean:
 	./gradlew clean
