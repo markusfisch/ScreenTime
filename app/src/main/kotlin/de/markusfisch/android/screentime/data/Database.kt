@@ -1,13 +1,11 @@
 package de.markusfisch.android.screentime.data
 
-import de.markusfisch.android.screentime.BuildConfig
-
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-
-import java.util.Calendar
+import de.markusfisch.android.screentime.BuildConfig
+import java.util.*
 
 data class Stats(
 	val total: Long,

@@ -1,13 +1,11 @@
 package de.markusfisch.android.screentime.activity
 
-import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.Stats
-import de.markusfisch.android.screentime.R
-
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
-
+import de.markusfisch.android.screentime.R
+import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.data.Stats
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

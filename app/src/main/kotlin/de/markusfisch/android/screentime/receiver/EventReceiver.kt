@@ -1,12 +1,11 @@
 package de.markusfisch.android.screentime.receiver
 
-import de.markusfisch.android.screentime.service.startTrackerService
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import de.markusfisch.android.screentime.service.startTrackerService
 
 const val UPDATE_NOTIFICATION = "update_notification"
 const val SCREEN_STATE = "screen_state"

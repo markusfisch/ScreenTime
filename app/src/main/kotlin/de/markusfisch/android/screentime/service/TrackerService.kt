@@ -1,16 +1,5 @@
 package de.markusfisch.android.screentime.service
 
-import de.markusfisch.android.screentime.activity.MainActivity
-import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.Database
-import de.markusfisch.android.screentime.notification.buildNotification
-import de.markusfisch.android.screentime.receiver.BATTERY_LEVEL
-import de.markusfisch.android.screentime.receiver.SCREEN_STATE
-import de.markusfisch.android.screentime.receiver.TIMESTAMP
-import de.markusfisch.android.screentime.receiver.UPDATE_NOTIFICATION
-import de.markusfisch.android.screentime.receiver.EventReceiver
-import de.markusfisch.android.screentime.R
-
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
@@ -21,7 +10,12 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.PowerManager
-
+import de.markusfisch.android.screentime.R
+import de.markusfisch.android.screentime.activity.MainActivity
+import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.data.Database
+import de.markusfisch.android.screentime.notification.buildNotification
+import de.markusfisch.android.screentime.receiver.*
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
