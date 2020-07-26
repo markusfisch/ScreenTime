@@ -113,9 +113,18 @@ class TrackerService : Service() {
 
 	private fun scheduleNotificationUpdate(delay: Long) {
 		cancelNotificationUpdate()
-		if (powerManager.isInteractive) {
+		if (isInteractive()) {
 			handler.postDelayed(updateNotificationRunnable, delay)
 		}
+	}
+
+	private fun isInteractive() = if (
+		Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH
+	) {
+		powerManager.isInteractive
+	} else {
+		@Suppress("DEPRECATION")
+		powerManager.isScreenOn
 	}
 
 	private fun updateNotification() {

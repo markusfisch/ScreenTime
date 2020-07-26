@@ -18,20 +18,40 @@ fun buildNotification(
 	title: String,
 	intent: Intent
 ): Notification {
-	return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+	val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+	return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 		@Suppress("DEPRECATION")
-		Notification.Builder(context).setPriority(Notification.PRIORITY_MIN)
+		val notification = Notification(icon, title, System.currentTimeMillis())
+		notification.contentIntent = pendingIntent
+		notification.flags = notification.flags or
+				Notification.FLAG_ONGOING_EVENT or
+				Notification.FLAG_ONLY_ALERT_ONCE
+		notification
 	} else {
-		createChannel(context)
-		Notification.Builder(context, CHANNEL_RECORDING)
-	}.setOngoing(true)
-		.setOnlyAlertOnce(true)
-		.setSmallIcon(icon)
-		.setContentTitle(title)
-		.setContentIntent(
-			PendingIntent.getActivity(context, 0, intent, 0)
-		)
-		.build()
+		val builder = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+			@Suppress("DEPRECATION")
+			val b = Notification.Builder(context)
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				@Suppress("DEPRECATION")
+				b.setPriority(Notification.PRIORITY_MIN)
+			}
+			b
+		} else {
+			createChannel(context)
+			Notification.Builder(context, CHANNEL_RECORDING)
+		}.setOngoing(true)
+			.setOnlyAlertOnce(true)
+			.setSmallIcon(icon)
+			.setContentTitle(title)
+			.setContentIntent(pendingIntent)
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			@Suppress("DEPRECATION")
+			builder.notification
+		} else {
+			builder.build()
+		}
+	}
 }
 
 @TargetApi(Build.VERSION_CODES.O)
