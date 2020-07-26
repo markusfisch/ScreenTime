@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.widget.RemoteViews
 import de.markusfisch.android.screentime.R
 
 const val CHANNEL_RECORDING = "screen_time_recording"
@@ -20,9 +21,16 @@ fun buildNotification(
 ): Notification {
 	val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 	return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+		val remoteViews = RemoteViews(
+			context.packageName,
+			R.layout.notification
+		)
+		remoteViews.setTextViewText(R.id.notification_title, title)
 		@Suppress("DEPRECATION")
 		val notification = Notification(icon, title, System.currentTimeMillis())
 		notification.contentIntent = pendingIntent
+		@Suppress("DEPRECATION")
+		notification.contentView = remoteViews
 		notification.flags = notification.flags or
 				Notification.FLAG_ONGOING_EVENT or
 				Notification.FLAG_ONLY_ALERT_ONCE
