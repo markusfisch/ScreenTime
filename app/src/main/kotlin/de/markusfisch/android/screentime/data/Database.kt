@@ -6,6 +6,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import de.markusfisch.android.screentime.BuildConfig
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToLong
 
 data class Stats(
 	val total: Long,
@@ -13,7 +16,7 @@ data class Stats(
 	val start: Long,
 	val average: Long
 ) {
-	fun currently(now: Long) = total + Math.max(0, now - start)
+	fun currently(now: Long) = total + max(0, now - start)
 	fun currentlyInSeconds(now: Long) = currently(now) / 1000L
 	fun currentlyColloquial(now: Long) = timeColloquial(currentlyInSeconds(now))
 	fun averageColloquial() = timeColloquialPrecisely(average)
@@ -66,10 +69,10 @@ class Database {
 				val ts = cursor.getLong(0)
 				when (cursor.getString(1)) {
 					EVENT_SCREEN_ON -> if (ts < endOfDay) {
-						start = Math.max(startOfDay, ts)
+						start = max(startOfDay, ts)
 					}
 					EVENT_SCREEN_OFF -> if (start > 0L) {
-						val ms = Math.min(endOfDay, ts) - start
+						val ms = min(endOfDay, ts) - start
 						total += ms
 						++count
 						start = 0L
@@ -92,7 +95,7 @@ class Database {
 			} else {
 				System.currentTimeMillis()
 			},
-			Math.round(total.toDouble() / count.toDouble() / 1000.0)
+			(total.toDouble() / count.toDouble() / 1000.0).roundToLong()
 		)
 	}
 
