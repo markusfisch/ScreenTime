@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import de.markusfisch.android.screentime.BuildConfig
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -76,12 +75,6 @@ class Database {
 						total += ms
 						++count
 						start = 0L
-					}
-					else -> if (BuildConfig.DEBUG) {
-						android.util.Log.d(
-							"TrackerService",
-							"Unknown event: ${cursor.getString(1)}"
-						)
 					}
 				}
 			} while (cursor.moveToNext())
