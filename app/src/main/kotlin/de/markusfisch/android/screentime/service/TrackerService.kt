@@ -38,7 +38,7 @@ fun startTrackerService(
 }
 
 class TrackerService : Service() {
-	private val handler = Handler()
+	private val handler = Handler(mainLooper)
 	private val updateNotificationRunnable = Runnable {
 		updateNotification()
 	}
