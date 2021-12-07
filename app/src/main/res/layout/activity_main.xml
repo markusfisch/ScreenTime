@@ -2,18 +2,25 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
+	<ImageView
+		android:id="@+id/graph"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_above="@+id/time"
+		android:padding="16dp"
+		android:contentDescription="@string/usage_graph" />
 	<TextView
 		android:id="@+id/time"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_centerVertical="true"
+		android:layout_above="@+id/count"
 		android:gravity="center"
 		android:textSize="72sp"/>
 	<TextView
 		android:id="@+id/count"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/time"
+		android:layout_alignParentBottom="true"
 		android:gravity="center"
 		android:padding="16dp"/>
 </RelativeLayout>

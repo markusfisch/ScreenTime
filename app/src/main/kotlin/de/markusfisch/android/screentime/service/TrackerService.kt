@@ -13,11 +13,12 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.data.summarizeDay
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.*
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import java.lang.Runnable
+import kotlin.coroutines.CoroutineContext
 
 val screenReceiver = EventReceiver()
 
@@ -36,8 +37,12 @@ fun startTrackerService(
 	}
 }
 
-class TrackerService : Service() {
-	private val handler = Handler(mainLooper)
+class TrackerService : Service(), CoroutineScope {
+	override val coroutineContext: CoroutineContext
+		get() = Dispatchers.IO + job
+
+	private val job = SupervisorJob()
+	private val handler = Handler()
 	private val updateNotificationRunnable = Runnable {
 		updateNotification()
 	}
@@ -60,9 +65,9 @@ class TrackerService : Service() {
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		registerReceiver(screenReceiver, filter)
 
-		GlobalScope.launch {
+		launch {
 			val notification = buildNotification(this@TrackerService)
-			GlobalScope.launch(Main) {
+			withContext(Dispatchers.Main) {
 				startForeground(ID, notification)
 			}
 		}
@@ -71,6 +76,7 @@ class TrackerService : Service() {
 	override fun onDestroy() {
 		super.onDestroy()
 		unregisterReceiver(screenReceiver)
+		coroutineContext.cancelChildren()
 	}
 
 	override fun onBind(intent: Intent): IBinder? {
@@ -123,9 +129,9 @@ class TrackerService : Service() {
 	}
 
 	private fun updateNotification() {
-		GlobalScope.launch {
+		launch {
 			val notification = buildNotification(this@TrackerService, true)
-			GlobalScope.launch(Main) {
+			withContext(Dispatchers.Main) {
 				notificationManager.notify(ID, notification)
 			}
 		}
@@ -136,15 +142,15 @@ class TrackerService : Service() {
 		schedule: Boolean = false
 	): Notification {
 		val now = System.currentTimeMillis()
-		val stats = db.getStatsOfDay(now)
+		val summary = summarizeDay(now)
 		if (schedule) {
 			// calculate milliseconds until the minute value changes
-			scheduleNotificationUpdate(60000L - stats.currently(now) % 60000L)
+			scheduleNotificationUpdate(60000L - summary.currently(now) % 60000L)
 		}
 		return buildNotification(
 			context,
 			R.drawable.ic_notify,
-			stats.currentlyColloquial(now),
+			summary.currentlyColloquial(now),
 			Intent(context, MainActivity::class.java)
 		)
 	}

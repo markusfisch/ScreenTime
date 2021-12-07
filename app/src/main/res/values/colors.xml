@@ -2,4 +2,5 @@
 	<color name="primary">#4dc4e5</color>
 	<color name="primary_dark">#1c9bbf</color>
 	<color name="accent">#c4e54d</color>
+	<color name="dial">#f0f0f0</color>
 </resources>

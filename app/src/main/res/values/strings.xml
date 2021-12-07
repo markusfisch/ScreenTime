@@ -2,4 +2,5 @@
 	<string name="app_name">Screen Time</string>
 	<string name="count">%1$d uses, %2$s on average</string>
 	<string name="recording">Recording screen events</string>
+	<string name="usage_graph">Usage graph</string>
 </resources>

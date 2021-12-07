@@ -8,19 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToLong
-
-data class Stats(
-	val total: Long,
-	val count: Int,
-	val start: Long,
-	val average: Long
-) {
-	fun currently(now: Long) = total + max(0, now - start)
-	fun currentlyInSeconds(now: Long) = currently(now) / 1000L
-	fun currentlyColloquial(now: Long) = timeColloquial(currentlyInSeconds(now))
-	fun averageColloquial() = timeColloquialPrecisely(average)
-}
 
 class Database {
 	private lateinit var db: SQLiteDatabase
@@ -29,31 +16,12 @@ class Database {
 		db = OpenHelper(context).writableDatabase
 	}
 
-	fun getStatsOfDay(timestamp: Long): Stats {
-		var total = 0L
-		var count = 0
-		val lastStart = forEachRowOfDay(timestamp) { _, duration ->
-			total += duration
-			++count
-		}
-		return Stats(
-			total,
-			count,
-			if (lastStart > 0L) {
-				lastStart
-			} else {
-				System.currentTimeMillis()
-			},
-			(total.toDouble() / count.toDouble() / 1000.0).roundToLong()
-		)
-	}
-
-	private fun forEachRowOfDay(
+	fun forEachRecordOfDay(
 		timestamp: Long,
 		callback: (start: Long, duration: Long) -> Unit
 	): Long {
-		val startOfDay = getStartOfDay(timestamp)
-		val endOfDay = getEndOfDay(timestamp)
+		val startOfDay = startOfDay(timestamp)
+		val endOfDay = endOfDay(timestamp)
 		var start = 0L
 		db.getRecordsBetween(startOfDay, endOfDay).use {
 			if (it.moveToFirst()) {
@@ -151,7 +119,7 @@ class Database {
 	}
 }
 
-fun getStartOfDay(timestamp: Long): Long = Calendar.getInstance().run {
+private fun startOfDay(timestamp: Long): Long = Calendar.getInstance().run {
 	timeInMillis = timestamp
 	set(Calendar.HOUR_OF_DAY, 0)
 	set(Calendar.MINUTE, 0)
@@ -159,7 +127,7 @@ fun getStartOfDay(timestamp: Long): Long = Calendar.getInstance().run {
 	return timeInMillis
 }
 
-fun getEndOfDay(timestamp: Long): Long = Calendar.getInstance().run {
+private fun endOfDay(timestamp: Long): Long = Calendar.getInstance().run {
 	timeInMillis = timestamp
 	set(Calendar.HOUR_OF_DAY, 23)
 	set(Calendar.MINUTE, 59)
@@ -167,44 +135,16 @@ fun getEndOfDay(timestamp: Long): Long = Calendar.getInstance().run {
 	return timeInMillis
 }
 
-fun timeColloquialPrecisely(seconds: Long): String = when (seconds) {
-	in 0..59 -> String.format("%ds", seconds)
-	60L -> "1m"
-	in 61..3599 -> String.format(
-		"%dm %ds",
-		(seconds / 60) % 60,
-		seconds % 60
-	)
-	3600L -> "1h"
-	else -> String.format(
-		"%dh %dm %ds",
-		seconds / 3600,
-		(seconds / 60) % 60,
-		seconds % 60
-	)
-}
-
-fun timeColloquial(seconds: Long): String = when (seconds) {
-	in 0..59 -> String.format("%ds", seconds)
-	in 60..3599 -> String.format("%dm", (seconds / 60) % 60)
-	in 3600..3660 -> "1h"
-	else -> String.format(
-		"%dh %dm",
-		seconds / 3600,
-		(seconds / 60) % 60
-	)
-}
-
 private fun SQLiteDatabase.getRecordsBetween(
-	startOfDay: Long,
-	endOfDay: Long
+	start: Long,
+	end: Long
 ): Cursor = rawQuery(
 	"""
 		SELECT * FROM (SELECT
 			${Database.EVENTS_TIMESTAMP},
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
-			WHERE ${Database.EVENTS_TIMESTAMP} < $startOfDay
+			WHERE ${Database.EVENTS_TIMESTAMP} < $start
 			ORDER BY ${Database.EVENTS_TIMESTAMP} DESC
 			LIMIT 1)
 		UNION
@@ -213,15 +153,15 @@ private fun SQLiteDatabase.getRecordsBetween(
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
 			WHERE ${Database.EVENTS_TIMESTAMP}
-				BETWEEN $startOfDay
-				AND $endOfDay
+				BETWEEN $start
+				AND $end
 			ORDER BY ${Database.EVENTS_TIMESTAMP})
 		UNION
 		SELECT * FROM (SELECT
 			${Database.EVENTS_TIMESTAMP},
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
-			WHERE ${Database.EVENTS_TIMESTAMP} > $endOfDay
+			WHERE ${Database.EVENTS_TIMESTAMP} > $end
 			ORDER BY ${Database.EVENTS_TIMESTAMP}
 			LIMIT 1)
 		""",
