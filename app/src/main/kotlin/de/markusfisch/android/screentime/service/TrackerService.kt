@@ -13,7 +13,6 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.Database
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.*
 import kotlinx.coroutines.Dispatchers.Main
@@ -89,13 +88,9 @@ class TrackerService : Service() {
 			intent.hasExtra(TIMESTAMP)
 		) {
 			val screenOn = intent.getBooleanExtra(SCREEN_STATE, true)
-			db.insertEvent(
+			db.insertScreenEvent(
 				intent.getLongExtra(TIMESTAMP, System.currentTimeMillis()),
-				if (screenOn) {
-					Database.EVENT_SCREEN_ON
-				} else {
-					Database.EVENT_SCREEN_OFF
-				},
+				screenOn,
 				intent.getFloatExtra(BATTERY_LEVEL, 0f)
 			)
 			if (screenOn) {
