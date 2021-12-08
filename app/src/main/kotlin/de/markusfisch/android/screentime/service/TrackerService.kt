@@ -43,7 +43,7 @@ class TrackerService : Service(), CoroutineScope {
 		get() = Dispatchers.IO + job
 
 	private val job = SupervisorJob()
-	private val handler = Handler()
+	private val handler by lazy { Handler(mainLooper) }
 	private val updateNotificationRunnable = Runnable {
 		updateNotification()
 	}
