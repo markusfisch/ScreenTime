@@ -31,11 +31,7 @@ fun summarizeDay(timestamp: Long = System.currentTimeMillis()): Summary {
 		} else {
 			System.currentTimeMillis()
 		},
-		if (count > 0) {
-			(total.toDouble() / count.toDouble() / 1000.0).roundToLong()
-		} else {
-			0
-		}
+		(total.toDouble() / max(1.0, count.toDouble()) / 1000.0).roundToLong()
 	)
 }
 
