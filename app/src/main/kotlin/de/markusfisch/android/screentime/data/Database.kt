@@ -19,22 +19,30 @@ class Database {
 	fun forEachRecordOfDay(
 		timestamp: Long,
 		callback: (start: Long, duration: Long) -> Unit
+	): Long = forEachRecordBetween(
+		startOfDay(timestamp),
+		endOfDay(timestamp),
+		callback
+	)
+
+	fun forEachRecordBetween(
+		from: Long,
+		to: Long,
+		callback: (start: Long, duration: Long) -> Unit
 	): Long {
-		val startOfDay = startOfDay(timestamp)
-		val endOfDay = endOfDay(timestamp)
 		var start = 0L
-		db.getRecordsBetween(startOfDay, endOfDay).use {
+		db.getRecordsBetween(from, to).use {
 			if (it.moveToFirst()) {
 				do {
 					val ts = it.getLong(0)
 					when (it.getString(1)) {
-						EVENT_SCREEN_ON -> if (ts < endOfDay) {
-							start = max(startOfDay, ts)
+						EVENT_SCREEN_ON -> if (ts < to) {
+							start = max(from, ts)
 						}
 						EVENT_SCREEN_OFF -> if (start > 0L) {
 							callback(
-								start - startOfDay,
-								min(endOfDay, ts) - start
+								start - from,
+								min(to, ts) - start
 							)
 							start = 0L
 						}
@@ -136,15 +144,15 @@ private fun endOfDay(timestamp: Long): Long = Calendar.getInstance().run {
 }
 
 private fun SQLiteDatabase.getRecordsBetween(
-	start: Long,
-	end: Long
+	from: Long,
+	to: Long
 ): Cursor = rawQuery(
 	"""
 		SELECT * FROM (SELECT
 			${Database.EVENTS_TIMESTAMP},
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
-			WHERE ${Database.EVENTS_TIMESTAMP} < $start
+			WHERE ${Database.EVENTS_TIMESTAMP} < $from
 			ORDER BY ${Database.EVENTS_TIMESTAMP} DESC
 			LIMIT 1)
 		UNION
@@ -153,15 +161,15 @@ private fun SQLiteDatabase.getRecordsBetween(
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
 			WHERE ${Database.EVENTS_TIMESTAMP}
-				BETWEEN $start
-				AND $end
+				BETWEEN $from
+				AND $to
 			ORDER BY ${Database.EVENTS_TIMESTAMP})
 		UNION
 		SELECT * FROM (SELECT
 			${Database.EVENTS_TIMESTAMP},
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
-			WHERE ${Database.EVENTS_TIMESTAMP} > $end
+			WHERE ${Database.EVENTS_TIMESTAMP} > $to
 			ORDER BY ${Database.EVENTS_TIMESTAMP}
 			LIMIT 1)
 		""",

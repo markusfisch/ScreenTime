@@ -31,11 +31,13 @@ fun drawUsageChart(
 	val paint = fillPaint(
 		((255f / days).roundToInt() shl 24) or (useColor and 0xffffff)
 	)
-	var day = System.currentTimeMillis() - DAY_IN_MS * days
-	for (i in 0 until days) {
-		canvas.drawRecordsOfDay(day, rect, paint)
-		day += DAY_IN_MS
-	}
+	val timestamp = System.currentTimeMillis()
+	canvas.drawRecordsBetween(
+		startOfDay(timestamp - DAY_IN_MS * days),
+		endOfDay(timestamp),
+		rect,
+		paint
+	)
 	return bitmap
 }
 
@@ -119,16 +121,12 @@ private fun Canvas.drawNumber(
 	)
 }
 
-private fun Rect.diagonal(): Float = hypot(
-	width().toFloat(),
-	height().toFloat()
-)
-
-private fun Canvas.drawRecordsOfDay(
-	timestamp: Long,
+private fun Canvas.drawRecordsBetween(
+	from: Long,
+	to: Long,
 	rect: RectF,
 	paint: Paint
-) = db.forEachRecordOfDay(timestamp) { start, duration ->
+) = db.forEachRecordBetween(from, to) { start, duration ->
 	drawArc(
 		rect,
 		dayTimeToAngle(start) - 90f,
