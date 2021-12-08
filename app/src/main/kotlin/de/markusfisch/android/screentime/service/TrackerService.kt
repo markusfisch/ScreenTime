@@ -149,7 +149,7 @@ class TrackerService : Service(), CoroutineScope {
 		val sum = summary ?: summarizeDay(now)
 		summary = sum
 		if (schedule) {
-			// calculate milliseconds until the minute value changes
+			// Calculate milliseconds until the minute value changes.
 			scheduleNotificationUpdate(60000L - sum.currently(now) % 60000L)
 		}
 		return buildNotification(

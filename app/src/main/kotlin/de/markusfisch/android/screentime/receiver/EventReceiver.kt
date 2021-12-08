@@ -16,7 +16,7 @@ class EventReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
 		when (intent?.action) {
 			// *BOOT_COMPLETED doesn't need no handling because
-			// the service is started in ScreenTimeTrackerApp
+			// the service is started in ScreenTimeTrackerApp.
 			Intent.ACTION_SCREEN_ON -> sendNotificationIntent(context)
 			Intent.ACTION_SCREEN_OFF -> sendStateIntent(context, false)
 			Intent.ACTION_USER_PRESENT -> sendStateIntent(context, true)
