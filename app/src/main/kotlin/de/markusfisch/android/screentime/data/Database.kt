@@ -5,7 +5,6 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
@@ -125,22 +124,6 @@ class Database {
 			db.execSQL("ALTER TABLE $EVENTS ADD COLUMN $EVENTS_BATTERY REAL")
 		}
 	}
-}
-
-private fun startOfDay(timestamp: Long): Long = Calendar.getInstance().run {
-	timeInMillis = timestamp
-	set(Calendar.HOUR_OF_DAY, 0)
-	set(Calendar.MINUTE, 0)
-	set(Calendar.SECOND, 0)
-	return timeInMillis
-}
-
-private fun endOfDay(timestamp: Long): Long = Calendar.getInstance().run {
-	timeInMillis = timestamp
-	set(Calendar.HOUR_OF_DAY, 23)
-	set(Calendar.MINUTE, 59)
-	set(Calendar.SECOND, 59)
-	return timeInMillis
 }
 
 private fun SQLiteDatabase.getRecordsBetween(
