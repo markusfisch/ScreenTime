@@ -58,7 +58,7 @@ private fun minSquare(width: Int, height: Int): RectF {
 }
 
 private const val TAU = Math.PI + Math.PI
-private const val PI2 = Math.PI * .5
+private const val PI2 = Math.PI / 2
 private fun Canvas.drawClockFace(
 	rect: RectF,
 	dialPaint: Paint,
@@ -77,6 +77,7 @@ private fun Canvas.drawClockFace(
 	textPaint.textSize = dotRadius * .1f
 	val centerX = rect.centerX()
 	val centerY = rect.centerY()
+	val textBounds = Rect()
 	val steps = 24
 	val step = TAU / steps
 	var angle = 0.0
@@ -87,7 +88,8 @@ private fun Canvas.drawClockFace(
 			"$i",
 			centerX + numberRadius * cos(a).toFloat(),
 			centerY + numberRadius * sin(a).toFloat(),
-			textPaint
+			textPaint,
+			textBounds
 		)
 		i = (i + 1) % steps
 		angle += step
@@ -108,12 +110,12 @@ private fun Canvas.drawClockFace(
 	}
 }
 
-private val textBounds = Rect()
 private fun Canvas.drawNumber(
 	text: String,
 	x: Float,
 	y: Float,
-	textPaint: Paint
+	textPaint: Paint,
+	textBounds: Rect
 ) {
 	textPaint.getTextBounds(text, 0, text.length, textBounds)
 	drawText(
