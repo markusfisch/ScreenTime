@@ -11,7 +11,7 @@ import android.os.Build
 import android.widget.RemoteViews
 import de.markusfisch.android.screentime.R
 
-const val CHANNEL_RECORDING = "screen_time_recording"
+private const val CHANNEL_RECORDING = "screen_time_recording"
 
 fun buildNotification(
 	context: Context,
