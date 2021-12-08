@@ -93,8 +93,7 @@ class MainActivity : Activity(), CoroutineScope {
 			7,
 			resources.getColor(R.color.primary_dark),
 			resources.getColor(R.color.dial),
-			resources.getColor(R.color.primary_dark),
-			dp
+			resources.getColor(R.color.primary_dark)
 		)
 		withContext(Dispatchers.Main) {
 			usageView.setImageBitmap(bitmap)

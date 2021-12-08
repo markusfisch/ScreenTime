@@ -1,15 +1,8 @@
 package de.markusfisch.android.screentime.data
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import de.markusfisch.android.screentime.app.db
-import kotlin.math.cos
-import kotlin.math.min
-import kotlin.math.roundToInt
-import kotlin.math.sin
-
+import kotlin.math.*
 
 private const val DAY_IN_MS = 86400000L
 
@@ -19,8 +12,7 @@ fun drawUsageChart(
 	days: Int,
 	useColor: Int,
 	dialColor: Int,
-	faceColor: Int,
-	faceStrokeWidth: Float
+	numberColor: Int
 ): Bitmap {
 	val rect = minSquare(width, height)
 	val bitmap = Bitmap.createBitmap(
@@ -31,13 +23,12 @@ fun drawUsageChart(
 	val canvas = Canvas(bitmap)
 	canvas.drawClockFace(
 		rect,
-		fill(dialColor),
-		paint(faceColor).apply {
-			style = Paint.Style.STROKE
-			strokeWidth = faceStrokeWidth
+		fillPaint(dialColor),
+		fillPaint(numberColor).apply {
+			typeface = Typeface.DEFAULT_BOLD
 		}
 	)
-	val paint = fill(
+	val paint = fillPaint(
 		((255f / days).roundToInt() shl 24) or (useColor and 0xffffff)
 	)
 	var day = System.currentTimeMillis() - DAY_IN_MS * days
@@ -48,7 +39,7 @@ fun drawUsageChart(
 	return bitmap
 }
 
-private fun fill(col: Int) = paint(col).apply {
+private fun fillPaint(col: Int) = paint(col).apply {
 	style = Paint.Style.FILL
 }
 
@@ -61,33 +52,77 @@ private fun minSquare(width: Int, height: Int): RectF {
 	return RectF(0f, 0f, size, size)
 }
 
-private fun Canvas.drawClockFace(rect: RectF, dialPaint: Paint, facePaint: Paint) {
-	drawArc(
-		rect,
-		0f,
-		360f,
-		true,
+private const val TAU = Math.PI + Math.PI
+private const val PI2 = Math.PI * .5
+private fun Canvas.drawClockFace(
+	rect: RectF,
+	dialPaint: Paint,
+	textPaint: Paint
+) {
+	drawCircle(
+		rect.centerX(),
+		rect.centerY(),
+		min(rect.centerX(), rect.centerY()),
 		dialPaint
 	)
-	val outerRadius = rect.width() / 2f
-	val innerRadius = outerRadius * .9f
+	val dialRadius = rect.width() / 2f
+	val numberRadius = dialRadius * .85f
+	val dotRadius = dialRadius * .95f
+	val dotSize = dotRadius * .01f
+	textPaint.textSize = dotRadius * .1f
 	val centerX = rect.centerX()
 	val centerY = rect.centerY()
-	val step = 6.28 / 24.0
+	val steps = 24
+	val step = TAU / steps
 	var angle = 0.0
-	while (angle < 6.28) {
-		val cos = cos(angle).toFloat()
-		val sin = sin(angle).toFloat()
-		drawLine(
-			centerX + innerRadius * cos,
-			centerY + innerRadius * sin,
-			centerX + outerRadius * cos,
-			centerY + outerRadius * sin,
-			facePaint
+	var i = steps
+	do {
+		val a = angle - PI2
+		drawNumber(
+			"$i",
+			centerX + numberRadius * cos(a).toFloat(),
+			centerY + numberRadius * sin(a).toFloat(),
+			textPaint
 		)
+		i = (i + 1) % steps
 		angle += step
+	} while (i > 0)
+	i = steps * 4
+	val smallDotSize = dotSize * .5f
+	val smallStep = step / 4f
+	while (i > -1) {
+		val a = angle - PI2
+		drawCircle(
+			centerX + dotRadius * cos(a).toFloat(),
+			centerY + dotRadius * sin(a).toFloat(),
+			if (i % 4 == 0) dotSize else smallDotSize,
+			textPaint
+		)
+		angle += smallStep
+		--i
 	}
 }
+
+private val textBounds = Rect()
+private fun Canvas.drawNumber(
+	text: String,
+	x: Float,
+	y: Float,
+	textPaint: Paint
+) {
+	textPaint.getTextBounds(text, 0, text.length, textBounds)
+	drawText(
+		text,
+		x - textBounds.centerX().toFloat(),
+		y - textBounds.centerY().toFloat(),
+		textPaint
+	)
+}
+
+private fun Rect.diagonal(): Float = hypot(
+	width().toFloat(),
+	height().toFloat()
+)
 
 private fun Canvas.drawRecordsOfDay(
 	timestamp: Long,
