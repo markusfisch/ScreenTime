@@ -40,7 +40,10 @@ class MainActivity : Activity(), CoroutineScope {
 	override fun onResume() {
 		super.onResume()
 		paused = false
-		update()
+		// Make sure this runs after layout.
+		usageView.post {
+			update()
+		}
 	}
 
 	override fun onPause() {
