@@ -13,6 +13,7 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.data.Summary
 import de.markusfisch.android.screentime.data.summarizeDay
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.*
@@ -49,6 +50,8 @@ class TrackerService : Service(), CoroutineScope {
 
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
+
+	private var summary: Summary? = null
 
 	override fun onCreate() {
 		super.onCreate()
@@ -103,6 +106,7 @@ class TrackerService : Service(), CoroutineScope {
 				updateNotification()
 			} else {
 				cancelNotificationUpdate()
+				summary = null
 			}
 		}
 		return START_STICKY
@@ -142,15 +146,16 @@ class TrackerService : Service(), CoroutineScope {
 		schedule: Boolean = false
 	): Notification {
 		val now = System.currentTimeMillis()
-		val summary = summarizeDay(now)
+		val sum = summary ?: summarizeDay(now)
+		summary = sum
 		if (schedule) {
 			// calculate milliseconds until the minute value changes
-			scheduleNotificationUpdate(60000L - summary.currently(now) % 60000L)
+			scheduleNotificationUpdate(60000L - sum.currently(now) % 60000L)
 		}
 		return buildNotification(
 			context,
 			R.drawable.ic_notify,
-			summary.currentlyColloquial(now),
+			sum.currentlyColloquial(now),
 			Intent(context, MainActivity::class.java)
 		)
 	}
