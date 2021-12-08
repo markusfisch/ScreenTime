@@ -2,13 +2,17 @@ package de.markusfisch.android.screentime.data
 
 import android.graphics.*
 import de.markusfisch.android.screentime.app.db
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 private const val DAY_IN_MS = 86400000L
 
 fun drawUsageChart(
 	width: Int,
 	height: Int,
+	timestamp: Long,
 	days: Int,
 	useColor: Int,
 	dialColor: Int,
@@ -31,7 +35,6 @@ fun drawUsageChart(
 	val paint = fillPaint(
 		((255f / days).roundToInt() shl 24) or (useColor and 0xffffff)
 	)
-	val timestamp = System.currentTimeMillis()
 	canvas.drawRecordsBetween(
 		startOfDay(timestamp - DAY_IN_MS * days),
 		endOfDay(timestamp),

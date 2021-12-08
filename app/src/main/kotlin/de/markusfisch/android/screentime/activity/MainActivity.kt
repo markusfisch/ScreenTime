@@ -40,9 +40,9 @@ class MainActivity : Activity(), CoroutineScope {
 	override fun onResume() {
 		super.onResume()
 		paused = false
-		// Make sure this runs after layout.
+		// Run update() after layout.
 		usageView.post {
-			update()
+			update(System.currentTimeMillis())
 		}
 	}
 
@@ -57,15 +57,17 @@ class MainActivity : Activity(), CoroutineScope {
 		coroutineContext.cancelChildren()
 	}
 
-	private fun update() {
+	private fun update(timestamp: Long) {
 		launch {
-			generateSummary()
-			generateUsageChart()
+			generateSummary(timestamp)
+			generateUsageChart(timestamp)
 		}
 	}
 
-	private suspend fun generateSummary() = withContext(Dispatchers.IO) {
-		val s = summarizeDay()
+	private suspend fun generateSummary(
+		timestamp: Long
+	) = withContext(Dispatchers.IO) {
+		val s = summarizeDay(timestamp)
 		withContext(Dispatchers.Main) {
 			summary = s
 			if (!paused) {
@@ -76,12 +78,14 @@ class MainActivity : Activity(), CoroutineScope {
 		}
 	}
 
-	private suspend fun generateUsageChart() = withContext(Dispatchers.IO) {
+	private suspend fun generateUsageChart(
+		timestamp: Long
+	) = withContext(Dispatchers.IO) {
 		val width = usageView.measuredWidth
 		val height = usageView.measuredHeight
 		if (width < 1 || height < 1) {
 			usageView.postDelayed({
-				update()
+				update(timestamp)
 			}, 1000)
 			return@withContext
 		}
@@ -90,6 +94,7 @@ class MainActivity : Activity(), CoroutineScope {
 		val bitmap = drawUsageChart(
 			width - padding,
 			height - padding,
+			timestamp,
 			7,
 			resources.getColor(R.color.primary_dark),
 			resources.getColor(R.color.dial),
@@ -101,7 +106,9 @@ class MainActivity : Activity(), CoroutineScope {
 	}
 
 	private fun updateTime() {
-		val seconds = summary.currentlyInSeconds(System.currentTimeMillis())
+		val seconds = summary.currentlyInSeconds(
+			System.currentTimeMillis()
+		)
 		timeView.text = String.format(
 			"%02d:%02d:%02d",
 			seconds / 3600,
