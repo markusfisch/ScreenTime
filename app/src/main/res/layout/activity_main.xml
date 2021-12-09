@@ -2,25 +2,34 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	<ImageView
-		android:id="@+id/graph"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_above="@+id/time"
-		android:padding="16dp"
-		android:contentDescription="@string/usage_graph" />
 	<TextView
 		android:id="@+id/time"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_above="@+id/count"
-		android:gravity="center"
-		android:textSize="72sp"/>
-	<TextView
-		android:id="@+id/count"
+		android:layout_alignParentTop="true"
+		android:layout_marginBottom="8dp"
+		android:padding="16dp"/>
+	<ImageView
+		android:id="@+id/graph"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@+id/time"
+		android:layout_above="@+id/days"
+		android:padding="16dp"
+		android:contentDescription="@string/usage_graph" />
+	<SeekBar
+		android:id="@+id/days"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|start"
 		android:layout_alignParentBottom="true"
-		android:gravity="center"
-		android:padding="16dp"/>
+		android:layout_marginBottom="8dp"
+		android:paddingLeft="24dp"
+		android:paddingStart="24dp"
+		android:paddingRight="24dp"
+		android:paddingEnd="24dp"
+		android:paddingBottom="16dp"
+		android:paddingTop="16dp"
+		android:max="30"
+		android:progress="7"/>
 </RelativeLayout>

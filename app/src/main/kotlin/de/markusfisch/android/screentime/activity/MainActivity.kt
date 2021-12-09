@@ -3,6 +3,7 @@ package de.markusfisch.android.screentime.activity
 import android.app.Activity
 import android.os.Bundle
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.data.Summary
@@ -23,18 +24,38 @@ class MainActivity : Activity(), CoroutineScope {
 		updateTime()
 	}
 
-	private lateinit var usageView: ImageView
 	private lateinit var timeView: TextView
-	private lateinit var countView: TextView
+	private lateinit var usageView: ImageView
+	private lateinit var dayBar: SeekBar
 	private lateinit var summary: Summary
 	private var paused = true
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
 		setContentView(R.layout.activity_main)
-		usageView = findViewById(R.id.graph)
 		timeView = findViewById(R.id.time)
-		countView = findViewById(R.id.count)
+		usageView = findViewById(R.id.graph)
+		dayBar = findViewById(R.id.days)
+
+		dayBar.setOnSeekBarChangeListener(object :
+			SeekBar.OnSeekBarChangeListener {
+			override fun onProgressChanged(
+				seekBar: SeekBar,
+				progress: Int,
+				fromUser: Boolean
+			) {
+				if (fromUser) {
+					// Post to queue changes.
+					dayBar.post {
+						update(System.currentTimeMillis(), progress)
+					}
+				}
+			}
+
+			override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+			override fun onStopTrackingTouch(seekBar: SeekBar) {}
+		})
 	}
 
 	override fun onResume() {
@@ -42,7 +63,7 @@ class MainActivity : Activity(), CoroutineScope {
 		paused = false
 		// Run update() after layout.
 		usageView.post {
-			update(System.currentTimeMillis())
+			update(System.currentTimeMillis(), dayBar.progress)
 		}
 	}
 
@@ -57,10 +78,10 @@ class MainActivity : Activity(), CoroutineScope {
 		coroutineContext.cancelChildren()
 	}
 
-	private fun update(timestamp: Long) {
+	private fun update(timestamp: Long, days: Int) {
 		launch {
 			generateSummary(timestamp)
-			generateUsageChart(timestamp)
+			generateUsageChart(timestamp, days)
 		}
 	}
 
@@ -72,20 +93,20 @@ class MainActivity : Activity(), CoroutineScope {
 			summary = s
 			if (!paused) {
 				updateTime()
-				updateCount()
 				scheduleTimeUpdate()
 			}
 		}
 	}
 
 	private suspend fun generateUsageChart(
-		timestamp: Long
+		timestamp: Long,
+		days: Int
 	) = withContext(Dispatchers.IO) {
 		val width = usageView.measuredWidth
 		val height = usageView.measuredHeight
 		if (width < 1 || height < 1) {
 			usageView.postDelayed({
-				update(timestamp)
+				update(timestamp, days)
 			}, 1000)
 			return@withContext
 		}
@@ -95,7 +116,7 @@ class MainActivity : Activity(), CoroutineScope {
 			width - padding,
 			height - padding,
 			timestamp,
-			7,
+			days,
 			resources.getColor(R.color.primary_dark),
 			resources.getColor(R.color.dial),
 			resources.getColor(R.color.primary_dark)
@@ -109,17 +130,14 @@ class MainActivity : Activity(), CoroutineScope {
 		val seconds = summary.currentlyInSeconds(
 			System.currentTimeMillis()
 		)
-		timeView.text = String.format(
-			"%02d:%02d:%02d",
-			seconds / 3600,
-			(seconds / 60) % 60,
-			seconds % 60
-		)
-	}
-
-	private fun updateCount() {
-		countView.text = getString(
-			R.string.count,
+		timeView.text = getString(
+			R.string.summary,
+			String.format(
+				"%02d:%02d:%02d",
+				seconds / 3600,
+				(seconds / 60) % 60,
+				seconds % 60
+			),
 			summary.count,
 			summary.averageColloquial()
 		)
