@@ -4,13 +4,9 @@ import android.app.Activity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.SeekBar
-import android.widget.TextView
 import de.markusfisch.android.screentime.R
-import de.markusfisch.android.screentime.data.Summary
 import de.markusfisch.android.screentime.data.drawUsageChart
-import de.markusfisch.android.screentime.data.summarizeDay
 import kotlinx.coroutines.*
-import java.lang.Runnable
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
@@ -19,21 +15,18 @@ class MainActivity : Activity(), CoroutineScope {
 		get() = Dispatchers.IO + job
 
 	private val job = SupervisorJob()
-	private val updateTimeRunnable = Runnable {
-		scheduleTimeUpdate()
-		updateTime()
+	private val updateUsageRunnable = Runnable {
+		scheduleUsageUpdate()
+		update(dayBar.progress)
 	}
+	private var paused = true
 
-	private lateinit var timeView: TextView
 	private lateinit var usageView: ImageView
 	private lateinit var dayBar: SeekBar
-	private lateinit var summary: Summary
-	private var paused = true
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
 		setContentView(R.layout.activity_main)
-		timeView = findViewById(R.id.time)
 		usageView = findViewById(R.id.graph)
 		dayBar = findViewById(R.id.days)
 
@@ -47,7 +40,7 @@ class MainActivity : Activity(), CoroutineScope {
 				if (fromUser) {
 					// Post to queue changes.
 					dayBar.post {
-						update(System.currentTimeMillis(), progress)
+						update(progress)
 					}
 				}
 			}
@@ -63,14 +56,14 @@ class MainActivity : Activity(), CoroutineScope {
 		paused = false
 		// Run update() after layout.
 		usageView.post {
-			update(System.currentTimeMillis(), dayBar.progress)
+			update(dayBar.progress)
 		}
 	}
 
 	override fun onPause() {
 		super.onPause()
 		paused = true
-		cancelTimeUpdate()
+		cancelUsageUpdate()
 	}
 
 	override fun onDestroy() {
@@ -78,35 +71,24 @@ class MainActivity : Activity(), CoroutineScope {
 		coroutineContext.cancelChildren()
 	}
 
-	private fun update(timestamp: Long, days: Int) {
+	private fun update(
+		days: Int,
+		timestamp: Long = System.currentTimeMillis()
+	) {
 		launch {
-			generateSummary(timestamp)
-			generateUsageChart(timestamp, days)
-		}
-	}
-
-	private suspend fun generateSummary(
-		timestamp: Long
-	) = withContext(Dispatchers.IO) {
-		val s = summarizeDay(timestamp)
-		withContext(Dispatchers.Main) {
-			summary = s
-			if (!paused) {
-				updateTime()
-				scheduleTimeUpdate()
-			}
+			generateUsageChart(days, timestamp)
 		}
 	}
 
 	private suspend fun generateUsageChart(
-		timestamp: Long,
-		days: Int
+		days: Int,
+		timestamp: Long
 	) = withContext(Dispatchers.IO) {
 		val width = usageView.measuredWidth
 		val height = usageView.measuredHeight
 		if (width < 1 || height < 1) {
 			usageView.postDelayed({
-				update(timestamp, days)
+				update(days, timestamp)
 			}, 1000)
 			return@withContext
 		}
@@ -117,38 +99,29 @@ class MainActivity : Activity(), CoroutineScope {
 			height - padding,
 			timestamp,
 			days,
-			resources.getColor(R.color.primary_dark),
+			if (days > 0) {
+				getString(R.string.last_x_days, days + 1)
+			} else {
+				getString(R.string.today)
+			},
+			resources.getColor(R.color.usage),
 			resources.getColor(R.color.dial),
-			resources.getColor(R.color.primary_dark)
+			resources.getColor(R.color.text)
 		)
 		withContext(Dispatchers.Main) {
 			usageView.setImageBitmap(bitmap)
+			if (!paused) {
+				scheduleUsageUpdate()
+			}
 		}
 	}
 
-	private fun updateTime() {
-		val seconds = summary.currentlyInSeconds(
-			System.currentTimeMillis()
-		)
-		timeView.text = getString(
-			R.string.summary,
-			String.format(
-				"%02d:%02d:%02d",
-				seconds / 3600,
-				(seconds / 60) % 60,
-				seconds % 60
-			),
-			summary.count,
-			summary.averageColloquial()
-		)
+	private fun scheduleUsageUpdate() {
+		cancelUsageUpdate()
+		usageView.postDelayed(updateUsageRunnable, 10000)
 	}
 
-	private fun scheduleTimeUpdate() {
-		cancelTimeUpdate()
-		timeView.postDelayed(updateTimeRunnable, 1000)
-	}
-
-	private fun cancelTimeUpdate() {
-		timeView.removeCallbacks(updateTimeRunnable)
+	private fun cancelUsageUpdate() {
+		usageView.removeCallbacks(updateUsageRunnable)
 	}
 }

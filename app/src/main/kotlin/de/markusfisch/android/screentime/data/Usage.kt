@@ -14,7 +14,8 @@ fun drawUsageChart(
 	height: Int,
 	timestamp: Long,
 	days: Int,
-	useColor: Int,
+	lastDaysString: String,
+	usageColor: Int,
 	dialColor: Int,
 	numberColor: Int
 ): Bitmap {
@@ -24,23 +25,39 @@ fun drawUsageChart(
 		rect.height().roundToInt(),
 		Bitmap.Config.ARGB_8888
 	)
-	val canvas = Canvas(bitmap)
-	canvas.drawClockFace(
-		rect,
-		fillPaint(dialColor),
-		fillPaint(numberColor).apply {
+	Canvas(bitmap).apply {
+		val dialPaint = fillPaint(dialColor)
+		drawCircle(
+			rect.centerX(),
+			rect.centerY(),
+			min(rect.centerX(), rect.centerY()),
+			dialPaint
+		)
+		val total = drawRecordsBetween(
+			startOfDay(timestamp - DAY_IN_MS * days),
+			endOfDay(timestamp),
+			rect,
+			fillPaint(
+				((255f / (days + 1)).roundToInt() shl 24) or
+						(usageColor and 0xffffff)
+			)
+		)
+		val textPaint = fillPaint(numberColor).apply {
 			typeface = Typeface.DEFAULT_BOLD
 		}
-	)
-	val paint = fillPaint(
-		((255f / days).roundToInt() shl 24) or (useColor and 0xffffff)
-	)
-	canvas.drawRecordsBetween(
-		startOfDay(timestamp - DAY_IN_MS * days),
-		endOfDay(timestamp),
-		rect,
-		paint
-	)
+		drawClockFace(rect, textPaint)
+		drawCenter(
+			rect,
+			dialPaint,
+			textPaint,
+			String.format(
+				"%02d:%02d",
+				total / 3600,
+				(total / 60) % 60
+			),
+			lastDaysString
+		)
+	}
 	return bitmap
 }
 
@@ -57,19 +74,42 @@ private fun minSquare(width: Int, height: Int): RectF {
 	return RectF(0f, 0f, size, size)
 }
 
+private fun Canvas.drawRecordsBetween(
+	from: Long,
+	to: Long,
+	rect: RectF,
+	paint: Paint
+): Long {
+	var total = 0L
+	fun drawPie(start: Long, duration: Long) {
+		total += duration
+		drawArc(
+			rect,
+			dayTimeToAngle(start) - 90f,
+			dayTimeToAngle(duration),
+			true,
+			paint
+		)
+	}
+
+	val lastStart = db.forEachRecordBetween(from, to) { start, duration ->
+		drawPie(start, duration)
+	}
+	// Draw the ongoing record, if there's one.
+	if (lastStart > 0L) {
+		drawPie(lastStart, System.currentTimeMillis() - lastStart)
+	}
+	return total / 1000L
+}
+
+private fun dayTimeToAngle(ms: Long): Float = 360f / DAY_IN_MS * ms.toFloat()
+
 private const val TAU = Math.PI + Math.PI
 private const val PI2 = Math.PI / 2
 private fun Canvas.drawClockFace(
 	rect: RectF,
-	dialPaint: Paint,
 	textPaint: Paint
 ) {
-	drawCircle(
-		rect.centerX(),
-		rect.centerY(),
-		min(rect.centerX(), rect.centerY()),
-		dialPaint
-	)
 	val dialRadius = rect.width() / 2f
 	val numberRadius = dialRadius * .85f
 	val dotRadius = dialRadius * .95f
@@ -84,7 +124,7 @@ private fun Canvas.drawClockFace(
 	var i = steps
 	do {
 		val a = angle - PI2
-		drawNumber(
+		drawTextCentered(
 			"$i",
 			centerX + numberRadius * cos(a).toFloat(),
 			centerY + numberRadius * sin(a).toFloat(),
@@ -110,7 +150,7 @@ private fun Canvas.drawClockFace(
 	}
 }
 
-private fun Canvas.drawNumber(
+private fun Canvas.drawTextCentered(
 	text: String,
 	x: Float,
 	y: Float,
@@ -126,19 +166,39 @@ private fun Canvas.drawNumber(
 	)
 }
 
-private fun Canvas.drawRecordsBetween(
-	from: Long,
-	to: Long,
+private fun Canvas.drawCenter(
 	rect: RectF,
-	paint: Paint
-) = db.forEachRecordBetween(from, to) { start, duration ->
-	drawArc(
-		rect,
-		dayTimeToAngle(start) - 90f,
-		dayTimeToAngle(duration),
-		true,
-		paint
+	dialPaint: Paint,
+	textPaint: Paint,
+	sumText: String,
+	daysText: String
+) {
+	val cx = rect.centerX()
+	val cy = rect.centerY()
+	drawCircle(cx, cy, min(cx, cy) * .5f, dialPaint)
+	val sumBounds = Rect()
+	val sumPaint = Paint(textPaint.apply {
+		textSize = cx * .2f
+		getTextBounds(sumText, 0, sumText.length, sumBounds)
+	})
+	val daysBounds = Rect()
+	textPaint.apply {
+		textSize = cx * .1f
+		getTextBounds(daysText, 0, daysText.length, daysBounds)
+	}
+	val half = (sumBounds.height() + daysBounds.height() * 1.75f) / 2f
+	val top = cy - half
+	val bottom = cy + half
+	drawText(
+		sumText,
+		cx - sumBounds.centerX(),
+		top + sumBounds.height() / 2 - sumBounds.centerY(),
+		sumPaint
+	)
+	drawText(
+		daysText,
+		cx - daysBounds.centerX(),
+		bottom - daysBounds.height() / 2 - daysBounds.centerY(),
+		textPaint
 	)
 }
-
-private fun dayTimeToAngle(ms: Long): Float = 360f / DAY_IN_MS * ms.toFloat()

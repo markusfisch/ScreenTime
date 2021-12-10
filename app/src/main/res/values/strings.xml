@@ -1,6 +1,7 @@
 <resources>
 	<string name="app_name">Screen Time</string>
-	<string name="summary">%1$s, %2$d uses, %3$s on average</string>
-	<string name="recording">Recording screen events</string>
+	<string name="recording">Recording screen on/off events</string>
 	<string name="usage_graph">Usage graph</string>
+	<string name="last_x_days">Last %d days</string>
+	<string name="today">Today</string>
 </resources>
