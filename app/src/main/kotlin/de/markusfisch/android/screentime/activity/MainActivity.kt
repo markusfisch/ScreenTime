@@ -6,6 +6,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.data.drawUsageChart
+import de.markusfisch.android.screentime.service.msToNextFullMinute
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
@@ -118,7 +119,7 @@ class MainActivity : Activity(), CoroutineScope {
 
 	private fun scheduleUsageUpdate() {
 		cancelUsageUpdate()
-		usageView.postDelayed(updateUsageRunnable, 10000)
+		usageView.postDelayed(updateUsageRunnable, msToNextFullMinute())
 	}
 
 	private fun cancelUsageUpdate() {

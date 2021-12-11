@@ -149,8 +149,7 @@ class TrackerService : Service(), CoroutineScope {
 		val sum = summary ?: summarizeDay(now)
 		summary = sum
 		if (schedule) {
-			// Calculate milliseconds until the minute value changes.
-			scheduleNotificationUpdate(60000L - sum.currently(now) % 60000L)
+			scheduleNotificationUpdate(msToNextFullMinute(now))
 		}
 		return buildNotification(
 			context,
@@ -164,3 +163,8 @@ class TrackerService : Service(), CoroutineScope {
 		const val ID = 1
 	}
 }
+
+// Calculate the time to the next full minute.
+fun msToNextFullMinute(
+	now: Long = System.currentTimeMillis()
+): Long = 60000L - now % 60000L
