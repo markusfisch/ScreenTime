@@ -123,18 +123,21 @@ class Database {
 		private const val EVENT_SCREEN_OFF = "screen_off"
 
 		private fun createEvents(db: SQLiteDatabase) {
-			db.execSQL("DROP TABLE IF EXISTS $EVENTS")
+			db.execSQL("DROP TABLE IF EXISTS $EVENTS".trimMargin())
 			db.execSQL(
 				"""CREATE TABLE $EVENTS (
 					$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
 					$EVENTS_TIMESTAMP TIMESTAMP,
 					$EVENTS_NAME TEXT NOT NULL,
-					$EVENTS_BATTERY REAL)"""
+					$EVENTS_BATTERY REAL)""".trimMargin()
 			)
 		}
 
 		private fun addBatteryLevel(db: SQLiteDatabase) {
-			db.execSQL("ALTER TABLE $EVENTS ADD COLUMN $EVENTS_BATTERY REAL")
+			db.execSQL(
+				"""ALTER TABLE $EVENTS
+					 ADD COLUMN $EVENTS_BATTERY REAL""".trimMargin()
+			)
 		}
 	}
 }
