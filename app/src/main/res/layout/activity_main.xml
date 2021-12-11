@@ -23,5 +23,5 @@
 		android:paddingBottom="16dp"
 		android:paddingTop="16dp"
 		android:max="30"
-		android:progress="7"/>
+		android:progress="6"/>
 </RelativeLayout>
