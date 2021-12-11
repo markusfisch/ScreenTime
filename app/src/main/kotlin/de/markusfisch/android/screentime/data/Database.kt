@@ -9,10 +9,23 @@ import kotlin.math.max
 import kotlin.math.min
 
 class Database {
+	var availableHistoryInDays: Int = 0
+		private set
+
 	private lateinit var db: SQLiteDatabase
 
 	fun open(context: Context) {
 		db = OpenHelper(context).writableDatabase
+		val now = System.currentTimeMillis()
+		val earliestTimestamp = db.getEariestTimestamp()
+		if (earliestTimestamp < 0L) {
+			// Insert an initial screen on event if the database is
+			// empty because we can only find an empty database if
+			// the user has started this app for the first time.
+			insertScreenEvent(now, true, 1f)
+		}
+		val msBetween = endOfDay(now) - endOfDay(earliestTimestamp)
+		availableHistoryInDays = (msBetween / 86400000L).toInt()
 	}
 
 	fun forEachRecordOfDay(
@@ -130,8 +143,7 @@ private fun SQLiteDatabase.getRecordsBetween(
 	from: Long,
 	to: Long
 ): Cursor = rawQuery(
-	"""
-		SELECT * FROM (SELECT
+	"""SELECT * FROM (SELECT
 			${Database.EVENTS_TIMESTAMP},
 			${Database.EVENTS_NAME}
 			FROM ${Database.EVENTS}
@@ -154,7 +166,21 @@ private fun SQLiteDatabase.getRecordsBetween(
 			FROM ${Database.EVENTS}
 			WHERE ${Database.EVENTS_TIMESTAMP} > $to
 			ORDER BY ${Database.EVENTS_TIMESTAMP}
-			LIMIT 1)
-		""",
+			LIMIT 1)""".trimMargin(),
 	null
 )
+
+private fun SQLiteDatabase.getEariestTimestamp(): Long {
+	rawQuery(
+		"""SELECT ${Database.EVENTS_TIMESTAMP}
+			FROM ${Database.EVENTS}
+			ORDER BY ${Database.EVENTS_TIMESTAMP}
+			LIMIT 1""".trimMargin(),
+		null
+	)?.use {
+		if (it.moveToFirst()) {
+			return it.getLong(0)
+		}
+	}
+	return -1L
+}

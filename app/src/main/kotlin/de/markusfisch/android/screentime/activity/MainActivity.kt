@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
+import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.drawUsageChart
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 class MainActivity : Activity(), CoroutineScope {
@@ -31,6 +33,7 @@ class MainActivity : Activity(), CoroutineScope {
 		usageView = findViewById(R.id.graph)
 		dayBar = findViewById(R.id.days)
 
+		dayBar.max = min(30, db.availableHistoryInDays)
 		dayBar.setOnSeekBarChangeListener(object :
 			SeekBar.OnSeekBarChangeListener {
 			override fun onProgressChanged(
