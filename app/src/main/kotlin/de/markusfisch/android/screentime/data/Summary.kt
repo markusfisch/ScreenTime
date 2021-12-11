@@ -2,13 +2,11 @@ package de.markusfisch.android.screentime.data
 
 import de.markusfisch.android.screentime.app.db
 import kotlin.math.max
-import kotlin.math.roundToLong
 
 data class Summary(
 	val total: Long,
 	val count: Int,
-	val start: Long,
-	val average: Long
+	val start: Long
 ) {
 	fun currently(now: Long) = total + max(0, now - start)
 	fun currentlyInSeconds(now: Long) = currently(now) / 1000L
@@ -29,8 +27,7 @@ fun summarizeDay(timestamp: Long = System.currentTimeMillis()): Summary {
 			lastStart
 		} else {
 			System.currentTimeMillis()
-		},
-		(total.toDouble() / max(1.0, count.toDouble()) / 1000.0).roundToLong()
+		}
 	)
 }
 
