@@ -33,7 +33,14 @@ class MainActivity : Activity(), CoroutineScope {
 		usageView = findViewById(R.id.graph)
 		dayBar = findViewById(R.id.days)
 
-		dayBar.max = min(30, db.availableHistoryInDays)
+		val availableHistoryInDays = db.availableHistoryInDays
+		if (availableHistoryInDays < 1) {
+			// Insert an initial SCREEN ON event if the database is
+			// empty because we can only find an empty database if
+			// the user has started this app for the first time.
+			db.insertScreenEvent(System.currentTimeMillis(), true, 0f)
+		}
+		dayBar.max = min(30, availableHistoryInDays)
 		dayBar.setOnSeekBarChangeListener(object :
 			SeekBar.OnSeekBarChangeListener {
 			override fun onProgressChanged(

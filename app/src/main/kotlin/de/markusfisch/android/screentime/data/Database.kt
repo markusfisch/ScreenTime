@@ -16,16 +16,12 @@ class Database {
 
 	fun open(context: Context) {
 		db = OpenHelper(context).writableDatabase
-		val now = System.currentTimeMillis()
-		val earliestTimestamp = db.getEariestTimestamp()
-		if (earliestTimestamp < 0L) {
-			// Insert an initial screen on event if the database is
-			// empty because we can only find an empty database if
-			// the user has started this app for the first time.
-			insertScreenEvent(now, true, 1f)
+		val earliestTimestamp = db.getEarliestTimestamp()
+		if (earliestTimestamp > -1) {
+			val msBetween = endOfDay(System.currentTimeMillis()) -
+					endOfDay(earliestTimestamp)
+			availableHistoryInDays = (msBetween / 86400000L).toInt()
 		}
-		val msBetween = endOfDay(now) - endOfDay(earliestTimestamp)
-		availableHistoryInDays = (msBetween / 86400000L).toInt()
 	}
 
 	fun forEachRecordOfDay(
