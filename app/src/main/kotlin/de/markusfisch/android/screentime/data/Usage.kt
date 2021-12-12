@@ -87,7 +87,7 @@ private fun Canvas.drawRecordsBetween(
 		total += duration
 		drawArc(
 			rect,
-			dayTimeToAngle(start) - 90f,
+			dayTimeToAngle(start - from) - 90f,
 			dayTimeToAngle(duration),
 			true,
 			paint

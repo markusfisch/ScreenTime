@@ -52,10 +52,7 @@ class Database {
 							start = max(from, ts)
 						}
 						EVENT_SCREEN_OFF -> if (start > 0L) {
-							callback(
-								start - from,
-								min(to, ts) - start
-							)
+							callback(start, min(to, ts) - start)
 							start = 0L
 						}
 					}
