@@ -62,17 +62,15 @@ class Database {
 		timestamp: Long,
 		screenOn: Boolean,
 		battery: Float
-	) {
-		insertEvent(
-			timestamp,
-			if (screenOn) {
-				EVENT_SCREEN_ON
-			} else {
-				EVENT_SCREEN_OFF
-			},
-			battery
-		)
-	}
+	): Long = insertEvent(
+		timestamp,
+		if (screenOn) {
+			EVENT_SCREEN_ON
+		} else {
+			EVENT_SCREEN_OFF
+		},
+		battery
+	)
 
 	private fun insertEvent(
 		timestamp: Long,
@@ -91,7 +89,7 @@ class Database {
 	private class OpenHelper(context: Context) :
 		SQLiteOpenHelper(context, "events.db", null, 2) {
 		override fun onCreate(db: SQLiteDatabase) {
-			createEvents(db)
+			db.createEvents()
 		}
 
 		override fun onUpgrade(
@@ -100,7 +98,7 @@ class Database {
 			newVersion: Int
 		) {
 			if (oldVersion < 2) {
-				addBatteryLevel(db)
+				db.addBatteryLevel()
 			}
 		}
 	}
@@ -114,25 +112,38 @@ class Database {
 
 		private const val EVENT_SCREEN_ON = "screen_on"
 		private const val EVENT_SCREEN_OFF = "screen_off"
+	}
+}
 
-		private fun createEvents(db: SQLiteDatabase) {
-			db.execSQL("DROP TABLE IF EXISTS $EVENTS".trimMargin())
-			db.execSQL(
-				"""CREATE TABLE $EVENTS (
-					$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-					$EVENTS_TIMESTAMP TIMESTAMP,
-					$EVENTS_NAME TEXT NOT NULL,
-					$EVENTS_BATTERY REAL)""".trimMargin()
-			)
-		}
+private fun SQLiteDatabase.createEvents() {
+	execSQL("DROP TABLE IF EXISTS ${Database.EVENTS}".trimMargin())
+	execSQL(
+		"""CREATE TABLE ${Database.EVENTS} (
+					${Database.EVENTS_ID} INTEGER PRIMARY KEY AUTOINCREMENT,
+					${Database.EVENTS_TIMESTAMP} TIMESTAMP,
+					${Database.EVENTS_NAME} TEXT NOT NULL,
+					${Database.EVENTS_BATTERY} REAL)""".trimMargin()
+	)
+}
 
-		private fun addBatteryLevel(db: SQLiteDatabase) {
-			db.execSQL(
-				"""ALTER TABLE $EVENTS
-					 ADD COLUMN $EVENTS_BATTERY REAL""".trimMargin()
-			)
+private fun SQLiteDatabase.addBatteryLevel() = execSQL(
+	"""ALTER TABLE ${Database.EVENTS}
+		 ADD COLUMN ${Database.EVENTS_BATTERY} REAL""".trimMargin()
+)
+
+private fun SQLiteDatabase.getEarliestTimestamp(): Long {
+	rawQuery(
+		"""SELECT ${Database.EVENTS_TIMESTAMP}
+			FROM ${Database.EVENTS}
+			ORDER BY ${Database.EVENTS_TIMESTAMP}
+			LIMIT 1""".trimMargin(),
+		null
+	)?.use {
+		if (it.moveToFirst()) {
+			return it.getLong(0)
 		}
 	}
+	return -1L
 }
 
 private fun SQLiteDatabase.getRecordsBetween(
@@ -165,18 +176,3 @@ private fun SQLiteDatabase.getRecordsBetween(
 			LIMIT 1)""".trimMargin(),
 	null
 )
-
-private fun SQLiteDatabase.getEariestTimestamp(): Long {
-	rawQuery(
-		"""SELECT ${Database.EVENTS_TIMESTAMP}
-			FROM ${Database.EVENTS}
-			ORDER BY ${Database.EVENTS_TIMESTAMP}
-			LIMIT 1""".trimMargin(),
-		null
-	)?.use {
-		if (it.moveToFirst()) {
-			return it.getLong(0)
-		}
-	}
-	return -1L
-}
