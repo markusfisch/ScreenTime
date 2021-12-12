@@ -40,7 +40,9 @@ fun drawUsageChart(
 			fillPaint(
 				((255f / (days + 1)).roundToInt() shl 24) or
 						(usageColor and 0xffffff)
-			)
+			).apply {
+				xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
+			}
 		)
 		val textPaint = fillPaint(numberColor).apply {
 			typeface = Typeface.DEFAULT_BOLD
