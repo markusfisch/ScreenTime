@@ -52,6 +52,7 @@ class TrackerService : Service(), CoroutineScope {
 	private lateinit var powerManager: PowerManager
 
 	private var summary: Summary? = null
+	private var unlocked = false
 
 	override fun onCreate() {
 		super.onCreate()
@@ -62,6 +63,7 @@ class TrackerService : Service(), CoroutineScope {
 		powerManager = getSystemService(
 			Context.POWER_SERVICE
 		) as PowerManager
+		unlocked = isInteractive()
 
 		val filter = IntentFilter()
 		filter.addAction(Intent.ACTION_USER_PRESENT)
@@ -97,6 +99,13 @@ class TrackerService : Service(), CoroutineScope {
 			intent.hasExtra(TIMESTAMP)
 		) {
 			val screenOn = intent.getBooleanExtra(SCREEN_STATE, true)
+			// Ignore ACTION_SCREEN_OFF events when the device is still
+			// interactive (e.g. the camera app was opened by double pressing
+			// on/off) or wasn't interactive before (e.g. the screen was turned
+			// on but never unlocked).
+			if (!screenOn && (isInteractive() || !unlocked)) {
+				return START_STICKY
+			}
 			db.insertScreenEvent(
 				intent.getLongExtra(TIMESTAMP, System.currentTimeMillis()),
 				screenOn,
@@ -104,9 +113,11 @@ class TrackerService : Service(), CoroutineScope {
 			)
 			if (screenOn) {
 				updateNotification()
+				unlocked = true
 			} else {
 				cancelNotificationUpdate()
 				summary = null
+				unlocked = false
 			}
 		}
 		return START_STICKY
