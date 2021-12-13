@@ -2,6 +2,7 @@ package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.widget.ImageView
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
@@ -22,10 +23,11 @@ class MainActivity : Activity(), CoroutineScope {
 		scheduleUsageUpdate()
 		update(dayBar.progress)
 	}
-	private var paused = true
+	private val prefs by lazy { getDefaultSharedPreferences(this) }
 
 	private lateinit var usageView: ImageView
 	private lateinit var dayBar: SeekBar
+	private var paused = true
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
@@ -40,6 +42,7 @@ class MainActivity : Activity(), CoroutineScope {
 			// the user has started this app for the first time.
 			db.insertScreenEvent(System.currentTimeMillis(), true, 0f)
 		}
+		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
 		dayBar.max = min(30, availableHistoryInDays)
 		dayBar.setOnSeekBarChangeListener(object :
 			SeekBar.OnSeekBarChangeListener {
@@ -75,6 +78,10 @@ class MainActivity : Activity(), CoroutineScope {
 		super.onPause()
 		paused = true
 		cancelUsageUpdate()
+		prefs.edit().apply {
+			putInt(DAYS, dayBar.progress)
+			apply()
+		}
 	}
 
 	override fun onDestroy() {
@@ -134,5 +141,9 @@ class MainActivity : Activity(), CoroutineScope {
 
 	private fun cancelUsageUpdate() {
 		usageView.removeCallbacks(updateUsageRunnable)
+	}
+
+	companion object {
+		private const val DAYS = "days"
 	}
 }
