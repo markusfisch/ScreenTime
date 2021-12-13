@@ -19,7 +19,6 @@ import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.*
 import kotlinx.coroutines.*
 import java.lang.Runnable
-import kotlin.coroutines.CoroutineContext
 
 val screenReceiver = EventReceiver()
 
@@ -38,11 +37,9 @@ fun startTrackerService(
 	}
 }
 
-class TrackerService : Service(), CoroutineScope {
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO + job
-
+class TrackerService : Service() {
 	private val job = SupervisorJob()
+	private val scope = CoroutineScope(Dispatchers.Default + job)
 	private val handler by lazy { Handler(mainLooper) }
 	private val updateNotificationRunnable = Runnable {
 		updateNotification()
@@ -71,8 +68,8 @@ class TrackerService : Service(), CoroutineScope {
 		filter.addAction(Intent.ACTION_USER_PRESENT)
 		registerReceiver(screenReceiver, filter)
 
-		launch {
-			val notification = buildNotification(this@TrackerService)
+		scope.launch {
+			val notification = buildNotification()
 			withContext(Dispatchers.Main) {
 				startForeground(ID, notification)
 			}
@@ -82,7 +79,7 @@ class TrackerService : Service(), CoroutineScope {
 	override fun onDestroy() {
 		super.onDestroy()
 		unregisterReceiver(screenReceiver)
-		coroutineContext.cancelChildren()
+		job.cancelChildren()
 	}
 
 	override fun onBind(intent: Intent): IBinder? {
@@ -145,16 +142,15 @@ class TrackerService : Service(), CoroutineScope {
 	}
 
 	private fun updateNotification() {
-		launch {
-			val notification = buildNotification(this@TrackerService, true)
+		scope.launch {
+			val notification = buildNotification(true)
 			withContext(Dispatchers.Main) {
 				notificationManager.notify(ID, notification)
 			}
 		}
 	}
 
-	private fun buildNotification(
-		context: Context,
+	private fun Context.buildNotification(
 		schedule: Boolean = false
 	): Notification {
 		val now = System.currentTimeMillis()
@@ -164,10 +160,10 @@ class TrackerService : Service(), CoroutineScope {
 			scheduleNotificationUpdate(msToNextFullMinute(now))
 		}
 		return buildNotification(
-			context,
+			this,
 			R.drawable.ic_notify,
 			sum.currentlyColloquial(now),
-			Intent(context, MainActivity::class.java)
+			Intent(this, MainActivity::class.java)
 		)
 	}
 

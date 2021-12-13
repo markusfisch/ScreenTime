@@ -1,6 +1,7 @@
 package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.widget.ImageView
@@ -10,15 +11,12 @@ import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.drawUsageChart
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-class MainActivity : Activity(), CoroutineScope {
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO + job
-
+class MainActivity : Activity() {
 	private val job = SupervisorJob()
+	private val scope = CoroutineScope(Dispatchers.Default + job)
 	private val updateUsageRunnable = Runnable {
 		scheduleUsageUpdate()
 		update(dayBar.progress)
@@ -86,35 +84,43 @@ class MainActivity : Activity(), CoroutineScope {
 
 	override fun onDestroy() {
 		super.onDestroy()
-		coroutineContext.cancelChildren()
+		job.cancelChildren()
 	}
 
 	private fun update(
 		days: Int,
 		timestamp: Long = System.currentTimeMillis()
 	) {
-		launch {
-			generateUsageChart(days, timestamp)
-		}
-	}
-
-	private suspend fun generateUsageChart(
-		days: Int,
-		timestamp: Long
-	) = withContext(Dispatchers.IO) {
-		val width = usageView.measuredWidth
-		val height = usageView.measuredHeight
+		val dp = resources.displayMetrics.density
+		val padding = (16f * dp).roundToInt() * 2
+		val width = usageView.measuredWidth - padding
+		val height = usageView.measuredHeight - padding
 		if (width < 1 || height < 1) {
 			usageView.postDelayed({
 				update(days, timestamp)
 			}, 1000)
-			return@withContext
+			return
 		}
-		val dp = resources.displayMetrics.density
-		val padding = (16f * dp).roundToInt() * 2
-		val bitmap = drawUsageChart(
-			width - padding,
-			height - padding,
+		scope.launch {
+			val bitmap = generateUsageChart(width, height, days, timestamp)
+			withContext(Dispatchers.Main) {
+				usageView.setImageBitmap(bitmap)
+				if (!paused) {
+					scheduleUsageUpdate()
+				}
+			}
+		}
+	}
+
+	private suspend fun generateUsageChart(
+		width: Int,
+		height: Int,
+		days: Int,
+		timestamp: Long
+	): Bitmap = withContext(Dispatchers.IO) {
+		drawUsageChart(
+			width,
+			height,
 			timestamp,
 			days,
 			if (days > 0) {
@@ -126,12 +132,6 @@ class MainActivity : Activity(), CoroutineScope {
 			resources.getColor(R.color.dial),
 			resources.getColor(R.color.text)
 		)
-		withContext(Dispatchers.Main) {
-			usageView.setImageBitmap(bitmap)
-			if (!paused) {
-				scheduleUsageUpdate()
-			}
-		}
 	}
 
 	private fun scheduleUsageUpdate() {
