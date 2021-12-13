@@ -52,7 +52,7 @@ fun buildNotification(
 			}
 			b
 		} else {
-			createChannel(context)
+			context.createChannel()
 			Notification.Builder(context, CHANNEL_RECORDING)
 		}.setOngoing(true)
 			.setOnlyAlertOnce(true)
@@ -70,17 +70,17 @@ fun buildNotification(
 }
 
 @TargetApi(Build.VERSION_CODES.O)
-fun createChannel(context: Context) {
-	val nm = context.getSystemService(
+fun Context.createChannel() {
+	val nm = getSystemService(
 		Context.NOTIFICATION_SERVICE
 	) as NotificationManager
 	if (nm.getNotificationChannel(CHANNEL_RECORDING) == null) {
 		val channel = NotificationChannel(
 			CHANNEL_RECORDING,
-			context.getString(R.string.app_name),
+			getString(R.string.app_name),
 			NotificationManager.IMPORTANCE_LOW
 		)
-		channel.description = context.getString(R.string.recording)
+		channel.description = getString(R.string.recording)
 		channel.lockscreenVisibility = Notification.VISIBILITY_SECRET
 		channel.setSound(null, null)
 		channel.setShowBadge(false)
