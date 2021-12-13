@@ -170,7 +170,7 @@ private fun Canvas.drawCenter(
 ) {
 	val cx = rect.centerX()
 	val cy = rect.centerY()
-	drawCircle(cx, cy, min(cx, cy) * .5f, dialPaint)
+	drawCircle(cx, cy, min(cx, cy) * .45f, dialPaint)
 	val sumBounds = Rect()
 	val sumPaint = Paint(textPaint.apply {
 		textSize = cx * .15f
