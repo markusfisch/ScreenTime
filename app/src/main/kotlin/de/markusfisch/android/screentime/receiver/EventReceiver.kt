@@ -34,21 +34,19 @@ class EventReceiver : BroadcastReceiver() {
 		context.startTrackerService { intent ->
 			intent.putExtra(SCREEN_STATE, state)
 			intent.putExtra(TIMESTAMP, System.currentTimeMillis())
-			intent.putExtra(BATTERY_LEVEL, getBatteryLevel(context))
+			intent.putExtra(BATTERY_LEVEL, context.getBatteryLevel())
 		}
 	}
 }
 
-private fun getBatteryLevel(context: Context): Float {
-	val status = context.registerReceiver(
+private fun Context.getBatteryLevel(): Float {
+	registerReceiver(
 		null,
 		IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-	)
-	return if (status != null) {
-		val level = status.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-		val scale = status.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+	)?.apply {
+		val level = getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+		val scale = getIntExtra(BatteryManager.EXTRA_SCALE, -1)
 		return level.toFloat() / scale.toFloat()
-	} else {
-		0f
 	}
+	return 0f
 }
