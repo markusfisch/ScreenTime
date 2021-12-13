@@ -52,14 +52,19 @@ fun drawUsageChart(
 			rect,
 			dialPaint,
 			textPaint,
-			digitalClock(seconds),
+			digitalTime(seconds),
 			lastDaysString
 		)
 	}
 	return bitmap
 }
 
-private fun digitalClock(seconds: Long) = when (seconds) {
+private fun minSquare(width: Int, height: Int): RectF {
+	val size = min(width, height).toFloat()
+	return RectF(0f, 0f, size, size)
+}
+
+private fun digitalTime(seconds: Long) = when (seconds) {
 	in 0..59L -> "< 1m"
 	else -> String.format(
 		"%02d:%02d",
@@ -74,11 +79,6 @@ private fun fillPaint(col: Int) = paint(col).apply {
 
 private fun paint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 	color = col
-}
-
-private fun minSquare(width: Int, height: Int): RectF {
-	val size = min(width, height).toFloat()
-	return RectF(0f, 0f, size, size)
 }
 
 private fun Canvas.drawRecordsBetween(
