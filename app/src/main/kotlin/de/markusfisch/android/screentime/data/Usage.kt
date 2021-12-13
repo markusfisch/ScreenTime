@@ -37,10 +37,7 @@ fun drawUsageChart(
 			startOfDay(timestamp - DAY_IN_MS * days),
 			endOfDay(timestamp),
 			rect,
-			fillPaint(
-				((255f / (days + 1)).roundToInt() shl 24) or
-						(usageColor and 0xffffff)
-			).apply {
+			fillPaint(usageColor).apply {
 				xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
 			}
 		)
