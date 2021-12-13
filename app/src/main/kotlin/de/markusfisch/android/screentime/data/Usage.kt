@@ -33,7 +33,7 @@ fun drawUsageChart(
 			min(rect.centerX(), rect.centerY()),
 			dialPaint
 		)
-		val total = drawRecordsBetween(
+		val seconds = drawRecordsBetween(
 			startOfDay(timestamp - DAY_IN_MS * days),
 			endOfDay(timestamp),
 			rect,
@@ -52,15 +52,20 @@ fun drawUsageChart(
 			rect,
 			dialPaint,
 			textPaint,
-			String.format(
-				"%02d:%02d",
-				total / 3600,
-				(total / 60) % 60
-			),
+			digitalClock(seconds),
 			lastDaysString
 		)
 	}
 	return bitmap
+}
+
+private fun digitalClock(seconds: Long) = when (seconds) {
+	in 0..59L -> "< 1m"
+	else -> String.format(
+		"%02d:%02d",
+		seconds / 3600,
+		(seconds / 60) % 60
+	)
 }
 
 private fun fillPaint(col: Int) = paint(col).apply {
