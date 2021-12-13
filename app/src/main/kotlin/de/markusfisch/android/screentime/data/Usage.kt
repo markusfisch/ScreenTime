@@ -52,7 +52,7 @@ fun drawUsageChart(
 			rect,
 			dialPaint,
 			textPaint,
-			digitalTime(seconds),
+			timeRangeColloquial(seconds),
 			lastDaysString
 		)
 	}
@@ -62,15 +62,6 @@ fun drawUsageChart(
 private fun minSquare(width: Int, height: Int): RectF {
 	val size = min(width, height).toFloat()
 	return RectF(0f, 0f, size, size)
-}
-
-private fun digitalTime(seconds: Long) = when (seconds) {
-	in 0..59L -> "< 1m"
-	else -> String.format(
-		"%02d:%02d",
-		seconds / 3600,
-		(seconds / 60) % 60
-	)
 }
 
 private fun fillPaint(col: Int) = paint(col).apply {
@@ -185,7 +176,7 @@ private fun Canvas.drawCenter(
 	drawCircle(cx, cy, min(cx, cy) * .5f, dialPaint)
 	val sumBounds = Rect()
 	val sumPaint = Paint(textPaint.apply {
-		textSize = cx * .2f
+		textSize = cx * .15f
 		getTextBounds(sumText, 0, sumText.length, sumBounds)
 	})
 	val daysBounds = Rect()
