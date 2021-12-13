@@ -22,18 +22,17 @@ import java.lang.Runnable
 
 val screenReceiver = EventReceiver()
 
-fun startTrackerService(
-	context: Context,
+fun Context.startTrackerService(
 	callback: ((intent: Intent) -> Any)? = null
 ) {
-	val intent = Intent(context, TrackerService::class.java)
+	val intent = Intent(this, TrackerService::class.java)
 	callback?.let {
 		callback(intent)
 	}
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-		context.startForegroundService(intent)
+		startForegroundService(intent)
 	} else {
-		context.startService(intent)
+		startService(intent)
 	}
 }
 

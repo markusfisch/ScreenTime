@@ -10,6 +10,6 @@ class ScreenTimeTrackerApp : Application() {
 	override fun onCreate() {
 		super.onCreate()
 		db.open(this)
-		startTrackerService(this)
+		startTrackerService()
 	}
 }

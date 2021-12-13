@@ -25,13 +25,13 @@ class EventReceiver : BroadcastReceiver() {
 	}
 
 	private fun sendNotificationIntent(context: Context) {
-		startTrackerService(context) { intent ->
+		context.startTrackerService { intent ->
 			intent.putExtra(UPDATE_NOTIFICATION, true)
 		}
 	}
 
 	private fun sendStateIntent(context: Context, state: Boolean) {
-		startTrackerService(context) { intent ->
+		context.startTrackerService { intent ->
 			intent.putExtra(SCREEN_STATE, state)
 			intent.putExtra(TIMESTAMP, System.currentTimeMillis())
 			intent.putExtra(BATTERY_LEVEL, getBatteryLevel(context))
