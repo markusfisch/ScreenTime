@@ -15,7 +15,7 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|start"
 		android:layout_alignParentBottom="true"
-		android:layout_marginBottom="8dp"
+		android:layout_marginBottom="@dimen/bottom_margin"
 		android:paddingLeft="32dp"
 		android:paddingStart="32dp"
 		android:paddingRight="32dp"
