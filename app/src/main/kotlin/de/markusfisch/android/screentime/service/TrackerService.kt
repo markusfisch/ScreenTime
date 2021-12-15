@@ -159,7 +159,6 @@ class TrackerService : Service() {
 			scheduleNotificationUpdate(msToNextFullMinute(now))
 		}
 		return buildNotification(
-			this,
 			R.drawable.ic_notify,
 			sum.currentlyColloquial(now),
 			Intent(this, MainActivity::class.java)

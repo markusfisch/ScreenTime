@@ -12,14 +12,13 @@ import de.markusfisch.android.screentime.R
 
 private const val CHANNEL_RECORDING = "screen_time_recording"
 
-fun buildNotification(
-	context: Context,
+fun Context.buildNotification(
 	icon: Int,
 	title: String,
 	intent: Intent
 ): Notification {
 	val pendingIntent = PendingIntent.getActivity(
-		context,
+		this,
 		0,
 		intent,
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -28,15 +27,15 @@ fun buildNotification(
 	)
 	val builder = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 		@Suppress("DEPRECATION")
-		val b = Notification.Builder(context)
+		val b = Notification.Builder(this)
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			@Suppress("DEPRECATION")
 			b.setPriority(Notification.PRIORITY_MIN)
 		}
 		b
 	} else {
-		context.createChannel()
-		Notification.Builder(context, CHANNEL_RECORDING)
+		createChannel()
+		Notification.Builder(this, CHANNEL_RECORDING)
 	}.setOngoing(true)
 		.setOnlyAlertOnce(true)
 		.setSmallIcon(icon)
