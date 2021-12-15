@@ -8,7 +8,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.widget.RemoteViews
 import de.markusfisch.android.screentime.R
 
 private const val CHANNEL_RECORDING = "screen_time_recording"
@@ -27,45 +26,27 @@ fun buildNotification(
 			PendingIntent.FLAG_IMMUTABLE
 		} else 0
 	)
-	return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-		val remoteViews = RemoteViews(
-			context.packageName,
-			R.layout.notification
-		)
-		remoteViews.setTextViewText(R.id.notification_title, title)
+	val builder = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 		@Suppress("DEPRECATION")
-		val notification = Notification(icon, title, System.currentTimeMillis())
-		notification.contentIntent = pendingIntent
-		@Suppress("DEPRECATION")
-		notification.contentView = remoteViews
-		notification.flags = notification.flags or
-				Notification.FLAG_ONGOING_EVENT or
-				Notification.FLAG_ONLY_ALERT_ONCE
-		notification
-	} else {
-		val builder = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+		val b = Notification.Builder(context)
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			@Suppress("DEPRECATION")
-			val b = Notification.Builder(context)
-			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-				@Suppress("DEPRECATION")
-				b.setPriority(Notification.PRIORITY_MIN)
-			}
-			b
-		} else {
-			context.createChannel()
-			Notification.Builder(context, CHANNEL_RECORDING)
-		}.setOngoing(true)
-			.setOnlyAlertOnce(true)
-			.setSmallIcon(icon)
-			.setContentTitle(title)
-			.setContentIntent(pendingIntent)
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-			@Suppress("DEPRECATION")
-			builder.notification
-		} else {
-			builder.build()
+			b.setPriority(Notification.PRIORITY_MIN)
 		}
+		b
+	} else {
+		context.createChannel()
+		Notification.Builder(context, CHANNEL_RECORDING)
+	}.setOngoing(true)
+		.setOnlyAlertOnce(true)
+		.setSmallIcon(icon)
+		.setContentTitle(title)
+		.setContentIntent(pendingIntent)
+	return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+		@Suppress("DEPRECATION")
+		builder.notification
+	} else {
+		builder.build()
 	}
 }
 
