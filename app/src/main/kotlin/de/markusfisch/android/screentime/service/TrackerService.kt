@@ -68,7 +68,7 @@ class TrackerService : Service() {
 		registerReceiver(screenReceiver, filter)
 
 		scope.launch {
-			val notification = buildNotification()
+			val notification = buildAndScheduleNotification()
 			withContext(Dispatchers.Main) {
 				startForeground(ID, notification)
 			}
@@ -142,22 +142,18 @@ class TrackerService : Service() {
 
 	private fun updateNotification() {
 		scope.launch {
-			val notification = buildNotification(true)
+			val notification = buildAndScheduleNotification()
 			withContext(Dispatchers.Main) {
 				notificationManager.notify(ID, notification)
 			}
 		}
 	}
 
-	private fun Context.buildNotification(
-		schedule: Boolean = false
-	): Notification {
+	private fun Context.buildAndScheduleNotification(): Notification {
 		val now = System.currentTimeMillis()
 		val sum = summary ?: summarizeDay(now)
 		summary = sum
-		if (schedule) {
-			scheduleNotificationUpdate(msToNextFullMinute(now))
-		}
+		scheduleNotificationUpdate(msToNextFullMinute(now))
 		return buildNotification(
 			R.drawable.ic_notify,
 			sum.currentlyColloquial(now),
