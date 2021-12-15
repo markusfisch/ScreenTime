@@ -3,6 +3,7 @@ package de.markusfisch.android.screentime.activity
 import android.app.Activity
 import android.os.Bundle
 import android.preference.PreferenceManager.getDefaultSharedPreferences
+import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
@@ -60,6 +61,10 @@ class MainActivity : Activity() {
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {}
 		})
+
+		if (dayBar.max == 0) {
+			dayBar.visibility = View.GONE
+		}
 	}
 
 	override fun onResume() {
