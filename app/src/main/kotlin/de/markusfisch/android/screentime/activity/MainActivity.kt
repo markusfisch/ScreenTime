@@ -68,9 +68,7 @@ class MainActivity : Activity() {
 			) {
 				if (fromUser) {
 					// Post to queue changes.
-					dayBar.post {
-						update(progress)
-					}
+					postUpdate(progress)
 				}
 			}
 
@@ -88,9 +86,7 @@ class MainActivity : Activity() {
 		super.onResume()
 		paused = false
 		// Run update() after layout.
-		usageView.post {
-			update(dayBar.progress)
-		}
+		postUpdate(dayBar.progress)
 	}
 
 	override fun onPause() {
@@ -106,6 +102,12 @@ class MainActivity : Activity() {
 	override fun onDestroy() {
 		super.onDestroy()
 		job.cancelChildren()
+	}
+
+	private fun postUpdate(days: Int) {
+		usageView.post {
+			update(days)
+		}
 	}
 
 	private fun update(
