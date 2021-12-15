@@ -4,7 +4,6 @@ import android.graphics.*
 import de.markusfisch.android.screentime.app.db
 import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.math.sin
 
 private const val DAY_IN_MS = 86400000L
@@ -15,58 +14,59 @@ fun drawUsageChart(
 	timestamp: Long,
 	days: Int,
 	lastDaysString: String,
-	usageColor: Int,
-	dialColor: Int,
-	numberColor: Int
-): Bitmap {
-	val rect = minSquare(width, height)
-	val bitmap = Bitmap.createBitmap(
-		rect.width().roundToInt(),
-		rect.height().roundToInt(),
-		Bitmap.Config.ARGB_8888
+	usagePaint: Paint,
+	dialPaint: Paint,
+	textPaint: Paint
+): Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+	Canvas(this).drawUsageChartAt(
+		width / 2f,
+		height / 2f,
+		min(width, height) / 2f,
+		timestamp,
+		days,
+		lastDaysString,
+		usagePaint,
+		dialPaint,
+		textPaint
 	)
-	Canvas(bitmap).apply {
-		val dialPaint = fillPaint(dialColor)
-		drawCircle(
-			rect.centerX(),
-			rect.centerY(),
-			min(rect.centerX(), rect.centerY()),
-			dialPaint
-		)
-		val seconds = drawRecordsBetween(
-			startOfDay(timestamp - DAY_IN_MS * days),
-			endOfDay(timestamp),
-			rect,
-			fillPaint(usageColor).apply {
-				xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
-			}
-		)
-		val textPaint = fillPaint(numberColor).apply {
-			typeface = Typeface.DEFAULT_BOLD
-		}
-		drawClockFace(rect, textPaint)
-		drawCenter(
-			rect,
-			dialPaint,
-			textPaint,
-			timeRangeColloquial(seconds),
-			lastDaysString
-		)
-	}
-	return bitmap
 }
 
-private fun minSquare(width: Int, height: Int): RectF {
-	val size = min(width, height).toFloat()
-	return RectF(0f, 0f, size, size)
-}
-
-private fun fillPaint(col: Int) = paint(col).apply {
-	style = Paint.Style.FILL
-}
-
-private fun paint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-	color = col
+private val squareRect = RectF()
+private fun Canvas.drawUsageChartAt(
+	centerX: Float,
+	centerY: Float,
+	radius: Float,
+	timestamp: Long,
+	days: Int,
+	lastDaysString: String,
+	usagePaint: Paint,
+	dialPaint: Paint,
+	textPaint: Paint
+) {
+	drawCircle(centerX, centerY, radius, dialPaint)
+	val seconds = drawRecordsBetween(
+		startOfDay(timestamp - DAY_IN_MS * days),
+		endOfDay(timestamp),
+		squareRect.apply {
+			set(
+				centerX - radius,
+				centerY - radius,
+				centerX + radius,
+				centerY + radius
+			)
+		},
+		usagePaint
+	)
+	drawClockFace(centerX, centerY, radius, textPaint)
+	drawCenter(
+		centerX,
+		centerY,
+		radius * .45f,
+		dialPaint,
+		textPaint,
+		timeRangeColloquial(seconds),
+		lastDaysString
+	)
 }
 
 private fun Canvas.drawRecordsBetween(
@@ -101,18 +101,17 @@ private fun dayTimeToAngle(ms: Long): Float = 360f / DAY_IN_MS * ms.toFloat()
 
 private const val TAU = Math.PI + Math.PI
 private const val PI2 = Math.PI / 2
+private val numberBounds = Rect()
 private fun Canvas.drawClockFace(
-	rect: RectF,
+	centerX: Float,
+	centerY: Float,
+	radius: Float,
 	textPaint: Paint
 ) {
-	val dialRadius = rect.width() / 2f
-	val numberRadius = dialRadius * .85f
-	val dotRadius = dialRadius * .95f
+	val numberRadius = radius * .85f
+	val dotRadius = radius * .95f
 	val dotSize = dotRadius * .01f
 	textPaint.textSize = dotRadius * .1f
-	val centerX = rect.centerX()
-	val centerY = rect.centerY()
-	val textBounds = Rect()
 	val steps = 24
 	val step = TAU / steps
 	var angle = 0.0
@@ -124,7 +123,7 @@ private fun Canvas.drawClockFace(
 			centerX + numberRadius * cos(a).toFloat(),
 			centerY + numberRadius * sin(a).toFloat(),
 			textPaint,
-			textBounds
+			numberBounds
 		)
 		i = (i + 1) % steps
 		angle += step
@@ -161,38 +160,42 @@ private fun Canvas.drawTextCentered(
 	)
 }
 
+private val sumBounds = Rect()
+private val daysBounds = Rect()
+private val sumPaint = Paint()
 private fun Canvas.drawCenter(
-	rect: RectF,
+	centerX: Float,
+	centerY: Float,
+	radius: Float,
 	dialPaint: Paint,
 	textPaint: Paint,
 	sumText: String,
 	daysText: String
 ) {
-	val cx = rect.centerX()
-	val cy = rect.centerY()
-	drawCircle(cx, cy, min(cx, cy) * .45f, dialPaint)
-	val sumBounds = Rect()
-	val sumPaint = Paint(textPaint.apply {
-		textSize = cx * .15f
+	drawCircle(centerX, centerY, radius, dialPaint)
+	sumPaint.apply {
+		color = textPaint.color
+		style = textPaint.style
+		typeface = textPaint.typeface
+		textSize = radius * .3f
 		getTextBounds(sumText, 0, sumText.length, sumBounds)
-	})
-	val daysBounds = Rect()
+	}
 	textPaint.apply {
-		textSize = cx * .1f
+		textSize = radius * .2f
 		getTextBounds(daysText, 0, daysText.length, daysBounds)
 	}
 	val half = (sumBounds.height() + daysBounds.height() * 1.75f) / 2f
-	val top = cy - half
-	val bottom = cy + half
+	val top = centerY - half
+	val bottom = centerY + half
 	drawText(
 		sumText,
-		cx - sumBounds.centerX(),
+		centerX - sumBounds.centerX(),
 		top + sumBounds.height() / 2 - sumBounds.centerY(),
 		sumPaint
 	)
 	drawText(
 		daysText,
-		cx - daysBounds.centerX(),
+		centerX - daysBounds.centerX(),
 		bottom - daysBounds.height() / 2 - daysBounds.centerY(),
 		textPaint
 	)

@@ -1,6 +1,10 @@
 package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.view.View
@@ -22,6 +26,19 @@ class MainActivity : Activity() {
 		update(dayBar.progress)
 	}
 	private val prefs by lazy { getDefaultSharedPreferences(this) }
+	private val usagePaint by lazy {
+		fillPaint(resources.getColor(R.color.usage)).apply {
+			xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
+		}
+	}
+	private val dialPaint by lazy {
+		fillPaint(resources.getColor(R.color.dial))
+	}
+	private val textPaint by lazy {
+		fillPaint(resources.getColor(R.color.text)).apply {
+			typeface = Typeface.DEFAULT_BOLD
+		}
+	}
 
 	private lateinit var usageView: ImageView
 	private lateinit var dayBar: SeekBar
@@ -105,17 +122,18 @@ class MainActivity : Activity() {
 			}, 1000)
 			return
 		}
+		val d = days + 1
+		val daysString = resources.getQuantityString(R.plurals.days, d, d)
 		scope.launch {
-			val d = days + 1
 			val bitmap = drawUsageChart(
 				width,
 				height,
 				timestamp,
 				days,
-				resources.getQuantityString(R.plurals.days, d, d),
-				resources.getColor(R.color.usage),
-				resources.getColor(R.color.dial),
-				resources.getColor(R.color.text)
+				daysString,
+				usagePaint,
+				dialPaint,
+				textPaint
 			)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
@@ -138,4 +156,9 @@ class MainActivity : Activity() {
 	companion object {
 		private const val DAYS = "days"
 	}
+}
+
+private fun fillPaint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+	color = col
+	style = Paint.Style.FILL
 }
