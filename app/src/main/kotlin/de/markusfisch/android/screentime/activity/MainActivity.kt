@@ -106,16 +106,13 @@ class MainActivity : Activity() {
 			return
 		}
 		scope.launch {
+			val d = days + 1
 			val bitmap = drawUsageChart(
 				width,
 				height,
 				timestamp,
 				days,
-				if (days > 0) {
-					getString(R.string.last_x_days, days + 1)
-				} else {
-					getString(R.string.today)
-				},
+				resources.getQuantityString(R.plurals.days, d, d),
 				resources.getColor(R.color.usage),
 				resources.getColor(R.color.dial),
 				resources.getColor(R.color.text)
