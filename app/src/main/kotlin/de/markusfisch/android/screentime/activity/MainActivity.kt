@@ -1,7 +1,6 @@
 package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.widget.ImageView
@@ -102,7 +101,20 @@ class MainActivity : Activity() {
 			return
 		}
 		scope.launch {
-			val bitmap = generateUsageChart(width, height, days, timestamp)
+			val bitmap = drawUsageChart(
+				width,
+				height,
+				timestamp,
+				days,
+				if (days > 0) {
+					getString(R.string.last_x_days, days + 1)
+				} else {
+					getString(R.string.today)
+				},
+				resources.getColor(R.color.usage),
+				resources.getColor(R.color.dial),
+				resources.getColor(R.color.text)
+			)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
 				if (!paused) {
@@ -110,28 +122,6 @@ class MainActivity : Activity() {
 				}
 			}
 		}
-	}
-
-	private suspend fun generateUsageChart(
-		width: Int,
-		height: Int,
-		days: Int,
-		timestamp: Long
-	): Bitmap = withContext(Dispatchers.IO) {
-		drawUsageChart(
-			width,
-			height,
-			timestamp,
-			days,
-			if (days > 0) {
-				getString(R.string.last_x_days, days + 1)
-			} else {
-				getString(R.string.today)
-			},
-			resources.getColor(R.color.usage),
-			resources.getColor(R.color.dial),
-			resources.getColor(R.color.text)
-		)
 	}
 
 	private fun scheduleUsageUpdate() {
