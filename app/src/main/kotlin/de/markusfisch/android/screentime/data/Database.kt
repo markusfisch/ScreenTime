@@ -55,6 +55,11 @@ class Database {
 				} while (it.moveToNext())
 			}
 		}
+		// Add currently running session.
+		val now = System.currentTimeMillis()
+		if (start > 0L && now < to) {
+			callback(start, now - start)
+		}
 		return start
 	}
 

@@ -76,7 +76,7 @@ private fun Canvas.drawRecordsBetween(
 	paint: Paint
 ): Long {
 	var total = 0L
-	fun drawPie(start: Long, duration: Long) {
+	db.forEachRecordBetween(from, to) { start, duration ->
 		total += duration
 		drawArc(
 			rect,
@@ -85,14 +85,6 @@ private fun Canvas.drawRecordsBetween(
 			true,
 			paint
 		)
-	}
-
-	val lastStart = db.forEachRecordBetween(from, to) { start, duration ->
-		drawPie(start, duration)
-	}
-	// Draw the ongoing record, if there's one.
-	if (lastStart > 0L) {
-		drawPie(lastStart, System.currentTimeMillis() - lastStart)
 	}
 	return total / 1000L
 }
