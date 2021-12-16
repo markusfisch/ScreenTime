@@ -1,7 +1,8 @@
 <resources>
 	<color name="primary">#4dc4e5</color>
 	<color name="primary_dark">#1c9bbf</color>
-	<color name="accent">#0c4151</color>
+	<color name="accent">#fff</color>
+	<color name="window_background">#082a34</color>
 	<color name="dial">#0c4151</color>
 	<color name="usage">#1c9bbf</color>
 	<color name="text">#fff</color>
