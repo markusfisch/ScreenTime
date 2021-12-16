@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" id="svg2" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<g transform="matrix(4.740741, 0, 0, 4.740741, -1850.804077, -1162.808838)">
+<rect width="108" height="108" style="fill: rgb(77, 196, 229);" x="390.404" y="245.28"/>
+<path id="path-1" style="fill:#1c9bbf;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M 444.404 299.28 L 498.404 284.81 L 498.404 353.28 L 390.404 353.28 L 390.404 245.28 Z"/>
+</g>
+<ellipse style="fill: rgb(216, 216, 216);" cx="-314" rx="192" ry="192" cy="256"/>
+<g transform="matrix(2.674011, 0, 0, 2.674011, -0.705082, -0.705082)" style="">
+<path d="M 67 34 L 125 34 C 129.418 34 133 37.582 133 42 L 133 149 C 133 153.418 129.418 157 125 157 L 67 157 C 62.582 157 59 153.418 59 149 L 59 42 C 59 37.582 62.582 34 67 34 Z" id="rect5022" style="opacity:0.98999999;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:7.6380105;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"/>
+<path style="opacity:0.98999999;fill:#333333;fill-opacity:1;stroke:none;stroke-width:7.6380105;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" d="M 59 59 L 59 150 C 59 154 62 158 67 158 L 125 158 C 130 158 133 154 133 150 L 133 86 L 96 96 L 59 59 Z" id="rect5029"/>
+</g>
+</svg>

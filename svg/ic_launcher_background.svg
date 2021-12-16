@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg width="108" height="108" id="svg3317" version="1.1" xmlns="http://www.w3.org/2000/svg">
-<circle style="fill:#4dc4e5;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" id="circle5020" cx="54" cy="54" r="78.115"/>
-<path id="circle5027" style="fill:#1c9bbf;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M 129.453 33.782 C 139.265 70.399 121.37 108.775 87.013 124.796 C 52.656 140.817 11.755 129.858 -9.988 98.805 C -31.732 67.752 -28.041 25.57 -1.236 -1.236 L 54 54 Z"/>
+<svg width="108" height="108" id="svg3317" version="1.1" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+<rect width="108" height="108" style="fill: rgb(77, 196, 229);"/>
+<path id="circle5027" style="fill:#1c9bbf;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M 54 54 L 108 39.53 L 108 108 L 0 108 L 0 0 Z"/>
 </svg>
