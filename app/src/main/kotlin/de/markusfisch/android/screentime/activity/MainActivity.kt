@@ -50,15 +50,6 @@ class MainActivity : Activity() {
 		usageView = findViewById(R.id.graph)
 		dayBar = findViewById(R.id.days)
 
-		val availableHistoryInDays = db.availableHistoryInDays
-		if (availableHistoryInDays < 1) {
-			// Insert an initial SCREEN ON event if the database is
-			// empty because we can only find an empty database if
-			// the user has started this app for the first time.
-			db.insertScreenEvent(System.currentTimeMillis(), true, 0f)
-		}
-		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
-		dayBar.max = min(30, availableHistoryInDays)
 		dayBar.setOnSeekBarChangeListener(object :
 			SeekBar.OnSeekBarChangeListener {
 			override fun onProgressChanged(
@@ -76,17 +67,14 @@ class MainActivity : Activity() {
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {}
 		})
-
-		if (dayBar.max == 0) {
-			dayBar.visibility = View.GONE
-		}
 	}
 
 	override fun onResume() {
 		super.onResume()
-		paused = false
+		updateDayBar()
 		// Run update() after layout.
 		postUpdate(dayBar.progress)
+		paused = false
 	}
 
 	override fun onPause() {
@@ -102,6 +90,19 @@ class MainActivity : Activity() {
 	override fun onDestroy() {
 		super.onDestroy()
 		job.cancelChildren()
+	}
+
+	private fun updateDayBar() {
+		val availableHistoryInDays = db.availableHistoryInDays
+		if (availableHistoryInDays < 1) {
+			// Insert an initial SCREEN ON event if the database is
+			// empty because we can only find an empty database if
+			// the user has started this app for the first time.
+			db.insertScreenEvent(System.currentTimeMillis(), true, 0f)
+		}
+		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
+		dayBar.max = min(30, availableHistoryInDays)
+		dayBar.visibility = if (dayBar.max == 0) View.GONE else View.VISIBLE
 	}
 
 	private fun postUpdate(days: Int) {
