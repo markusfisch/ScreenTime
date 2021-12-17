@@ -67,11 +67,11 @@ class MainActivity : Activity() {
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {}
 		})
+		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
 	}
 
 	override fun onResume() {
 		super.onResume()
-		updateDayBar()
 		// Run update() after layout.
 		postUpdate(dayBar.progress)
 		paused = false
@@ -81,29 +81,15 @@ class MainActivity : Activity() {
 		super.onPause()
 		paused = true
 		cancelUsageUpdate()
-		prefs.edit().apply {
-			putInt(DAYS, dayBar.progress)
-			apply()
-		}
 	}
 
 	override fun onDestroy() {
 		super.onDestroy()
 		job.cancelChildren()
-	}
-
-	private fun updateDayBar() {
-		val now = System.currentTimeMillis()
-		val availableHistoryInDays = db.getAvailableHistoryInDays(now)
-		if (availableHistoryInDays < 1) {
-			// Insert an initial SCREEN ON event if the database is
-			// empty because we can only find an empty database if
-			// the user has started this app for the first time.
-			db.insertScreenEvent(now, true, 0f)
+		prefs.edit().apply {
+			putInt(DAYS, dayBar.progress)
+			apply()
 		}
-		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
-		dayBar.max = min(30, availableHistoryInDays)
-		dayBar.visibility = if (dayBar.max == 0) View.GONE else View.VISIBLE
 	}
 
 	private fun postUpdate(days: Int) {
@@ -129,6 +115,14 @@ class MainActivity : Activity() {
 		val d = days + 1
 		val daysString = resources.getQuantityString(R.plurals.days, d, d)
 		scope.launch {
+			val now = System.currentTimeMillis()
+			val availableHistoryInDays = db.getAvailableHistoryInDays(now)
+			if (availableHistoryInDays < 1) {
+				// Insert an initial SCREEN ON event if the database is
+				// empty because we can only find an empty database if
+				// the user has started this app for the first time.
+				db.insertScreenEvent(now, true, 0f)
+			}
 			val bitmap = drawUsageChart(
 				width,
 				height,
@@ -141,9 +135,21 @@ class MainActivity : Activity() {
 			)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
+				updateDayBar(min(30, availableHistoryInDays))
 				if (!paused) {
 					scheduleUsageUpdate()
 				}
+			}
+		}
+	}
+
+	private fun updateDayBar(max: Int) {
+		if (dayBar.max != max) {
+			dayBar.max = max
+			dayBar.visibility = if (max == 0) {
+				View.GONE
+			} else {
+				View.VISIBLE
 			}
 		}
 	}
