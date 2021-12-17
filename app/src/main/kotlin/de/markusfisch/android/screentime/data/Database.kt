@@ -60,8 +60,9 @@ class Database {
 		val now = System.currentTimeMillis()
 		if (start > 0L && now < to) {
 			callback(start, now - start)
+			return now
 		}
-		return start
+		return -1
 	}
 
 	fun insertScreenEvent(
