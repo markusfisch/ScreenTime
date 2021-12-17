@@ -135,7 +135,7 @@ private fun SQLiteDatabase.createEvents() {
 
 private fun SQLiteDatabase.addBatteryLevel() = execSQL(
 	"""ALTER TABLE ${Database.EVENTS}
-		 ADD COLUMN ${Database.EVENTS_BATTERY} REAL""".trimMargin()
+		ADD COLUMN ${Database.EVENTS_BATTERY} REAL""".trimMargin()
 )
 
 private fun SQLiteDatabase.getEarliestTimestamp(): Long {
