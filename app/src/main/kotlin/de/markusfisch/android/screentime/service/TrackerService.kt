@@ -13,8 +13,8 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.Summary
 import de.markusfisch.android.screentime.data.summarizeDay
+import de.markusfisch.android.screentime.data.timeRangeColloquial
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.*
 import kotlinx.coroutines.*
@@ -47,7 +47,6 @@ class TrackerService : Service() {
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
 
-	private var summary: Summary? = null
 	private var unlocked = false
 
 	override fun onCreate() {
@@ -113,7 +112,6 @@ class TrackerService : Service() {
 				unlocked = true
 			} else {
 				cancelNotificationUpdate()
-				summary = null
 				unlocked = false
 			}
 		}
@@ -151,12 +149,11 @@ class TrackerService : Service() {
 
 	private fun Context.buildAndScheduleNotification(): Notification {
 		val now = System.currentTimeMillis()
-		val sum = summary ?: summarizeDay(now)
-		summary = sum
+		val summary = summarizeDay(now)
 		scheduleNotificationUpdate(msToNextFullMinute(now))
 		return buildNotification(
 			R.drawable.ic_notify,
-			sum.currentlyColloquial(now),
+			timeRangeColloquial(summary.total / 1000L),
 			Intent(this, MainActivity::class.java)
 		)
 	}
