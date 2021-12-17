@@ -17,25 +17,25 @@ class EventReceiver : BroadcastReceiver() {
 		when (intent?.action) {
 			// *BOOT_COMPLETED doesn't need no handling because
 			// the service is started in ScreenTimeTrackerApp.
-			Intent.ACTION_SCREEN_ON -> sendNotificationIntent(context)
-			Intent.ACTION_SCREEN_OFF -> sendStateIntent(context, false)
-			Intent.ACTION_USER_PRESENT -> sendStateIntent(context, true)
+			Intent.ACTION_SCREEN_ON -> context.sendNotificationIntent()
+			Intent.ACTION_SCREEN_OFF -> context.sendStateIntent(false)
+			Intent.ACTION_USER_PRESENT -> context.sendStateIntent(true)
 			else -> return
 		}
 	}
+}
 
-	private fun sendNotificationIntent(context: Context) {
-		context.startTrackerService { intent ->
-			intent.putExtra(UPDATE_NOTIFICATION, true)
-		}
+private fun Context.sendNotificationIntent() {
+	startTrackerService { intent ->
+		intent.putExtra(UPDATE_NOTIFICATION, true)
 	}
+}
 
-	private fun sendStateIntent(context: Context, state: Boolean) {
-		context.startTrackerService { intent ->
-			intent.putExtra(SCREEN_STATE, state)
-			intent.putExtra(TIMESTAMP, System.currentTimeMillis())
-			intent.putExtra(BATTERY_LEVEL, context.getBatteryLevel())
-		}
+private fun Context.sendStateIntent(state: Boolean) {
+	startTrackerService { intent ->
+		intent.putExtra(SCREEN_STATE, state)
+		intent.putExtra(TIMESTAMP, System.currentTimeMillis())
+		intent.putExtra(BATTERY_LEVEL, getBatteryLevel())
 	}
 }
 
