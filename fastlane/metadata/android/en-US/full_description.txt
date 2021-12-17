@@ -1,6 +1,6 @@
 Displays your screen time in a permanent notification.
 
 By making screen time more prominent, you can get a better sense of how much
-of the day you spend on your phone.
+of the day you spend on your phone. Without judgement. Just so you know.
 
 This is open source: https://github.com/markusfisch/ScreenTime

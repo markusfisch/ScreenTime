@@ -3,7 +3,7 @@
 Displays your screen time in a permanent notification.
 
 By making screen time more prominent, you can get a better sense of how much
-of the day you spend on your phone.
+of the day you spend on your phone. Without judgement. Just so you know.
 
 Sure, there's Google's Digital Wellbeing app and a lot of other apps that
 track app usage. But I just like to see my screen time at a glance without
