@@ -5,23 +5,24 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
 class Database {
-	var availableHistoryInDays: Int = 0
-		private set
-
 	private lateinit var db: SQLiteDatabase
 
 	fun open(context: Context) {
 		db = OpenHelper(context).writableDatabase
+	}
+
+	fun getAvailableHistoryInDays(now: Long): Int {
 		val earliestTimestamp = db.getEarliestTimestamp()
 		if (earliestTimestamp > -1) {
-			val msBetween = endOfDay(System.currentTimeMillis()) -
-					endOfDay(earliestTimestamp)
-			availableHistoryInDays = (msBetween / 86400000L).toInt()
+			val msBetween = endOfDay(now) - startOfDay(earliestTimestamp)
+			return ceil(msBetween / 86400000.0).toInt()
 		}
+		return 0
 	}
 
 	fun forEachRecordOfDay(

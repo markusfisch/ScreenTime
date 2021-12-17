@@ -93,12 +93,13 @@ class MainActivity : Activity() {
 	}
 
 	private fun updateDayBar() {
-		val availableHistoryInDays = db.availableHistoryInDays
+		val now = System.currentTimeMillis()
+		val availableHistoryInDays = db.getAvailableHistoryInDays(now)
 		if (availableHistoryInDays < 1) {
 			// Insert an initial SCREEN ON event if the database is
 			// empty because we can only find an empty database if
 			// the user has started this app for the first time.
-			db.insertScreenEvent(System.currentTimeMillis(), true, 0f)
+			db.insertScreenEvent(now, true, 0f)
 		}
 		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
 		dayBar.max = min(30, availableHistoryInDays)
