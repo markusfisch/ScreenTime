@@ -125,14 +125,7 @@ class MainActivity : Activity() {
 		val d = days + 1
 		val daysString = resources.getQuantityString(R.plurals.days, d, d)
 		scope.launch {
-			val now = System.currentTimeMillis()
-			val availableHistoryInDays = db.getAvailableHistoryInDays(now)
-			if (availableHistoryInDays < 1) {
-				// Insert an initial SCREEN_ON event if the database is
-				// empty because we can only find an empty database if
-				// the user has started this app for the first time.
-				db.insertScreenEvent(now, true, 0f)
-			}
+			val availableHistoryInDays = db.getAvailableHistoryInDays()
 			val bitmap = chart.draw(
 				timestamp,
 				days,

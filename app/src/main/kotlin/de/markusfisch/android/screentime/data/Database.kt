@@ -16,11 +16,19 @@ class Database {
 		db = OpenHelper(context).writableDatabase
 	}
 
-	fun getAvailableHistoryInDays(now: Long): Int {
+	fun getAvailableHistoryInDays(
+		now: Long = System.currentTimeMillis()
+	): Int {
 		val earliestTimestamp = db.getEarliestTimestamp()
 		if (earliestTimestamp > -1) {
 			val msBetween = startOfDay(now) - startOfDay(earliestTimestamp)
 			return ceil(msBetween / 86400000.0).toInt()
+		} else {
+			// Insert an initial SCREEN_ON event if the database is
+			// empty because we can only find an empty database if
+			// the user has started this app for the first time,
+			// in which case the screen must be on.
+			insertScreenEvent(now, true, 0f)
 		}
 		return 0
 	}
