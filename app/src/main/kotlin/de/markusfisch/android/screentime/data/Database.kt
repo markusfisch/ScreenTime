@@ -19,7 +19,7 @@ class Database {
 	fun getAvailableHistoryInDays(now: Long): Int {
 		val earliestTimestamp = db.getEarliestTimestamp()
 		if (earliestTimestamp > -1) {
-			val msBetween = endOfDay(now) - startOfDay(earliestTimestamp)
+			val msBetween = startOfDay(now) - startOfDay(earliestTimestamp)
 			return ceil(msBetween / 86400000.0).toInt()
 		}
 		return 0
@@ -58,7 +58,7 @@ class Database {
 		}
 		// Add currently running session.
 		val now = System.currentTimeMillis()
-		if (start > 0L && now < to) {
+		if (start > 0L && now <= to) {
 			callback(start, now - start)
 			return now
 		}
