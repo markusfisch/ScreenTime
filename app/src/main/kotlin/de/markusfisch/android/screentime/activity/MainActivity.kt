@@ -10,6 +10,7 @@ import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.data.drawUsageChart
@@ -41,6 +42,7 @@ class MainActivity : Activity() {
 	}
 
 	private lateinit var usageView: ImageView
+	private lateinit var dayLabel: TextView
 	private lateinit var dayBar: SeekBar
 	private var paused = true
 
@@ -48,6 +50,7 @@ class MainActivity : Activity() {
 		super.onCreate(state)
 		setContentView(R.layout.activity_main)
 		usageView = findViewById(R.id.graph)
+		dayLabel = findViewById(R.id.label)
 		dayBar = findViewById(R.id.days)
 
 		dayBar.setOnSeekBarChangeListener(object :
@@ -58,21 +61,27 @@ class MainActivity : Activity() {
 				fromUser: Boolean
 			) {
 				if (fromUser) {
-					// Post to queue changes.
-					postUpdate(progress)
+					val d = progress + 1
+					dayLabel.text = resources.getQuantityString(
+						R.plurals.preview, d, d
+					)
 				}
 			}
 
-			override fun onStartTrackingTouch(seekBar: SeekBar) {}
+			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
-			override fun onStopTrackingTouch(seekBar: SeekBar) {}
+			override fun onStopTrackingTouch(seekBar: SeekBar) {
+				// Post to queue changes.
+				postUpdate(seekBar.progress)
+				dayLabel.text = ""
+			}
 		})
 		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
 	}
 
 	override fun onResume() {
 		super.onResume()
-		// Run update() after layout.
+		// Post to run update() after layout.
 		postUpdate(dayBar.progress)
 		paused = false
 	}
@@ -135,7 +144,10 @@ class MainActivity : Activity() {
 			)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
-				updateDayBar(min(30, availableHistoryInDays))
+				val max = min(30, availableHistoryInDays)
+				if (dayBar.max != max) {
+					dayBar.max = max
+				}
 				if (!paused) {
 					scheduleUsageUpdate()
 				}
@@ -143,14 +155,6 @@ class MainActivity : Activity() {
 		}
 	}
 
-	private fun updateDayBar(max: Int) {
-		if (dayBar.max != max) {
-			dayBar.max = max
-			dayBar.visibility = if (max == 0) {
-				View.GONE
-			} else {
-				View.VISIBLE
-			}
 		}
 	}
 

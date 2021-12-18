@@ -171,7 +171,6 @@ class TrackerService : Service() {
 	}
 }
 
-// Calculate the time to the next full minute.
 fun msToNextFullMinute(
 	now: Long = System.currentTimeMillis()
 ): Long = 60000L - now % 60000L

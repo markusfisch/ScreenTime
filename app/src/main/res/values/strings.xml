@@ -6,4 +6,8 @@
 		<item quantity="one">Today</item>
 		<item quantity="other">Last %1$d days</item>
 	</plurals>
+	<plurals name="preview">
+		<item quantity="one">Show just today</item>
+		<item quantity="other">Show sum of the last %1$d days</item>
+	</plurals>
 </resources>
