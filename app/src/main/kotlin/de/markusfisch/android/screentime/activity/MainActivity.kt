@@ -7,7 +7,6 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager.getDefaultSharedPreferences
-import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -129,7 +128,7 @@ class MainActivity : Activity() {
 			val now = System.currentTimeMillis()
 			val availableHistoryInDays = db.getAvailableHistoryInDays(now)
 			if (availableHistoryInDays < 1) {
-				// Insert an initial SCREEN ON event if the database is
+				// Insert an initial SCREEN_ON event if the database is
 				// empty because we can only find an empty database if
 				// the user has started this app for the first time.
 				db.insertScreenEvent(now, true, 0f)

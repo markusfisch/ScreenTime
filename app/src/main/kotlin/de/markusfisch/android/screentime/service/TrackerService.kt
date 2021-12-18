@@ -49,7 +49,6 @@ class TrackerService : Service() {
 	private lateinit var powerManager: PowerManager
 
 	private var summary: Summary? = null
-	private var unlocked = false
 
 	override fun onCreate() {
 		super.onCreate()
@@ -60,7 +59,6 @@ class TrackerService : Service() {
 		powerManager = getSystemService(
 			Context.POWER_SERVICE
 		) as PowerManager
-		unlocked = isInteractive()
 
 		val filter = IntentFilter()
 		filter.addAction(Intent.ACTION_SCREEN_ON)
@@ -98,27 +96,33 @@ class TrackerService : Service() {
 		) {
 			val screenOn = intent.getBooleanExtra(SCREEN_STATE, true)
 			// Ignore ACTION_SCREEN_OFF events when the device is still
-			// interactive (e.g. the camera app was opened by double pressing
-			// on/off) or wasn't interactive before (e.g. the screen was turned
-			// on but never unlocked).
-			if (!screenOn && (isInteractive() || !unlocked)) {
+			// interactive (e.g. when the camera app was opened by double
+			// pressing on/off there's a ACTION_SCREEN_OFF event directly
+			// followed by ACTION_SCREEN_ON).
+			if (!screenOn && isInteractive()) {
 				return START_STICKY
 			}
-			db.insertScreenEvent(
+			insertScreenEvent(
 				intent.getLongExtra(TIMESTAMP, System.currentTimeMillis()),
 				screenOn,
 				intent.getFloatExtra(BATTERY_LEVEL, 0f)
 			)
-			if (screenOn) {
-				updateNotification()
-				unlocked = true
-			} else {
-				cancelNotificationUpdate()
-				summary = null
-				unlocked = false
-			}
 		}
 		return START_STICKY
+	}
+
+	private fun insertScreenEvent(
+		timestamp: Long,
+		screenOn: Boolean,
+		battery: Float
+	) {
+		db.insertScreenEvent(timestamp, screenOn, battery)
+		if (screenOn) {
+			updateNotification()
+		} else {
+			cancelNotificationUpdate()
+			summary = null
+		}
 	}
 
 	private fun cancelNotificationUpdate() {
