@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.3
+* Update graph only after selection
+
 ## 1.0.2
 * Improve updating notification
 
