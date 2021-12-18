@@ -1,0 +1,2 @@
+* Update graph only after selection
+
