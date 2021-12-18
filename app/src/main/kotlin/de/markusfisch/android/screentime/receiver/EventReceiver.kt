@@ -16,8 +16,8 @@ class EventReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
 		when (intent?.action) {
 			Intent.ACTION_SCREEN_ON -> context.sendNotificationIntent()
-			Intent.ACTION_SCREEN_OFF -> context.sendStateIntent(false)
-			Intent.ACTION_USER_PRESENT -> context.sendStateIntent(true)
+			Intent.ACTION_SCREEN_OFF -> context.sendScreenEventIntent(false)
+			Intent.ACTION_USER_PRESENT -> context.sendScreenEventIntent(true)
 			Intent.ACTION_BOOT_COMPLETED,
 			Intent.ACTION_PACKAGE_REPLACED,
 			Intent.ACTION_MY_PACKAGE_REPLACED -> context.startTrackerService()
@@ -32,7 +32,7 @@ private fun Context.sendNotificationIntent() {
 	}
 }
 
-private fun Context.sendStateIntent(state: Boolean) {
+private fun Context.sendScreenEventIntent(state: Boolean) {
 	startTrackerService { intent ->
 		intent.putExtra(SCREEN_STATE, state)
 		intent.putExtra(TIMESTAMP, System.currentTimeMillis())
