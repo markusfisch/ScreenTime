@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.5
+* Fix tracking from first start
+
 ## 1.0.4
 * Automatically restart after an update
 
