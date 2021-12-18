@@ -13,7 +13,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.drawUsageChart
+import de.markusfisch.android.screentime.data.UsageChart
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import kotlinx.coroutines.*
 import kotlin.math.min
@@ -44,6 +44,7 @@ class MainActivity : Activity() {
 	private lateinit var usageView: ImageView
 	private lateinit var dayLabel: TextView
 	private lateinit var dayBar: SeekBar
+	private var usageChart: UsageChart? = null
 	private var paused = true
 
 	override fun onCreate(state: Bundle?) {
@@ -121,6 +122,7 @@ class MainActivity : Activity() {
 			}, 1000)
 			return
 		}
+		val chart = getUsageChart(width, height) ?: return
 		val d = days + 1
 		val daysString = resources.getQuantityString(R.plurals.days, d, d)
 		scope.launch {
@@ -132,15 +134,10 @@ class MainActivity : Activity() {
 				// the user has started this app for the first time.
 				db.insertScreenEvent(now, true, 0f)
 			}
-			val bitmap = drawUsageChart(
-				width,
-				height,
+			val bitmap = chart.draw(
 				timestamp,
 				days,
-				daysString,
-				usagePaint,
-				dialPaint,
-				textPaint
+				daysString
 			)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
@@ -155,7 +152,24 @@ class MainActivity : Activity() {
 		}
 	}
 
+	private fun getUsageChart(width: Int, height: Int): UsageChart? {
+		val newChart = if (
+			usageChart == null ||
+			usageChart?.width != width ||
+			usageChart?.height != height
+		) {
+			UsageChart(
+				width,
+				height,
+				usagePaint,
+				dialPaint,
+				textPaint
+			)
+		} else null
+		newChart?.let {
+			usageChart = newChart
 		}
+		return usageChart
 	}
 
 	private fun scheduleUsageUpdate() {
