@@ -25,7 +25,7 @@
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED"/>
 				<action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
-				<action android:name="android.intent.action.MY_PACKAGE_SUSPENDED"/>
+				<action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
 				<action android:name="android.intent.action.PACKAGE_REPLACED"/>
 				<!-- HTC devices -->
 				<action android:name="android.intent.action.QUICKBOOT_POWERON"/>

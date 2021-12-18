@@ -21,7 +21,7 @@ class EventReceiver : BroadcastReceiver() {
 			Intent.ACTION_SCREEN_OFF -> context.sendStateIntent(false)
 			Intent.ACTION_USER_PRESENT -> context.sendStateIntent(true)
 			Intent.ACTION_PACKAGE_REPLACED,
-			Intent.ACTION_MY_PACKAGE_SUSPENDED -> context.sendNotificationIntent()
+			Intent.ACTION_MY_PACKAGE_REPLACED -> context.startTrackerService()
 			else -> return
 		}
 	}
