@@ -1,0 +1,2 @@
+* Fix tracking from first start
+
