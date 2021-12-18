@@ -15,11 +15,10 @@ const val BATTERY_LEVEL = "battery_level"
 class EventReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
 		when (intent?.action) {
-			// *BOOT_COMPLETED doesn't need no handling because
-			// the service is started in ScreenTimeTrackerApp.
 			Intent.ACTION_SCREEN_ON -> context.sendNotificationIntent()
 			Intent.ACTION_SCREEN_OFF -> context.sendStateIntent(false)
 			Intent.ACTION_USER_PRESENT -> context.sendStateIntent(true)
+			Intent.ACTION_BOOT_COMPLETED,
 			Intent.ACTION_PACKAGE_REPLACED,
 			Intent.ACTION_MY_PACKAGE_REPLACED -> context.startTrackerService()
 			else -> return
