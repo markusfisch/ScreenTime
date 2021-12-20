@@ -113,7 +113,7 @@ class Database {
 			newVersion: Int
 		) {
 			if (oldVersion < 2) {
-				db.addBatteryLevel()
+				db.addBatteryColumn()
 			}
 		}
 	}
@@ -141,7 +141,7 @@ private fun SQLiteDatabase.createEvents() {
 	)
 }
 
-private fun SQLiteDatabase.addBatteryLevel() = execSQL(
+private fun SQLiteDatabase.addBatteryColumn() = execSQL(
 	"""ALTER TABLE ${Database.EVENTS}
 		ADD COLUMN ${Database.EVENTS_BATTERY} REAL""".trimMargin()
 )
