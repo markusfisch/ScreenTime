@@ -7,34 +7,21 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import de.markusfisch.android.screentime.service.startTrackerService
 
-const val UPDATE_NOTIFICATION = "update_notification"
-const val SCREEN_STATE = "screen_state"
+const val ACTION = "action"
 const val TIMESTAMP = "timestamp"
 const val BATTERY_LEVEL = "battery_level"
 
 class EventReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent?) {
-		when (intent?.action) {
-			Intent.ACTION_SCREEN_ON -> context.sendNotificationIntent()
-			Intent.ACTION_SCREEN_OFF -> context.sendScreenEventIntent(false)
-			Intent.ACTION_USER_PRESENT -> context.sendScreenEventIntent(true)
-			Intent.ACTION_BOOT_COMPLETED,
-			Intent.ACTION_PACKAGE_REPLACED,
-			Intent.ACTION_MY_PACKAGE_REPLACED -> context.startTrackerService()
-			else -> return
+		intent?.action?.let {
+			context.sendIntent(it)
 		}
 	}
 }
 
-private fun Context.sendNotificationIntent() {
+private fun Context.sendIntent(action: String) {
 	startTrackerService { intent ->
-		intent.putExtra(UPDATE_NOTIFICATION, true)
-	}
-}
-
-private fun Context.sendScreenEventIntent(state: Boolean) {
-	startTrackerService { intent ->
-		intent.putExtra(SCREEN_STATE, state)
+		intent.putExtra(ACTION, action)
 		intent.putExtra(TIMESTAMP, System.currentTimeMillis())
 		intent.putExtra(BATTERY_LEVEL, getBatteryLevel())
 	}

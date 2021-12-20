@@ -89,26 +89,29 @@ class TrackerService : Service() {
 		flags: Int,
 		startId: Int
 	): Int {
-		if (intent?.hasExtra(UPDATE_NOTIFICATION) == true) {
-			updateNotification()
-		} else if (intent?.hasExtra(SCREEN_STATE) == true &&
-			intent.hasExtra(TIMESTAMP)
-		) {
-			val screenOn = intent.getBooleanExtra(SCREEN_STATE, true)
-			// Ignore ACTION_SCREEN_OFF events when the device is still
-			// interactive (e.g. when the camera app was opened by double
-			// pressing on/off there's a ACTION_SCREEN_OFF event directly
-			// followed by ACTION_SCREEN_ON).
-			if (!screenOn && isInteractive()) {
-				return START_STICKY
+		if (intent?.hasExtra(ACTION) == true) {
+			when (intent.getStringExtra(ACTION)) {
+				Intent.ACTION_SCREEN_ON -> updateNotification()
+				Intent.ACTION_SCREEN_OFF -> intent.insertScreenEvent(false)
+				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
 			}
-			insertScreenEvent(
-				intent.getLongExtra(TIMESTAMP, System.currentTimeMillis()),
-				screenOn,
-				intent.getFloatExtra(BATTERY_LEVEL, 0f)
-			)
 		}
 		return START_STICKY
+	}
+
+	private fun Intent.insertScreenEvent(screenOn: Boolean) {
+		// Ignore ACTION_SCREEN_OFF events when the device is still
+		// interactive (e.g. when the camera app was opened by double
+		// pressing on/off there's a ACTION_SCREEN_OFF event directly
+		// followed by ACTION_SCREEN_ON).
+		if (!screenOn && isInteractive()) {
+			return
+		}
+		insertScreenEvent(
+			getLongExtra(TIMESTAMP, System.currentTimeMillis()),
+			screenOn,
+			getFloatExtra(BATTERY_LEVEL, 0f)
+		)
 	}
 
 	private fun insertScreenEvent(
