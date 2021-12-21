@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.6
+* Update graph while using slider
+
 ## 1.0.5
 * Fix tracking from first start
 
