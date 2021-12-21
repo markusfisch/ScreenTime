@@ -1,0 +1,2 @@
+* Update graph while using slider
+
