@@ -17,32 +17,43 @@ class UsageChart(
 	val dialPaint: Paint,
 	val textPaint: Paint
 ) {
-	private val bitmap = Bitmap.createBitmap(
+	private val bitmapA = Bitmap.createBitmap(
 		width,
 		height,
 		Bitmap.Config.ARGB_8888
 	)
+	private val bitmapB = bitmapA.copy(bitmapA.config, true)
 	private val squareRect = RectF()
 	private val numberBounds = Rect()
 	private val sumBounds = Rect()
 	private val daysBounds = Rect()
 	private val sumPaint = Paint()
 
+	private var even = true
+
 	fun draw(
 		timestamp: Long,
 		days: Int,
 		lastDaysString: String
-	): Bitmap = Canvas(bitmap).run {
-		drawColor(0, PorterDuff.Mode.CLEAR)
-		drawAt(
-			width / 2f,
-			height / 2f,
-			min(width, height) / 2f,
-			timestamp,
-			days,
-			lastDaysString,
-		)
-		bitmap
+	): Bitmap = nextBitmap().apply {
+		Canvas(this).apply {
+			drawColor(0, PorterDuff.Mode.CLEAR)
+			drawAt(
+				width / 2f,
+				height / 2f,
+				min(width, height) / 2f,
+				timestamp,
+				days,
+				lastDaysString,
+			)
+		}
+	}
+
+	private fun nextBitmap(): Bitmap {
+		// Double buffering to avoid modifying the
+		// currently displayed bitmap.
+		even = even xor true
+		return if (even) bitmapA else bitmapB
 	}
 
 	private fun Canvas.drawAt(

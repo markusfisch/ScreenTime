@@ -62,13 +62,13 @@ class MainActivity : Activity() {
 					dayLabel.text = resources.getQuantityString(
 						R.plurals.preview, d, d
 					)
+					postUsageUpdate(progress)
 				}
 			}
 
 			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				postUsageUpdate(seekBar.progress)
 				dayLabel.text = ""
 			}
 		})
