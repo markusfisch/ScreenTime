@@ -21,10 +21,6 @@ import kotlin.math.roundToInt
 class MainActivity : Activity() {
 	private val job = SupervisorJob()
 	private val scope = CoroutineScope(Dispatchers.Default + job)
-	private val updateUsageRunnable = Runnable {
-		scheduleUsageUpdate()
-		update(dayBar.progress)
-	}
 	private val prefs by lazy { getDefaultSharedPreferences(this) }
 	private val usagePaint by lazy {
 		fillPaint(resources.getColor(R.color.usage)).apply {
@@ -43,6 +39,7 @@ class MainActivity : Activity() {
 	private lateinit var usageView: ImageView
 	private lateinit var dayLabel: TextView
 	private lateinit var dayBar: SeekBar
+	private var updateUsageRunnable: Runnable? = null
 	private var usageChart: UsageChart? = null
 	private var paused = true
 
@@ -71,8 +68,7 @@ class MainActivity : Activity() {
 			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				// Post to queue changes.
-				postUpdate(seekBar.progress)
+				postUsageUpdate(seekBar.progress)
 				dayLabel.text = ""
 			}
 		})
@@ -82,7 +78,7 @@ class MainActivity : Activity() {
 	override fun onResume() {
 		super.onResume()
 		// Post to run update() after layout.
-		postUpdate(dayBar.progress)
+		postUsageUpdate(dayBar.progress)
 		paused = false
 	}
 
@@ -101,12 +97,6 @@ class MainActivity : Activity() {
 		}
 	}
 
-	private fun postUpdate(days: Int) {
-		usageView.post {
-			update(days)
-		}
-	}
-
 	private fun update(
 		days: Int,
 		timestamp: Long = System.currentTimeMillis()
@@ -116,9 +106,7 @@ class MainActivity : Activity() {
 		val width = usageView.measuredWidth - padding
 		val height = usageView.measuredHeight - padding
 		if (width < 1 || height < 1) {
-			usageView.postDelayed({
-				update(days, timestamp)
-			}, 1000)
+			postUsageUpdate(days)
 			return
 		}
 		val chart = getUsageChart(width, height) ?: return
@@ -138,7 +126,7 @@ class MainActivity : Activity() {
 					dayBar.max = max
 				}
 				if (!paused) {
-					scheduleUsageUpdate()
+					postUsageUpdate(dayBar.progress, msToNextFullMinute())
 				}
 			}
 		}
@@ -164,13 +152,19 @@ class MainActivity : Activity() {
 		return usageChart
 	}
 
-	private fun scheduleUsageUpdate() {
+	private fun postUsageUpdate(days: Int, delay: Long = 100L) {
 		cancelUsageUpdate()
-		usageView.postDelayed(updateUsageRunnable, msToNextFullMinute())
+		updateUsageRunnable = Runnable {
+			update(days)
+		}
+		usageView.postDelayed(updateUsageRunnable, delay)
 	}
 
 	private fun cancelUsageUpdate() {
-		usageView.removeCallbacks(updateUsageRunnable)
+		if (updateUsageRunnable != null) {
+			usageView.removeCallbacks(updateUsageRunnable)
+			updateUsageRunnable = null
+		}
 	}
 
 	companion object {
