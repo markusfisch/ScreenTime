@@ -7,6 +7,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager.getDefaultSharedPreferences
+import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -66,13 +67,23 @@ class MainActivity : Activity() {
 				}
 			}
 
-			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
+			override fun onStartTrackingTouch(seekBar: SeekBar) {
+				setEditing(true)
+			}
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				dayLabel.text = ""
+				setEditing(false)
 			}
 		})
 		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
+	}
+
+	private fun setEditing(editing: Boolean) {
+		usageView.alpha = if (editing) .1f else 1f
+		dayLabel.apply {
+			text = ""
+			visibility = if (editing) View.VISIBLE else View.GONE
+		}
 	}
 
 	override fun onResume() {
