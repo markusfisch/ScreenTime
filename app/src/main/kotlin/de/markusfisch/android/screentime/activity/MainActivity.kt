@@ -125,11 +125,7 @@ class MainActivity : Activity() {
 		val daysString = resources.getQuantityString(R.plurals.days, d, d)
 		scope.launch {
 			val availableHistoryInDays = db.getAvailableHistoryInDays()
-			val bitmap = chart.draw(
-				timestamp,
-				days,
-				daysString
-			)
+			val bitmap = chart.draw(timestamp, days, daysString)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
 				val max = min(30, availableHistoryInDays)
@@ -144,21 +140,17 @@ class MainActivity : Activity() {
 	}
 
 	private fun getUsageChart(width: Int, height: Int): UsageChart? {
-		val newChart = if (
-			usageChart == null ||
+		if (usageChart == null ||
 			usageChart?.width != width ||
 			usageChart?.height != height
 		) {
-			UsageChart(
+			usageChart = UsageChart(
 				width,
 				height,
 				usagePaint,
 				dialPaint,
 				textPaint
 			)
-		} else null
-		newChart?.let {
-			usageChart = newChart
 		}
 		return usageChart
 	}
