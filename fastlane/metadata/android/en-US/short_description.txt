@@ -1,1 +1,1 @@
-Display your screen time in a permanent notification.
+Display your screen time in a permanent notification
