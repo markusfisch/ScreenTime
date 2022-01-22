@@ -12,6 +12,9 @@ I've used. Rather, I want to see _when_ I use my phone.
 
 So, primarily this is a "scratch your own itch" app.
 
+<a href="https://f-droid.org/packages/de.markusfisch.android.screentime/"><img alt="Get it on F-Droid" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="80"/></a>
+<a href="https://play.google.com/store/apps/details?id=de.markusfisch.android.screentime"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80"/></a>
+
 ## Screenshots
 
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screencap-notification.png"
@@ -20,7 +23,3 @@ So, primarily this is a "scratch your own itch" app.
 	alt="Screenshot today graph" width="160"/>
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screencap-last3.png"
 	alt="Screenshot last 3 days" width="160"/>
-
-## Download
-
-<a href="https://play.google.com/store/apps/details?id=de.markusfisch.android.screentime"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80"/></a>
