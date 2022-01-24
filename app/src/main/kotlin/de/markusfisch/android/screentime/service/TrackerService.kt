@@ -17,11 +17,14 @@ import de.markusfisch.android.screentime.data.Summary
 import de.markusfisch.android.screentime.data.summarizeDay
 import de.markusfisch.android.screentime.data.timeRangeColloquial
 import de.markusfisch.android.screentime.notification.buildNotification
-import de.markusfisch.android.screentime.receiver.*
+import de.markusfisch.android.screentime.receiver.ACTION
+import de.markusfisch.android.screentime.receiver.BATTERY_LEVEL
+import de.markusfisch.android.screentime.receiver.EventReceiver
+import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import kotlinx.coroutines.*
 import java.lang.Runnable
 
-val screenReceiver = EventReceiver()
+val eventReceiver = EventReceiver()
 
 fun Context.startTrackerService(
 	callback: ((intent: Intent) -> Any)? = null
@@ -64,7 +67,7 @@ class TrackerService : Service() {
 		filter.addAction(Intent.ACTION_SCREEN_ON)
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		filter.addAction(Intent.ACTION_USER_PRESENT)
-		registerReceiver(screenReceiver, filter)
+		registerReceiver(eventReceiver, filter)
 
 		scope.launch {
 			val notification = buildAndScheduleNotification()
@@ -76,7 +79,7 @@ class TrackerService : Service() {
 
 	override fun onDestroy() {
 		super.onDestroy()
-		unregisterReceiver(screenReceiver)
+		unregisterReceiver(eventReceiver)
 		job.cancelChildren()
 	}
 
