@@ -67,6 +67,7 @@ class TrackerService : Service() {
 		filter.addAction(Intent.ACTION_SCREEN_ON)
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		filter.addAction(Intent.ACTION_USER_PRESENT)
+		filter.addAction(Intent.ACTION_SHUTDOWN)
 		registerReceiver(eventReceiver, filter)
 
 		scope.launch {
@@ -95,8 +96,16 @@ class TrackerService : Service() {
 		if (intent?.hasExtra(ACTION) == true) {
 			when (intent.getStringExtra(ACTION)) {
 				Intent.ACTION_SCREEN_ON -> updateNotification()
-				Intent.ACTION_SCREEN_OFF -> intent.insertScreenEvent(false)
+				Intent.ACTION_SCREEN_OFF,
+				Intent.ACTION_SHUTDOWN,
+				QUICKBOOT_POWER_OFF,
+				QUICKBOOT_POWER_OFF_HTC -> intent.insertScreenEvent(false)
 				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
+				Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
+					// Since the app was just started by the system, we
+					// have missed any previous ACTION_USER_PRESENT.
+					intent.insertScreenEvent(true)
+				}
 			}
 		}
 		return START_STICKY
@@ -178,6 +187,9 @@ class TrackerService : Service() {
 
 	companion object {
 		const val ID = 1
+
+		private const val QUICKBOOT_POWER_OFF = "android.intent.action.QUICKBOOT_POWEROFF"
+		private const val QUICKBOOT_POWER_OFF_HTC = "com.htc.intent.action.QUICKBOOT_POWEROFF"
 	}
 }
 
