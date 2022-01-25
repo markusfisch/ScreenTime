@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.7
+* Show 0 instead of < 1m for no usage
+* Make usage graph transparent while sliding
+* Handle shutdown/reboot
+
 ## 1.0.6
 * Update graph while using slider
 
