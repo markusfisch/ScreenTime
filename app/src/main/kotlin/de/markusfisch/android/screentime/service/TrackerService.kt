@@ -100,7 +100,11 @@ class TrackerService : Service() {
 				Intent.ACTION_SHUTDOWN,
 				QUICKBOOT_POWER_OFF,
 				QUICKBOOT_POWER_OFF_HTC -> intent.insertScreenEvent(false)
-				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
+				Intent.ACTION_USER_PRESENT -> {
+					// Show <1s as soon as the user is present.
+					updateNotification()
+					intent.insertScreenEvent(true)
+				}
 				Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
 					// Since the app was just started by the system, we
 					// have missed any previous ACTION_USER_PRESENT.
