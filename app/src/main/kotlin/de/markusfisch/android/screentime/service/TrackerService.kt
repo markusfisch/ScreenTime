@@ -13,12 +13,10 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.Summary
 import de.markusfisch.android.screentime.data.summarizeDay
 import de.markusfisch.android.screentime.data.timeRangeColloquial
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.ACTION
-import de.markusfisch.android.screentime.receiver.BATTERY_LEVEL
 import de.markusfisch.android.screentime.receiver.EventReceiver
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import kotlinx.coroutines.*
@@ -51,7 +49,8 @@ class TrackerService : Service() {
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
 
-	private var summary: Summary? = null
+	private var eventId: Long = 0L
+	private var lastNotifcation: Long = 0L
 
 	override fun onCreate() {
 		super.onCreate()
@@ -70,10 +69,15 @@ class TrackerService : Service() {
 		filter.addAction(Intent.ACTION_SHUTDOWN)
 		registerReceiver(eventReceiver, filter)
 
+		val now = System.currentTimeMillis()
+		if (isInteractive()) {
+			insertScreenEvent(now, true)
+		}
+
 		scope.launch {
-			val notification = buildAndScheduleNotification()
+			val notification = buildAndScheduleNotification(now)
 			withContext(Dispatchers.Main) {
-				startForeground(ID, notification)
+				startForeground(NOTIFICATION_ID, notification)
 			}
 		}
 	}
@@ -100,11 +104,7 @@ class TrackerService : Service() {
 				Intent.ACTION_SHUTDOWN,
 				QUICKBOOT_POWER_OFF,
 				QUICKBOOT_POWER_OFF_HTC -> intent.insertScreenEvent(false)
-				Intent.ACTION_USER_PRESENT -> {
-					// Show <1s as soon as the user is present.
-					updateNotification()
-					intent.insertScreenEvent(true)
-				}
+				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
 				Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
 					// Since the app was just started by the system, we
 					// have missed any previous ACTION_USER_PRESENT.
@@ -116,6 +116,13 @@ class TrackerService : Service() {
 	}
 
 	private fun Intent.insertScreenEvent(screenOn: Boolean) {
+		insertScreenEvent(
+			getLongExtra(TIMESTAMP, System.currentTimeMillis()),
+			screenOn
+		)
+	}
+
+	private fun insertScreenEvent(timestamp: Long, screenOn: Boolean) {
 		// Ignore ACTION_SCREEN_OFF events when the device is still
 		// interactive (e.g. when the camera app was opened by double
 		// pressing on/off there's a ACTION_SCREEN_OFF event directly
@@ -123,24 +130,15 @@ class TrackerService : Service() {
 		if (!screenOn && isInteractive()) {
 			return
 		}
-		insertScreenEvent(
-			getLongExtra(TIMESTAMP, System.currentTimeMillis()),
-			screenOn,
-			getFloatExtra(BATTERY_LEVEL, 0f)
-		)
-	}
-
-	private fun insertScreenEvent(
-		timestamp: Long,
-		screenOn: Boolean,
-		battery: Float
-	) {
-		db.insertScreenEvent(timestamp, screenOn, battery)
 		if (screenOn) {
+			eventId = db.insertEvent(timestamp)
 			updateNotification()
 		} else {
 			cancelNotificationUpdate()
-			summary = null
+			if (eventId > 0L) {
+				db.updateEvent(eventId, timestamp)
+			}
+			eventId = 0L
 		}
 	}
 
@@ -165,32 +163,34 @@ class TrackerService : Service() {
 	}
 
 	private fun updateNotification() {
+		val now = System.currentTimeMillis()
+		if (now - lastNotifcation < 500L) {
+			// Skip this update as there's likey no change.
+			return
+		}
+		lastNotifcation = now
 		scope.launch {
-			val notification = buildAndScheduleNotification()
+			val notification = buildAndScheduleNotification(now)
 			withContext(Dispatchers.Main) {
-				notificationManager.notify(ID, notification)
+				notificationManager.notify(NOTIFICATION_ID, notification)
 			}
 		}
 	}
 
-	private fun Context.buildAndScheduleNotification(): Notification {
-		val now = System.currentTimeMillis()
-		val sum = summary ?: summarizeDay(now)
-		val seconds = (sum.total + (if (sum.ongoingSince > -1) {
-			now - sum.ongoingSince
-		} else {
-			0
-		})) / 1000L
+	private fun Context.buildAndScheduleNotification(now: Long): Notification {
 		scheduleNotificationUpdate(msToNextFullMinute(now))
+		if (eventId > 0L) {
+			db.updateEvent(eventId, now)
+		}
 		return buildNotification(
 			R.drawable.ic_notify,
-			timeRangeColloquial(seconds),
+			timeRangeColloquial(summarizeDay(now) / 1000L),
 			Intent(this, MainActivity::class.java)
 		)
 	}
 
 	companion object {
-		const val ID = 1
+		const val NOTIFICATION_ID = 1
 
 		private const val QUICKBOOT_POWER_OFF = "android.intent.action.QUICKBOOT_POWEROFF"
 		private const val QUICKBOOT_POWER_OFF_HTC = "com.htc.intent.action.QUICKBOOT_POWEROFF"
