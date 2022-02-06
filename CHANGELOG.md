@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.8
+* Improve screen time recording
+
 ## 1.0.7
 * Show 0 instead of < 1m for no usage
 * Make usage graph transparent while sliding
