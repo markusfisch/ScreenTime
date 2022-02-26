@@ -128,11 +128,10 @@ class MainActivity : Activity() {
 		val d = days + 1
 		val daysString = resources.getQuantityString(R.plurals.days, d, d)
 		scope.launch {
-			val availableHistoryInDays = db.getAvailableHistoryInDays()
+			val max = min(30, db.getAvailableHistoryInDays())
 			val bitmap = chart.draw(timestamp, days, daysString)
 			withContext(Dispatchers.Main) {
 				usageView.setImageBitmap(bitmap)
-				val max = min(30, availableHistoryInDays)
 				if (dayBar.max != max) {
 					dayBar.max = max
 				}
