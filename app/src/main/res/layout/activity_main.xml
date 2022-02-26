@@ -14,8 +14,9 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_above="@+id/days"
-		android:gravity="center|bottom"
-		android:padding="16dp"
+		android:gravity="center"
+		android:paddingBottom="16dp"
+		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:visibility="gone"/>
 	<SeekBar
 		android:id="@+id/days"
