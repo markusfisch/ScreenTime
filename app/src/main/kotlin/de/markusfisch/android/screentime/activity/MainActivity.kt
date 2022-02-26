@@ -40,6 +40,7 @@ class MainActivity : Activity() {
 	private lateinit var usageView: ImageView
 	private lateinit var dayLabel: TextView
 	private lateinit var dayBar: SeekBar
+
 	private var updateUsageRunnable: Runnable? = null
 	private var usageChart: UsageChart? = null
 	private var paused = true
@@ -50,8 +51,11 @@ class MainActivity : Activity() {
 		usageView = findViewById(R.id.graph)
 		dayLabel = findViewById(R.id.label)
 		dayBar = findViewById(R.id.days)
+		dayBar.initDayBar()
+	}
 
-		dayBar.setOnSeekBarChangeListener(object :
+	private fun SeekBar.initDayBar() {
+		setOnSeekBarChangeListener(object :
 			SeekBar.OnSeekBarChangeListener {
 			override fun onProgressChanged(
 				seekBar: SeekBar,
@@ -75,7 +79,7 @@ class MainActivity : Activity() {
 				setEditing(false)
 			}
 		})
-		dayBar.progress = prefs.getInt(DAYS, dayBar.progress)
+		progress = prefs.getInt(DAYS, progress)
 	}
 
 	private fun setEditing(editing: Boolean) {
