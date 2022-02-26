@@ -27,7 +27,7 @@ class UsageChart(
 	private val numberBounds = Rect()
 	private val sumBounds = Rect()
 	private val daysBounds = Rect()
-	private val sumPaint = Paint()
+	private val sumPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
 	private var even = true
 
