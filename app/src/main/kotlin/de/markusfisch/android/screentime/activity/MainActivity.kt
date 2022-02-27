@@ -6,15 +6,15 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
-import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.view.View
-import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.data.UsageChart
 import de.markusfisch.android.screentime.service.msToNextFullMinute
+import de.markusfisch.android.screentime.widget.UsageGraphView
 import kotlinx.coroutines.*
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -22,7 +22,6 @@ import kotlin.math.roundToInt
 class MainActivity : Activity() {
 	private val job = SupervisorJob()
 	private val scope = CoroutineScope(Dispatchers.Default + job)
-	private val prefs by lazy { getDefaultSharedPreferences(this) }
 	private val usagePaint by lazy {
 		fillPaint(resources.getColor(R.color.usage)).apply {
 			xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
@@ -37,7 +36,7 @@ class MainActivity : Activity() {
 		}
 	}
 
-	private lateinit var usageView: ImageView
+	private lateinit var usageView: UsageGraphView
 	private lateinit var dayLabel: TextView
 	private lateinit var dayBar: SeekBar
 
@@ -49,9 +48,28 @@ class MainActivity : Activity() {
 		super.onCreate(state)
 		setContentView(R.layout.activity_main)
 		usageView = findViewById(R.id.graph)
+		usageView.initUsageView()
 		dayLabel = findViewById(R.id.label)
 		dayBar = findViewById(R.id.days)
 		dayBar.initDayBar()
+	}
+
+	private fun UsageGraphView.initUsageView() {
+		onDayChangeChanged = {
+			postUsageUpdate(dayBar.progress)
+		}
+		onDayChangeChange = { hour ->
+			dayLabel.text = getString(
+				R.string.day_change_at,
+				String.format("%02d:00", hour)
+			)
+		}
+		onStartTrackingTouch = {
+			dayLabel.visibility = View.VISIBLE
+		}
+		onStopTrackingTouch = {
+			dayLabel.visibility = View.GONE
+		}
 	}
 
 	private fun SeekBar.initDayBar() {
@@ -65,7 +83,7 @@ class MainActivity : Activity() {
 				if (fromUser) {
 					val d = progress + 1
 					dayLabel.text = resources.getQuantityString(
-						R.plurals.preview, d, d
+						R.plurals.show_x_days, d, d
 					)
 					postUsageUpdate(progress)
 				}
@@ -79,7 +97,7 @@ class MainActivity : Activity() {
 				setEditing(false)
 			}
 		})
-		progress = prefs.getInt(DAYS, progress)
+		progress = prefs.graphRange
 	}
 
 	private fun setEditing(editing: Boolean) {
@@ -106,10 +124,7 @@ class MainActivity : Activity() {
 	override fun onDestroy() {
 		super.onDestroy()
 		job.cancelChildren()
-		prefs.edit().apply {
-			putInt(DAYS, dayBar.progress)
-			apply()
-		}
+		prefs.graphRange = dayBar.progress
 	}
 
 	private fun update(
@@ -131,7 +146,7 @@ class MainActivity : Activity() {
 			val max = min(30, db.getAvailableHistoryInDays())
 			val bitmap = chart.draw(timestamp, days, daysString)
 			withContext(Dispatchers.Main) {
-				usageView.setImageBitmap(bitmap)
+				usageView.setGraphBitmap(bitmap)
 				if (dayBar.max != max) {
 					dayBar.max = max
 				}
@@ -171,10 +186,6 @@ class MainActivity : Activity() {
 			usageView.removeCallbacks(updateUsageRunnable)
 			updateUsageRunnable = null
 		}
-	}
-
-	companion object {
-		private const val DAYS = "days"
 	}
 }
 

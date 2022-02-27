@@ -2,13 +2,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	<ImageView
+	<de.markusfisch.android.screentime.widget.UsageGraphView
 		android:id="@+id/graph"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_above="@+id/days"
-		android:padding="16dp"
-		android:contentDescription="@string/usage_graph" />
+		android:layout_above="@+id/days"/>
 	<TextView
 		android:id="@+id/label"
 		android:layout_width="match_parent"

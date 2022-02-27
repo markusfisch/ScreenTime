@@ -2,20 +2,20 @@ package de.markusfisch.android.screentime.data
 
 import android.graphics.*
 import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.app.prefs
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
-private const val DAY_IN_MS = 86400000L
-private const val TAU = Math.PI + Math.PI
-private const val PI2 = Math.PI / 2
+const val TAU = Math.PI + Math.PI
+const val PI2 = Math.PI / 2
 
 class UsageChart(
 	val width: Int,
 	val height: Int,
-	val usagePaint: Paint,
-	val dialPaint: Paint,
-	val textPaint: Paint
+	private val usagePaint: Paint,
+	private val dialPaint: Paint,
+	private val textPaint: Paint
 ) {
 	private val bitmapA = Bitmap.createBitmap(
 		width,
@@ -65,9 +65,11 @@ class UsageChart(
 		lastDaysString: String
 	) {
 		drawCircle(centerX, centerY, radius, dialPaint)
+		val dayStart = prefs.dayStart(timestamp - DAY_IN_MS * days)
+		val dayEnd = prefs.dayStart(timestamp) + DAY_IN_MS
 		val seconds = drawRecordsBetween(
-			startOfDay(timestamp - DAY_IN_MS * days),
-			endOfDay(timestamp),
+			dayStart,
+			dayEnd,
 			squareRect.apply {
 				set(
 					centerX - radius,
@@ -177,12 +179,13 @@ private fun Canvas.drawRecordsBetween(
 	rect: RectF,
 	paint: Paint
 ): Long {
+	val dayStart = startOfDay(from)
 	var total = 0L
 	db.forEachRecordBetween(from, to) { start, duration ->
 		total += duration
 		drawArc(
 			rect,
-			dayTimeToAngle(start - from) - 90f,
+			dayTimeToAngle(start - dayStart) - 90f,
 			dayTimeToAngle(duration),
 			true,
 			paint

@@ -1,13 +1,13 @@
 <resources>
 	<string name="app_name">Screen Time</string>
 	<string name="recording">Recording screen on/off events</string>
-	<string name="usage_graph">Usage graph</string>
 	<plurals name="days">
 		<item quantity="one">Today</item>
 		<item quantity="other">Last %1$d days</item>
 	</plurals>
-	<plurals name="preview">
+	<plurals name="show_x_days">
 		<item quantity="one">Show just today</item>
 		<item quantity="other">Show sum of the last %1$d days</item>
 	</plurals>
+	<string name="day_change_at">Day change at %1$s</string>
 </resources>
