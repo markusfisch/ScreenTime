@@ -11,6 +11,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.app.loadColor
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.data.UsageChart
 import de.markusfisch.android.screentime.service.msToNextFullMinute
@@ -23,15 +24,15 @@ class MainActivity : Activity() {
 	private val job = SupervisorJob()
 	private val scope = CoroutineScope(Dispatchers.Default + job)
 	private val usagePaint by lazy {
-		fillPaint(resources.getColor(R.color.usage)).apply {
+		fillPaint(loadColor(R.color.usage)).apply {
 			xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
 		}
 	}
 	private val dialPaint by lazy {
-		fillPaint(resources.getColor(R.color.dial))
+		fillPaint(loadColor(R.color.dial))
 	}
 	private val textPaint by lazy {
-		fillPaint(resources.getColor(R.color.text)).apply {
+		fillPaint(loadColor(R.color.text)).apply {
 			typeface = Typeface.DEFAULT_BOLD
 		}
 	}

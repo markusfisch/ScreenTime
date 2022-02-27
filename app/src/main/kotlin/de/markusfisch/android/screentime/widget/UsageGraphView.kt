@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import de.markusfisch.android.screentime.R
+import de.markusfisch.android.screentime.app.loadColor
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.data.PI2
 import de.markusfisch.android.screentime.data.TAU
@@ -20,15 +21,16 @@ class UsageGraphView : View {
 	private val dp = resources.displayMetrics.density
 	private val markerSizeRadius = 6f * dp
 	private val markerPos = PointF()
-	private val markerColor = resources.getColor(R.color.accent)
+	private val markerColor = context.loadColor(R.color.accent)
 	private val markerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 		style = Paint.Style.FILL
 	}
 	private val rangePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 		style = Paint.Style.STROKE
 		strokeWidth = 2f * dp
-		color = 0x1a000000 or (resources.getColor(R.color.text) and 0xffffff)
+		color = 0x1a000000 or (context.loadColor(R.color.text) and 0xffffff)
 	}
+
 	private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 	private val touchRadius = 24f * dp
 
