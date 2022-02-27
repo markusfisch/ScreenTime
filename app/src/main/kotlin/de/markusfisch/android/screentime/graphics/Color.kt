@@ -1,4 +1,4 @@
-package de.markusfisch.android.screentime.app
+package de.markusfisch.android.screentime.graphics
 
 import android.content.Context
 import android.os.Build

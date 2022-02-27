@@ -1,8 +1,11 @@
-package de.markusfisch.android.screentime.data
+package de.markusfisch.android.screentime.graphics
 
 import android.graphics.*
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
+import de.markusfisch.android.screentime.data.DAY_IN_MS
+import de.markusfisch.android.screentime.data.startOfDay
+import de.markusfisch.android.screentime.data.timeRangeColloquial
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin

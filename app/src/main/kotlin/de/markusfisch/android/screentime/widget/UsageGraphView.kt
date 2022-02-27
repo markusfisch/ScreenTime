@@ -7,10 +7,10 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import de.markusfisch.android.screentime.R
-import de.markusfisch.android.screentime.app.loadColor
 import de.markusfisch.android.screentime.app.prefs
-import de.markusfisch.android.screentime.data.PI2
-import de.markusfisch.android.screentime.data.TAU
+import de.markusfisch.android.screentime.graphics.PI2
+import de.markusfisch.android.screentime.graphics.TAU
+import de.markusfisch.android.screentime.graphics.loadColor
 import kotlin.math.*
 
 private const val RAD_PER_HOUR = Math.PI / 12f

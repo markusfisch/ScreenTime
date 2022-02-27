@@ -11,9 +11,9 @@ import android.widget.SeekBar
 import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.app.loadColor
 import de.markusfisch.android.screentime.app.prefs
-import de.markusfisch.android.screentime.data.UsageChart
+import de.markusfisch.android.screentime.graphics.UsageChart
+import de.markusfisch.android.screentime.graphics.loadColor
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import de.markusfisch.android.screentime.widget.UsageGraphView
 import kotlinx.coroutines.*
