@@ -27,6 +27,14 @@ class Database {
 		return 0
 	}
 
+	fun summarizeDay(timestamp: Long): Long {
+		var total = 0L
+		forEachRecordOfDay(timestamp) { _, duration ->
+			total += duration
+		}
+		return total
+	}
+
 	fun forEachRecordOfDay(
 		timestamp: Long,
 		callback: (start: Long, duration: Long) -> Unit

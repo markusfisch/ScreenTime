@@ -13,7 +13,6 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.summarizeDay
 import de.markusfisch.android.screentime.data.timeRangeColloquial
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.ACTION
@@ -184,7 +183,7 @@ class TrackerService : Service() {
 		}
 		return buildNotification(
 			R.drawable.ic_notify,
-			timeRangeColloquial(summarizeDay(now) / 1000L),
+			timeRangeColloquial(db.summarizeDay(now) / 1000L),
 			Intent(this, MainActivity::class.java)
 		)
 	}
