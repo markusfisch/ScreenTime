@@ -8,7 +8,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
-import android.widget.TextView
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
@@ -38,7 +37,6 @@ class MainActivity : Activity() {
 	}
 
 	private lateinit var usageView: UsageGraphView
-	private lateinit var dayLabel: TextView
 	private lateinit var dayBar: SeekBar
 
 	private var updateUsageRunnable: Runnable? = null
@@ -50,7 +48,6 @@ class MainActivity : Activity() {
 		setContentView(R.layout.activity_main)
 		usageView = findViewById(R.id.graph)
 		usageView.initUsageView()
-		dayLabel = findViewById(R.id.label)
 		dayBar = findViewById(R.id.days)
 		dayBar.initDayBar()
 	}
@@ -60,16 +57,13 @@ class MainActivity : Activity() {
 			postUsageUpdate(dayBar.progress)
 		}
 		onDayChangeChange = { hour ->
-			dayLabel.text = getString(
+			title = getString(
 				R.string.day_change_at,
 				String.format("%02d:00", hour)
 			)
 		}
-		onStartTrackingTouch = {
-			dayLabel.visibility = View.VISIBLE
-		}
 		onStopTrackingTouch = {
-			dayLabel.visibility = View.GONE
+			setTitle(R.string.app_name)
 		}
 	}
 
@@ -83,7 +77,7 @@ class MainActivity : Activity() {
 			) {
 				if (fromUser) {
 					val d = progress + 1
-					dayLabel.text = resources.getQuantityString(
+					title = resources.getQuantityString(
 						R.plurals.show_x_days, d, d
 					)
 					postUsageUpdate(progress)
@@ -91,22 +85,15 @@ class MainActivity : Activity() {
 			}
 
 			override fun onStartTrackingTouch(seekBar: SeekBar) {
-				setEditing(true)
+				usageView.setDisabled(true)
 			}
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				setEditing(false)
+				usageView.setDisabled(false)
+				setTitle(R.string.app_name)
 			}
 		})
 		progress = prefs.graphRange
-	}
-
-	private fun setEditing(editing: Boolean) {
-		usageView.alpha = if (editing) .1f else 1f
-		dayLabel.apply {
-			text = ""
-			visibility = if (editing) View.VISIBLE else View.GONE
-		}
 	}
 
 	override fun onResume() {
@@ -193,4 +180,8 @@ class MainActivity : Activity() {
 private fun fillPaint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 	color = col
 	style = Paint.Style.FILL
+}
+
+private fun View.setDisabled(disabled: Boolean) {
+	alpha = if (disabled) .5f else 1f
 }

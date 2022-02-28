@@ -40,7 +40,6 @@ class UsageGraphView : View {
 
 	var onDayChangeChanged: (() -> Unit)? = null
 	var onDayChangeChange: ((Int) -> Unit)? = null
-	var onStartTrackingTouch: (() -> Unit)? = null
 	var onStopTrackingTouch: (() -> Unit)? = null
 
 	constructor(context: Context, attrs: AttributeSet, defStyle: Int) :
@@ -75,7 +74,7 @@ class UsageGraphView : View {
 		canvas.drawColor(0)
 		usageGraph?.let {
 			canvas.drawBitmap(it, usageGraphRect, viewRect, bitmapPaint.apply {
-				alpha = if (markerGrabbed) 0x1a else 0xff
+				alpha = if (markerGrabbed) 0x80 else 0xff
 			})
 		}
 		if (markerGrabbed) {
