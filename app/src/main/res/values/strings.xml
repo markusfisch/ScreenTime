@@ -9,5 +9,5 @@
 		<item quantity="one">Show just today</item>
 		<item quantity="other">Show sum of the last %1$d days</item>
 	</plurals>
-	<string name="day_change_at">Day change at %1$s</string>
+	<string name="day_change_at">Set day change to %1$s</string>
 </resources>
