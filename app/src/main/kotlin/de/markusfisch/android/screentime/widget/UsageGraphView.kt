@@ -109,14 +109,12 @@ class UsageGraphView : View {
 		event ?: return super.onTouchEvent(event)
 		return when (event.action and MotionEvent.ACTION_MASK) {
 			MotionEvent.ACTION_DOWN -> {
-				if (hypot(
-						markerPos.x - event.x,
-						markerPos.y - event.y
-					) < touchRadius
-				) {
-					markerGrabbed = true
-					onStartTrackingTouch?.invoke()
-				}
+				markerGrabbed = abs(
+					hypot(
+						event.x - viewRect.centerX(),
+						event.y - viewRect.centerY()
+					) - markerRadius
+				) < touchRadius
 				invalidate()
 				true
 			}
