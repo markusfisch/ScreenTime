@@ -6,7 +6,6 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
-import android.view.View
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
@@ -84,12 +83,9 @@ class MainActivity : Activity() {
 				}
 			}
 
-			override fun onStartTrackingTouch(seekBar: SeekBar) {
-				usageView.setDisabled(true)
-			}
+			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				usageView.setDisabled(false)
 				setTitle(R.string.app_name)
 			}
 		})
@@ -180,8 +176,4 @@ class MainActivity : Activity() {
 private fun fillPaint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 	color = col
 	style = Paint.Style.FILL
-}
-
-private fun View.setDisabled(disabled: Boolean) {
-	alpha = if (disabled) .5f else 1f
 }
