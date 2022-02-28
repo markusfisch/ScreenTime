@@ -30,8 +30,6 @@ class UsageGraphView : View {
 		strokeWidth = 2f * dp
 		color = 0x1a000000 or (context.loadColor(R.color.text) and 0xffffff)
 	}
-
-	private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 	private val touchRadius = 24f * dp
 
 	private var usageGraph: Bitmap? = null
@@ -73,9 +71,7 @@ class UsageGraphView : View {
 		super.onDraw(canvas)
 		canvas.drawColor(0)
 		usageGraph?.let {
-			canvas.drawBitmap(it, usageGraphRect, viewRect, bitmapPaint.apply {
-				alpha = if (markerGrabbed) 0x80 else 0xff
-			})
+			canvas.drawBitmap(it, usageGraphRect, viewRect, null)
 		}
 		if (markerGrabbed) {
 			canvas.drawCircle(
