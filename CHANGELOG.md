@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.1.0
+* Make the hour at which a day changes selectable
+* Show change message in title bar
+* Add a monochome launcher icon for Android 13
+
 ## 1.0.8
 * Improve screen time recording
 
