@@ -66,6 +66,9 @@ class TrackerService : Service() {
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		filter.addAction(Intent.ACTION_USER_PRESENT)
 		filter.addAction(Intent.ACTION_SHUTDOWN)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			filter.addAction(Intent.ACTION_DREAMING_STARTED)
+		}
 		registerReceiver(eventReceiver, filter)
 
 		val now = System.currentTimeMillis()
@@ -99,10 +102,17 @@ class TrackerService : Service() {
 		if (intent?.hasExtra(ACTION) == true) {
 			when (intent.getStringExtra(ACTION)) {
 				Intent.ACTION_SCREEN_ON -> updateNotification()
-				Intent.ACTION_SCREEN_OFF,
+				// Ignore ACTION_SCREEN_OFF events when the device is still
+				// interactive (e.g. when the camera app was opened by double
+				// pressing on/off there's a ACTION_SCREEN_OFF event directly
+				// followed by ACTION_SCREEN_ON).
+				Intent.ACTION_SCREEN_OFF -> if (!isInteractive()) {
+					intent.insertScreenEvent(false)
+				}
 				Intent.ACTION_SHUTDOWN,
 				QUICKBOOT_POWER_OFF,
 				QUICKBOOT_POWER_OFF_HTC -> intent.insertScreenEvent(false)
+				Intent.ACTION_DREAMING_STARTED -> intent.insertScreenEvent(false)
 				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
 				Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
 					// Since the app was just started by the system, we
@@ -122,13 +132,6 @@ class TrackerService : Service() {
 	}
 
 	private fun insertScreenEvent(timestamp: Long, screenOn: Boolean) {
-		// Ignore ACTION_SCREEN_OFF events when the device is still
-		// interactive (e.g. when the camera app was opened by double
-		// pressing on/off there's a ACTION_SCREEN_OFF event directly
-		// followed by ACTION_SCREEN_ON).
-		if (!screenOn && isInteractive()) {
-			return
-		}
 		if (screenOn) {
 			eventId = db.insertEvent(timestamp)
 			updateNotification()
