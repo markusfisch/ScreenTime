@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.1.1
+* Stop counting when the screen saver starts
+
 ## 1.1.0
 * Make the hour at which a day changes selectable
 * Show change message in title bar
