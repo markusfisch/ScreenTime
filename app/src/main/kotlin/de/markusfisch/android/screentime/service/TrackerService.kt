@@ -167,7 +167,7 @@ class TrackerService : Service() {
 	private fun updateNotification() {
 		val now = System.currentTimeMillis()
 		if (now - lastNotifcation < 500L) {
-			// Skip this update as there's likey no change.
+			// Skip this update as there is probably no change.
 			return
 		}
 		lastNotifcation = now
