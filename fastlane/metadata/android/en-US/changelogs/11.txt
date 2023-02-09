@@ -1,0 +1,2 @@
+* Stop counting when the screen saver starts
+
