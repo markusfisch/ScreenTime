@@ -1,0 +1,13 @@
+<resources>
+	<string name="app_name">Skærmtid</string>
+	<string name="recording">Optagelse af skærm tænd/slukket for begivenheder</string>
+	<plurals name="days">
+		<item quantity="one">I dag</item>
+		<item quantity="other">Sidste %1$d dage</item>
+	</plurals>
+	<plurals name="show_x_days">
+		<item quantity="one">Vis kun for i dag</item>
+		<item quantity="other">Vis sum for de sidste %1$d dage</item>
+	</plurals>
+	<string name="day_change_at">Nulstil skærmtid kl. %1$s</string>
+</resources>
