@@ -1,0 +1,8 @@
+Viser din skærmtid i en permanent notifikation.
+
+Ved at gøre skærmtid mere synlig, kan du bedre se hvor meget af dagen, du bruger på din telefon. Uden at blive dømt for det. Bare så du ved det.
+
+Denne app har en åben kildekode (open source): https://github.com/markusfisch/ScreenTime
+
+
+
