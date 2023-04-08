@@ -10,6 +10,7 @@ import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
+import de.markusfisch.android.screentime.app.requestNotificationPermission
 import de.markusfisch.android.screentime.graphics.UsageChart
 import de.markusfisch.android.screentime.graphics.loadColor
 import de.markusfisch.android.screentime.service.msToNextFullMinute
@@ -49,6 +50,7 @@ class MainActivity : Activity() {
 		usageView.initUsageView()
 		dayBar = findViewById(R.id.days)
 		dayBar.initDayBar()
+		requestNotificationPermission()
 	}
 
 	private fun UsageGraphView.initUsageView() {
