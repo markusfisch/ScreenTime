@@ -101,7 +101,7 @@ class UsageGraphView : View {
 
 	@SuppressLint("ClickableViewAccessibility")
 	override fun onTouchEvent(event: MotionEvent?): Boolean {
-		event ?: return super.onTouchEvent(event)
+		event ?: return super.onTouchEvent(null)
 		return when (event.action and MotionEvent.ACTION_MASK) {
 			MotionEvent.ACTION_DOWN -> {
 				markerGrabbed = abs(
