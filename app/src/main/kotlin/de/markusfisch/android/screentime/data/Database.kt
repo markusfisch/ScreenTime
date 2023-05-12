@@ -35,7 +35,7 @@ class Database {
 		return total
 	}
 
-	fun forEachRecordOfDay(
+	private fun forEachRecordOfDay(
 		timestamp: Long,
 		callback: (start: Long, duration: Long) -> Unit
 	) {

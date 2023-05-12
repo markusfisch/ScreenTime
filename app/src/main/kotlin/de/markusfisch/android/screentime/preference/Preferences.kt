@@ -29,7 +29,7 @@ class Preferences {
 		update()
 	}
 
-	fun update() {
+	private fun update() {
 		graphRange = preferences.getInt(GRAPH_RANGE, graphRange)
 		hourOfDayChange = preferences.getInt(
 			HOUR_OF_DAY_CHANGE,
