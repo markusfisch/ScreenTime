@@ -6,6 +6,8 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.db
@@ -13,6 +15,8 @@ import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.app.requestNotificationPermission
 import de.markusfisch.android.screentime.graphics.UsageChart
 import de.markusfisch.android.screentime.graphics.loadColor
+import de.markusfisch.android.screentime.os.isIgnoringBatteryOptimizations
+import de.markusfisch.android.screentime.os.requestDisableBatteryOptimization
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import de.markusfisch.android.screentime.widget.UsageGraphView
 import kotlinx.coroutines.*
@@ -51,6 +55,29 @@ class MainActivity : Activity() {
 		dayBar = findViewById(R.id.days)
 		dayBar.initDayBar()
 		requestNotificationPermission()
+	}
+
+	override fun onCreateOptionsMenu(menu: Menu): Boolean {
+		menuInflater.inflate(R.menu.activity_main, menu)
+		return true
+	}
+
+	override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+		if (menu != null && isIgnoringBatteryOptimizations()) {
+			menu.findItem(R.id.disable_battery_optimization).isVisible = false
+		}
+		return super.onPrepareOptionsMenu(menu)
+	}
+
+	override fun onOptionsItemSelected(item: MenuItem): Boolean {
+		when (item.itemId) {
+			R.id.disable_battery_optimization -> {
+				requestDisableBatteryOptimization()
+				invalidateOptionsMenu()
+				return true
+			}
+		}
+		return super.onOptionsItemSelected(item)
 	}
 
 	private fun UsageGraphView.initUsageView() {

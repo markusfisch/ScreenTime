@@ -10,4 +10,5 @@
 		<item quantity="other">Show sum of the last %1$d days</item>
 	</plurals>
 	<string name="day_change_at">Set day change to %1$s</string>
+	<string name="disable_battery_optimization">Disable battery optimization</string>
 </resources>

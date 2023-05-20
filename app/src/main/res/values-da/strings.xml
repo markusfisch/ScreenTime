@@ -10,4 +10,5 @@
 		<item quantity="other">Vis sum for de sidste %1$d dage</item>
 	</plurals>
 	<string name="day_change_at">Nulstil skærmtid kl. %1$s</string>
+	<string name="disable_battery_optimization">Deaktivere batterioptimering</string>
 </resources>
