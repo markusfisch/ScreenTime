@@ -1,0 +1,4 @@
+* Update starting foreground service for Android 12+
+* Add menu option to ignore battery optimization
+* Add Danish translation
+

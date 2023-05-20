@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.1.2
+* Update starting foreground service for Android 12+
+* Add menu option to ignore battery optimization
+* Add Danish translation
+
 ## 1.1.1
 * Stop counting when the screen saver starts
 
