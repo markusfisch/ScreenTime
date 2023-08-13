@@ -19,7 +19,13 @@ import de.markusfisch.android.screentime.os.isIgnoringBatteryOptimizations
 import de.markusfisch.android.screentime.os.requestDisableBatteryOptimization
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import de.markusfisch.android.screentime.widget.UsageGraphView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.math.roundToInt
 

@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.data.startOfDay
-import java.util.*
+import java.util.Calendar
 import kotlin.math.max
 import kotlin.math.min
 

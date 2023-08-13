@@ -1,6 +1,6 @@
 package de.markusfisch.android.screentime.data
 
-import java.util.*
+import java.util.Calendar
 
 const val DAY_IN_MS = 86400000L
 

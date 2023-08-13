@@ -113,6 +113,7 @@ class UsageGraphView : View {
 				invalidate()
 				true
 			}
+
 			MotionEvent.ACTION_MOVE -> {
 				if (markerGrabbed) {
 					val angle = angleFromPos(event.x, event.y)
@@ -122,6 +123,7 @@ class UsageGraphView : View {
 				}
 				true
 			}
+
 			MotionEvent.ACTION_UP -> {
 				if (ungrab()) {
 					prefs.hourOfDayChange =
@@ -131,10 +133,12 @@ class UsageGraphView : View {
 				}
 				true
 			}
+
 			MotionEvent.ACTION_CANCEL -> {
 				ungrab()
 				true
 			}
+
 			else -> super.onTouchEvent(event)
 		}
 	}

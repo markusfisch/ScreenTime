@@ -109,9 +109,11 @@ class TrackerService : Service() {
 				Intent.ACTION_SCREEN_OFF -> if (!isInteractive()) {
 					intent.insertScreenEvent(false)
 				}
+
 				Intent.ACTION_SHUTDOWN,
 				QUICKBOOT_POWER_OFF,
 				QUICKBOOT_POWER_OFF_HTC -> intent.insertScreenEvent(false)
+
 				Intent.ACTION_DREAMING_STARTED -> intent.insertScreenEvent(false)
 				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
 				Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
