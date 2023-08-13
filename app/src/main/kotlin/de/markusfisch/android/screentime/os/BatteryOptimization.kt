@@ -9,13 +9,10 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 
-fun Context.isIgnoringBatteryOptimizations(): Boolean {
-	if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-		return true
-	}
-	val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-	return pm.isIgnoringBatteryOptimizations(packageName)
-}
+fun Context.isIgnoringBatteryOptimizations(): Boolean =
+	Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (
+			getSystemService(Context.POWER_SERVICE) as PowerManager
+			).isIgnoringBatteryOptimizations(packageName)
 
 // This app does not consume any significant energy and should, by its very
 // nature, always be running to fulfil its purpose.
