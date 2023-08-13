@@ -9,12 +9,8 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-class Database {
-	private lateinit var db: SQLiteDatabase
-
-	fun open(context: Context) {
-		db = OpenHelper(context).writableDatabase
-	}
+class Database(context: Context) {
+	private val db: SQLiteDatabase = OpenHelper(context).writableDatabase
 
 	fun getAvailableHistoryInDays(
 		now: Long = System.currentTimeMillis()

@@ -9,8 +9,9 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
-class Preferences {
-	lateinit var preferences: SharedPreferences
+class Preferences(context: Context) {
+	private val preferences: SharedPreferences =
+		PreferenceManager.getDefaultSharedPreferences(context)
 
 	var graphRange = 0
 		set(value) {
@@ -24,12 +25,7 @@ class Preferences {
 			field = clamped
 		}
 
-	fun init(context: Context) {
-		preferences = PreferenceManager.getDefaultSharedPreferences(context)
-		update()
-	}
-
-	private fun update() {
+	init {
 		graphRange = preferences.getInt(GRAPH_RANGE, graphRange)
 		hourOfDayChange = preferences.getInt(
 			HOUR_OF_DAY_CHANGE,
