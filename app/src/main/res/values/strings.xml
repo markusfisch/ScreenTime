@@ -11,4 +11,9 @@
 	</plurals>
 	<string name="day_change_at">Set day change to %1$s</string>
 	<string name="disable_battery_optimization">Disable battery optimization</string>
+	<string name="export_database">Export database</string>
+	<string name="export_successful">Export successful</string>
+	<string name="export_failed">Export failed</string>
+	<string name="save_as">Save to Downloads as:</string>
+	<string name="enter_file_name">Enter a file name</string>
 </resources>

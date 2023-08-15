@@ -8,9 +8,9 @@ import android.graphics.Rect
 import android.graphics.RectF
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
-import de.markusfisch.android.screentime.data.DAY_IN_MS
-import de.markusfisch.android.screentime.data.startOfDay
-import de.markusfisch.android.screentime.data.timeRangeColloquial
+import de.markusfisch.android.screentime.database.DAY_IN_MS
+import de.markusfisch.android.screentime.database.startOfDay
+import de.markusfisch.android.screentime.database.timeRangeColloquial
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin

@@ -1,18 +1,21 @@
 package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Build
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
+import android.widget.Toast
 import de.markusfisch.android.screentime.R
-import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.app.prefs
-import de.markusfisch.android.screentime.app.requestNotificationPermission
+import de.markusfisch.android.screentime.app.*
+import de.markusfisch.android.screentime.database.exportDatabase
+import de.markusfisch.android.screentime.dialog.askForName
 import de.markusfisch.android.screentime.graphics.UsageChart
 import de.markusfisch.android.screentime.graphics.loadColor
 import de.markusfisch.android.screentime.os.isIgnoringBatteryOptimizations
@@ -53,6 +56,20 @@ class MainActivity : Activity() {
 	private var usageChart: UsageChart? = null
 	private var paused = true
 
+	override fun onRequestPermissionsResult(
+		requestCode: Int,
+		permissions: Array<String>,
+		grantResults: IntArray
+	) {
+		when (requestCode) {
+			PERMISSION_WRITE -> if (grantResults.isNotEmpty() &&
+				grantResults[0] == PackageManager.PERMISSION_GRANTED
+			) {
+				runPermissionCallback()
+			}
+		}
+	}
+
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
 		setContentView(R.layout.activity_main)
@@ -76,14 +93,43 @@ class MainActivity : Activity() {
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
-		when (item.itemId) {
+		return when (item.itemId) {
 			R.id.disable_battery_optimization -> {
 				requestDisableBatteryOptimization()
 				invalidateOptionsMenu()
-				return true
+				true
+			}
+			R.id.export_database -> {
+				askToExportToFile()
+				true
+			}
+			else -> super.onOptionsItemSelected(item)
+		}
+	}
+
+	private fun askToExportToFile() {
+		// Write permission is only required before Android Q.
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+			!requestWritePermission() { askToExportToFile() }
+		) {
+			return
+		}
+		askForName(R.string.save_as, "screen_time.db") { name ->
+			scope.launch {
+				val messageId = if (exportDatabase(name)) {
+					R.string.export_successful
+				} else {
+					R.string.export_failed
+				}
+				withContext(Dispatchers.Main) {
+					Toast.makeText(
+						this@MainActivity,
+						messageId,
+						Toast.LENGTH_LONG
+					).show()
+				}
 			}
 		}
-		return super.onOptionsItemSelected(item)
 	}
 
 	private fun UsageGraphView.initUsageView() {

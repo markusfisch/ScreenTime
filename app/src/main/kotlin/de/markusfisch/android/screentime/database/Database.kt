@@ -1,4 +1,4 @@
-package de.markusfisch.android.screentime.data
+package de.markusfisch.android.screentime.database
 
 import android.content.ContentValues
 import android.content.Context
@@ -82,7 +82,7 @@ class Database(context: Context) {
 	)
 
 	private class OpenHelper(context: Context) :
-		SQLiteOpenHelper(context, "events.db", null, 3) {
+		SQLiteOpenHelper(context, FILE_NAME, null, 3) {
 		override fun onCreate(db: SQLiteDatabase) {
 			db.createEvents()
 		}
@@ -103,6 +103,8 @@ class Database(context: Context) {
 	}
 
 	companion object {
+		const val FILE_NAME = "events.db"
+
 		private const val EVENTS = "screen_events"
 		private const val EVENTS_ID = "_id"
 		private const val EVENTS_FROM = "_from"

@@ -11,4 +11,9 @@
 	</plurals>
 	<string name="day_change_at">Nulstil skærmtid kl. %1$s</string>
 	<string name="disable_battery_optimization">Deaktivere batterioptimering</string>
+	<string name="export_database">Eksport af database</string>
+	<string name="export_successful">Succesfuld eksport</string>
+	<string name="export_failed">Eksport mislykkedes</string>
+	<string name="save_as">Gem i Downloads som:</string>
+	<string name="enter_file_name">Indtast et filnavn</string>
 </resources>

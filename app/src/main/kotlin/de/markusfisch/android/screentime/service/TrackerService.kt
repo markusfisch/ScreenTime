@@ -13,7 +13,8 @@ import android.os.PowerManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.data.timeRangeColloquial
+import de.markusfisch.android.screentime.database.Database
+import de.markusfisch.android.screentime.database.timeRangeColloquial
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.ACTION
 import de.markusfisch.android.screentime.receiver.EventReceiver

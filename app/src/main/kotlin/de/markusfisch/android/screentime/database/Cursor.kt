@@ -1,4 +1,4 @@
-package de.markusfisch.android.screentime.data
+package de.markusfisch.android.screentime.database
 
 import android.database.Cursor
 
