@@ -115,6 +115,16 @@ class Database(context: Context) {
 		private const val LEGACY_EVENTS_NAME = "name"
 		private const val LEGACY_EVENTS_BATTERY = "battery"
 
+		private fun SQLiteDatabase.createEvents() {
+			execSQL("DROP TABLE IF EXISTS $EVENTS".trimMargin())
+			execSQL(
+				"""CREATE TABLE $EVENTS (
+							$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+							$EVENTS_FROM TIMESTAMP,
+							$EVENTS_TO TIMESTAMP)""".trimMargin()
+			)
+		}
+
 		private fun SQLiteDatabase.addBatteryColumn() = execSQL(
 			"""ALTER TABLE $LEGACY_EVENTS
 				ADD COLUMN $LEGACY_EVENTS_BATTERY REAL""".trimMargin()
@@ -151,16 +161,6 @@ class Database(context: Context) {
 				}
 			}
 			execSQL("DROP TABLE IF EXISTS $LEGACY_EVENTS".trimMargin())
-		}
-
-		private fun SQLiteDatabase.createEvents() {
-			execSQL("DROP TABLE IF EXISTS $EVENTS".trimMargin())
-			execSQL(
-				"""CREATE TABLE $EVENTS (
-							$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-							$EVENTS_FROM TIMESTAMP,
-							$EVENTS_TO TIMESTAMP)""".trimMargin()
-			)
 		}
 
 		private fun SQLiteDatabase.getEarliestTimestamp(): Long {
