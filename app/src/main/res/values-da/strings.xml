@@ -11,6 +11,12 @@
 	</plurals>
 	<string name="day_change_at">Nulstil skærmtid kl. %1$s</string>
 	<string name="disable_battery_optimization">Deaktivere batterioptimering</string>
+	<string name="import_export_database">Import eller eksport af database</string>
+	<string name="import_database">Importer database</string>
+	<string name="cant_find_db">Kan ikke finde databasen</string>
+	<string name="import_failed">Import mislykkedes: %1$s</string>
+	<string name="import_failed_unknown">Import mislykkedes af ukendte årsager</string>
+	<string name="import_successful">Import vellykket</string>
 	<string name="export_database">Eksport af database</string>
 	<string name="export_successful">Succesfuld eksport</string>
 	<string name="export_failed">Eksport mislykkedes</string>

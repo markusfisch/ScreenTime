@@ -5,8 +5,8 @@
 		android:icon="@drawable/ic_action_battery"
 		android:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/export_database"
-		android:title="@string/export_database"
-		android:icon="@drawable/ic_action_export"
+		android:id="@+id/import_export_database"
+		android:title="@string/import_export_database"
+		android:icon="@drawable/ic_action_import_export"
 		android:showAsAction="ifRoom"/>
 </menu>

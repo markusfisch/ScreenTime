@@ -2,9 +2,14 @@ package de.markusfisch.android.screentime.database
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.ContextWrapper
+import android.database.DatabaseErrorHandler
+import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.prefs
+import java.io.File
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -80,6 +85,10 @@ class Database(context: Context) {
 		"$EVENTS_ID = ?",
 		arrayOf(id.toString())
 	)
+
+	fun importDatabase(context: Context, fileName: String): String? {
+		return db.importDatabase(context, fileName)
+	}
 
 	private class OpenHelper(context: Context) :
 		SQLiteOpenHelper(context, FILE_NAME, null, 3) {
@@ -177,5 +186,135 @@ class Database(context: Context) {
 			}
 			return -1L
 		}
+
+		private fun SQLiteDatabase.importDatabase(
+			context: Context,
+			fileName: String
+		): String? {
+			var edb: SQLiteDatabase? = null
+			return try {
+				edb = ImportHelper(
+					ExternalDatabaseContext(context),
+					fileName
+				).readableDatabase
+				beginTransaction()
+				if (importEventsFrom(edb)) {
+					setTransactionSuccessful()
+					null
+				} else {
+					context.getString(R.string.import_failed_unknown)
+				}
+			} catch (e: SQLException) {
+				e.message
+			} finally {
+				if (inTransaction()) {
+					endTransaction()
+				}
+				edb?.close()
+			}
+		}
+
+		private fun SQLiteDatabase.importEventsFrom(
+			src: SQLiteDatabase
+		): Boolean {
+			val cursor = src.rawQuery(
+				"""SELECT *
+				FROM ${Database.EVENTS}
+				ORDER BY ${Database.EVENTS_ID}""".trimIndent(),
+				null
+			) ?: return false
+			val idIndex = cursor.getColumnIndex(Database.EVENTS_ID)
+			val fromIndex = cursor.getColumnIndex(Database.EVENTS_FROM)
+			val toIndex = cursor.getColumnIndex(Database.EVENTS_TO)
+			var success = true
+			if (cursor.moveToFirst()) {
+				do {
+					val srcId = cursor.getLong(idIndex)
+					val from = cursor.getLong(fromIndex)
+					val to = cursor.getLong(toIndex)
+					if (srcId < 1L || from < 1L || to < 1L ||
+						eventExists(from, to)
+					) {
+						continue
+					}
+					if (insert(
+							Database.EVENTS,
+							null,
+							ContentValues().apply {
+								put(Database.EVENTS_FROM, from)
+								put(Database.EVENTS_TO, to)
+							}
+						) < 1
+					) {
+						success = false
+						break
+					}
+
+				} while (cursor.moveToNext())
+			}
+			cursor.close()
+			return success
+		}
+
+		private fun SQLiteDatabase.eventExists(from: Long, to: Long): Boolean {
+			val cursor = rawQuery(
+				"""SELECT ${Database.EVENTS_ID}
+					FROM ${Database.EVENTS}
+					WHERE ${Database.EVENTS_FROM} = ?
+						AND ${Database.EVENTS_TO} = ?
+					LIMIT 1""".trimMargin(),
+				arrayOf(from.toString(), to.toString())
+			) ?: return false
+			val exists = cursor.moveToFirst() && cursor.count > 0
+			cursor.close()
+			return exists
+		}
 	}
+}
+
+private class ImportHelper constructor(context: Context, path: String) :
+	SQLiteOpenHelper(context, path, null, 1) {
+	override fun onCreate(db: SQLiteDatabase) {
+		// Do nothing.
+	}
+
+	override fun onDowngrade(
+		db: SQLiteDatabase,
+		oldVersion: Int,
+		newVersion: Int
+	) {
+		// Do nothing, but without that method we cannot open
+		// different versions.
+	}
+
+	override fun onUpgrade(
+		db: SQLiteDatabase,
+		oldVersion: Int,
+		newVersion: Int
+	) {
+		// Do nothing, but without that method we cannot open
+		// different versions.
+	}
+}
+
+// Somehow it's required to use this ContextWrapper to access the
+// tables in an external database. Without this, the database will
+// only contain the table "android_metadata".
+private class ExternalDatabaseContext(base: Context?) : ContextWrapper(base) {
+	override fun getDatabasePath(name: String) = File(filesDir, name)
+
+	override fun openOrCreateDatabase(
+		name: String,
+		mode: Int,
+		factory: SQLiteDatabase.CursorFactory,
+		errorHandler: DatabaseErrorHandler?
+	): SQLiteDatabase = openOrCreateDatabase(name, mode, factory)
+
+	override fun openOrCreateDatabase(
+		name: String,
+		mode: Int,
+		factory: SQLiteDatabase.CursorFactory
+	): SQLiteDatabase = SQLiteDatabase.openOrCreateDatabase(
+		getDatabasePath(name), null
+	)
 }

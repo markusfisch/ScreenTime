@@ -1,20 +1,28 @@
 package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
-import android.os.Bundle
 import android.os.Build
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
 import de.markusfisch.android.screentime.R
-import de.markusfisch.android.screentime.app.*
+import de.markusfisch.android.screentime.app.PERMISSION_WRITE
+import de.markusfisch.android.screentime.app.db
+import de.markusfisch.android.screentime.app.prefs
+import de.markusfisch.android.screentime.app.requestNotificationPermission
+import de.markusfisch.android.screentime.app.requestWritePermission
+import de.markusfisch.android.screentime.app.runPermissionCallback
 import de.markusfisch.android.screentime.database.exportDatabase
+import de.markusfisch.android.screentime.database.importDatabase
 import de.markusfisch.android.screentime.dialog.askForName
 import de.markusfisch.android.screentime.graphics.UsageChart
 import de.markusfisch.android.screentime.graphics.loadColor
@@ -70,6 +78,27 @@ class MainActivity : Activity() {
 		}
 	}
 
+	override fun onActivityResult(
+		requestCode: Int, resultCode: Int,
+		resultData: Intent?
+	) {
+		if (requestCode == PICK_FILE_RESULT_CODE &&
+			resultCode == RESULT_OK &&
+			resultData != null
+		) {
+			scope.launch {
+				val message = importDatabase(resultData.data)
+				withContext(Dispatchers.Main) {
+					Toast.makeText(
+						this@MainActivity,
+						message,
+						Toast.LENGTH_LONG
+					).show()
+				}
+			}
+		}
+	}
+
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
 		setContentView(R.layout.activity_main)
@@ -99,12 +128,41 @@ class MainActivity : Activity() {
 				invalidateOptionsMenu()
 				true
 			}
-			R.id.export_database -> {
-				askToExportToFile()
+
+			R.id.import_export_database -> {
+				askExportORImport()
 				true
 			}
+
 			else -> super.onOptionsItemSelected(item)
 		}
+	}
+
+	private fun askExportORImport() {
+		AlertDialog.Builder(this).setItems(
+			R.array.import_export
+		) { dialog, which ->
+			when (which) {
+				0 -> askForFileToImport()
+				else -> askToExportToFile()
+			}
+			dialog.dismiss()
+		}.show()
+	}
+
+	private fun askForFileToImport() {
+		startActivityForResult(
+			Intent.createChooser(
+				Intent(Intent.ACTION_GET_CONTENT).apply {
+					// In theory, it should be "application/x-sqlite3"
+					// or the newer "application/vnd.sqlite3" but
+					// only "application/octet-stream" works.
+					type = "application/octet-stream"
+				},
+				getString(R.string.import_database)
+			),
+			PICK_FILE_RESULT_CODE
+		)
 	}
 
 	private fun askToExportToFile() {
@@ -251,6 +309,10 @@ class MainActivity : Activity() {
 			usageView.removeCallbacks(updateUsageRunnable)
 			updateUsageRunnable = null
 		}
+	}
+
+	companion object {
+		private const val PICK_FILE_RESULT_CODE = 1
 	}
 }
 

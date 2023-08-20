@@ -11,6 +11,12 @@
 	</plurals>
 	<string name="day_change_at">Set day change to %1$s</string>
 	<string name="disable_battery_optimization">Disable battery optimization</string>
+	<string name="import_export_database">Import or export database</string>
+	<string name="import_database">Import database</string>
+	<string name="cant_find_db">Cannot find database</string>
+	<string name="import_failed">Import failed: %1$s</string>
+	<string name="import_failed_unknown">Import failed for unknown reasons</string>
+	<string name="import_successful">Import successful</string>
 	<string name="export_database">Export database</string>
 	<string name="export_successful">Export successful</string>
 	<string name="export_failed">Export failed</string>

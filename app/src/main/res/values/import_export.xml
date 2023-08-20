@@ -1,0 +1,6 @@
+<resources>
+	<string-array name="import_export">
+		<item>@string/import_database</item>
+		<item>@string/export_database</item>
+	</string-array>
+</resources>
