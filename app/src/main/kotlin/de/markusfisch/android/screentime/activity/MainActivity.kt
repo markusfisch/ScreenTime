@@ -120,8 +120,17 @@ class MainActivity : Activity() {
 	}
 
 	override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-		if (menu != null && isIgnoringBatteryOptimizations()) {
-			menu.findItem(R.id.disable_battery_optimization).isVisible = false
+		menu?.let {
+			val visibility = progressView.visibility == View.GONE
+			arrayOf(
+				R.id.disable_battery_optimization,
+				R.id.import_export_database
+			).forEach {
+				menu.findItem(it).isVisible = if (
+					it == R.id.disable_battery_optimization &&
+					isIgnoringBatteryOptimizations()
+				) false else visibility
+			}
 		}
 		return super.onPrepareOptionsMenu(menu)
 	}
@@ -205,6 +214,7 @@ class MainActivity : Activity() {
 			setTitle(R.string.app_name)
 			View.GONE
 		}
+		invalidateOptionsMenu()
 	}
 
 	private fun UsageGraphView.initUsageView() {
