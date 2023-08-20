@@ -219,13 +219,13 @@ class Database(context: Context) {
 		): Boolean {
 			val cursor = src.rawQuery(
 				"""SELECT *
-				FROM ${Database.EVENTS}
-				ORDER BY ${Database.EVENTS_ID}""".trimIndent(),
+				FROM $EVENTS
+				ORDER BY $EVENTS_ID""".trimIndent(),
 				null
 			) ?: return false
-			val idIndex = cursor.getColumnIndex(Database.EVENTS_ID)
-			val fromIndex = cursor.getColumnIndex(Database.EVENTS_FROM)
-			val toIndex = cursor.getColumnIndex(Database.EVENTS_TO)
+			val idIndex = cursor.getColumnIndex(EVENTS_ID)
+			val fromIndex = cursor.getColumnIndex(EVENTS_FROM)
+			val toIndex = cursor.getColumnIndex(EVENTS_TO)
 			var success = true
 			if (cursor.moveToFirst()) {
 				do {
@@ -238,11 +238,11 @@ class Database(context: Context) {
 						continue
 					}
 					if (insert(
-							Database.EVENTS,
+							EVENTS,
 							null,
 							ContentValues().apply {
-								put(Database.EVENTS_FROM, from)
-								put(Database.EVENTS_TO, to)
+								put(EVENTS_FROM, from)
+								put(EVENTS_TO, to)
 							}
 						) < 1
 					) {
@@ -258,10 +258,10 @@ class Database(context: Context) {
 
 		private fun SQLiteDatabase.eventExists(from: Long, to: Long): Boolean {
 			val cursor = rawQuery(
-				"""SELECT ${Database.EVENTS_ID}
-					FROM ${Database.EVENTS}
-					WHERE ${Database.EVENTS_FROM} = ?
-						AND ${Database.EVENTS_TO} = ?
+				"""SELECT $EVENTS_ID
+					FROM $EVENTS
+					WHERE $EVENTS_FROM = ?
+						AND $EVENTS_TO = ?
 					LIMIT 1""".trimMargin(),
 				arrayOf(from.toString(), to.toString())
 			) ?: return false
