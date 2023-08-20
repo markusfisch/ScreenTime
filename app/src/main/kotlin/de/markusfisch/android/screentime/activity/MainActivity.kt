@@ -88,11 +88,11 @@ class MainActivity : Activity() {
 			resultCode == RESULT_OK &&
 			resultData != null
 		) {
-			progressView.visibility = View.VISIBLE
+			updateProgress(R.string.importing)
 			scope.launch {
 				val message = importDatabase(resultData.data)
 				withContext(Dispatchers.Main) {
-					progressView.visibility = View.GONE
+					updateProgress()
 					Toast.makeText(
 						this@MainActivity,
 						message,
@@ -178,7 +178,7 @@ class MainActivity : Activity() {
 			return
 		}
 		askForName(R.string.save_as, "screen_time.db") { name ->
-			progressView.visibility = View.VISIBLE
+			updateProgress(R.string.exporting)
 			scope.launch {
 				val messageId = if (exportDatabase(name)) {
 					R.string.export_successful
@@ -186,7 +186,7 @@ class MainActivity : Activity() {
 					R.string.export_failed
 				}
 				withContext(Dispatchers.Main) {
-					progressView.visibility = View.GONE
+					updateProgress()
 					Toast.makeText(
 						this@MainActivity,
 						messageId,
@@ -194,6 +194,16 @@ class MainActivity : Activity() {
 					).show()
 				}
 			}
+		}
+	}
+
+	private fun updateProgress(messageId: Int = 0) {
+		progressView.visibility = if (messageId > 0) {
+			setTitle(messageId)
+			View.VISIBLE
+		} else {
+			setTitle(R.string.app_name)
+			View.GONE
 		}
 	}
 

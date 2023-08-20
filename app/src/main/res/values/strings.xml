@@ -16,8 +16,10 @@
 	<string name="cant_find_db">Cannot find database</string>
 	<string name="import_failed">Import failed: %1$s</string>
 	<string name="import_failed_unknown">Import failed for unknown reasons</string>
+	<string name="importing">Importing…</string>
 	<string name="import_successful">Import successful</string>
 	<string name="export_database">Export database</string>
+	<string name="exporting">Exporting…</string>
 	<string name="export_successful">Export successful</string>
 	<string name="export_failed">Export failed</string>
 	<string name="save_as">Save to Downloads as:</string>
