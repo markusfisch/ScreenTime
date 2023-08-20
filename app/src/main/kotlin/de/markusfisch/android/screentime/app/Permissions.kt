@@ -12,10 +12,16 @@ fun runPermissionCallback() {
 }
 
 const val PERMISSION_POST_NOTIFICATIONS = 1
-fun Activity.requestNotificationPermission(): Boolean = requestPermission(
-	Manifest.permission.POST_NOTIFICATIONS,
-	PERMISSION_POST_NOTIFICATIONS
-)
+fun Activity.requestNotificationPermission(): Boolean = if (
+	Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+) {
+	requestPermission(
+		Manifest.permission.POST_NOTIFICATIONS,
+		PERMISSION_POST_NOTIFICATIONS
+	)
+} else {
+	true
+}
 
 const val PERMISSION_WRITE = 2
 fun Activity.requestWritePermission(callback: () -> Any): Boolean {
