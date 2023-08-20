@@ -22,4 +22,5 @@
 		android:paddingTop="16dp"
 		android:max="30"
 		android:progress="6"/>
+	<include layout="@layout/progress_view"/>
 </RelativeLayout>

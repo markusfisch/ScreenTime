@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
 import de.markusfisch.android.screentime.R
@@ -59,6 +60,7 @@ class MainActivity : Activity() {
 
 	private lateinit var usageView: UsageGraphView
 	private lateinit var dayBar: SeekBar
+	private lateinit var progressView: View
 
 	private var updateUsageRunnable: Runnable? = null
 	private var usageChart: UsageChart? = null
@@ -86,9 +88,11 @@ class MainActivity : Activity() {
 			resultCode == RESULT_OK &&
 			resultData != null
 		) {
+			progressView.visibility = View.VISIBLE
 			scope.launch {
 				val message = importDatabase(resultData.data)
 				withContext(Dispatchers.Main) {
+					progressView.visibility = View.GONE
 					Toast.makeText(
 						this@MainActivity,
 						message,
@@ -106,6 +110,7 @@ class MainActivity : Activity() {
 		usageView.initUsageView()
 		dayBar = findViewById(R.id.days)
 		dayBar.initDayBar()
+		progressView = findViewById(R.id.progress_view)
 		requestNotificationPermission()
 	}
 
@@ -173,6 +178,7 @@ class MainActivity : Activity() {
 			return
 		}
 		askForName(R.string.save_as, "screen_time.db") { name ->
+			progressView.visibility = View.VISIBLE
 			scope.launch {
 				val messageId = if (exportDatabase(name)) {
 					R.string.export_successful
@@ -180,6 +186,7 @@ class MainActivity : Activity() {
 					R.string.export_failed
 				}
 				withContext(Dispatchers.Main) {
+					progressView.visibility = View.GONE
 					Toast.makeText(
 						this@MainActivity,
 						messageId,
