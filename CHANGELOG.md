@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.0
+* Import/export SQLite database
+* Fix initialization at boot time
+* Make recording resistant to time adjustments
+
 ## 1.1.2
 * Update starting foreground service for Android 12+
 * Add menu option to ignore battery optimization
