@@ -139,7 +139,6 @@ class MainActivity : Activity() {
 		return when (item.itemId) {
 			R.id.disable_battery_optimization -> {
 				requestDisableBatteryOptimization()
-				invalidateOptionsMenu()
 				true
 			}
 
@@ -263,6 +262,8 @@ class MainActivity : Activity() {
 		// Post to run update() after layout.
 		postUsageUpdate(dayBar.progress)
 		paused = false
+		// To update the options menu after enabling battery optimization.
+		invalidateOptionsMenu()
 	}
 
 	override fun onPause() {
