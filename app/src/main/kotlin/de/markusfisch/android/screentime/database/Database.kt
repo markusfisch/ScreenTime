@@ -52,17 +52,19 @@ class Database(context: Context) {
 	) {
 		db.rawQuery(
 			"""SELECT * FROM $EVENTS
-				WHERE $EVENTS_TO >= $from
+				WHERE $EVENTS_FROM + $EVENTS_DURATION >= $from
 					AND $EVENTS_FROM <= $to
 				ORDER BY $EVENTS_FROM""",
 			null
 		).use {
 			val fromIndex = it.getColumnIndex(EVENTS_FROM)
-			val toIndex = it.getColumnIndex(EVENTS_TO)
+			val durationIndex = it.getColumnIndex(EVENTS_DURATION)
 			if (it.moveToFirst()) {
 				do {
-					val start = max(from, it.getLong(fromIndex))
-					val stop = min(to, it.getLong(toIndex))
+					val recordStart = it.getLong(fromIndex)
+					val start = max(from, recordStart)
+					val duration = it.getLong(durationIndex)
+					val stop = min(to, recordStart + duration)
 					callback(start, stop - start)
 				} while (it.moveToNext())
 			}
@@ -77,10 +79,10 @@ class Database(context: Context) {
 		}
 	)
 
-	fun updateEvent(id: Long, to: Long): Int = db.update(
+	fun updateEvent(id: Long, duration: Long): Int = db.update(
 		EVENTS,
 		ContentValues().apply {
-			put(EVENTS_TO, to)
+			put(EVENTS_DURATION, duration)
 		},
 		"$EVENTS_ID = ?",
 		arrayOf(id.toString())
@@ -91,7 +93,7 @@ class Database(context: Context) {
 	}
 
 	private class OpenHelper(context: Context) :
-		SQLiteOpenHelper(context, FILE_NAME, null, 3) {
+		SQLiteOpenHelper(context, FILE_NAME, null, 4) {
 		override fun onCreate(db: SQLiteDatabase) {
 			db.createEvents()
 		}
@@ -108,6 +110,9 @@ class Database(context: Context) {
 				db.createEvents()
 				db.migrateTo3()
 			}
+			if (oldVersion < 4) {
+				db.migrateTo4()
+			}
 		}
 	}
 
@@ -118,6 +123,7 @@ class Database(context: Context) {
 		private const val EVENTS_ID = "_id"
 		private const val EVENTS_FROM = "_from"
 		private const val EVENTS_TO = "_to"
+		private const val EVENTS_DURATION = "_duration"
 
 		private const val LEGACY_EVENTS = "events"
 		private const val LEGACY_EVENTS_TIMESTAMP = "_timestamp"
@@ -125,12 +131,12 @@ class Database(context: Context) {
 		private const val LEGACY_EVENTS_BATTERY = "battery"
 
 		private fun SQLiteDatabase.createEvents() {
-			execSQL("DROP TABLE IF EXISTS $EVENTS".trimMargin())
+			execSQL("DROP TABLE IF EXISTS $EVENTS")
 			execSQL(
 				"""CREATE TABLE $EVENTS (
 							$EVENTS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
 							$EVENTS_FROM TIMESTAMP,
-							$EVENTS_TO TIMESTAMP)""".trimMargin()
+							$EVENTS_DURATION INTEGER)""".trimMargin()
 			)
 		}
 
@@ -169,7 +175,23 @@ class Database(context: Context) {
 					} while (it.moveToNext())
 				}
 			}
-			execSQL("DROP TABLE IF EXISTS $LEGACY_EVENTS".trimMargin())
+			execSQL("DROP TABLE IF EXISTS $LEGACY_EVENTS")
+		}
+
+		private fun SQLiteDatabase.migrateTo4() {
+			execSQL(
+				"""ALTER TABLE $EVENTS
+					ADD COLUMN $EVENTS_DURATION INTEGER""".trimMargin()
+			)
+			execSQL(
+				"""UPDATE $EVENTS
+					SET $EVENTS_TO = $EVENTS_FROM + 1
+					WHERE $EVENTS_TO IS NULL""".trimMargin()
+			)
+			execSQL(
+				"""UPDATE $EVENTS
+					SET $EVENTS_DURATION = $EVENTS_TO - $EVENTS_FROM""".trimMargin()
+			)
 		}
 
 		private fun SQLiteDatabase.getEarliestTimestamp(): Long {
@@ -226,14 +248,19 @@ class Database(context: Context) {
 			val idIndex = cursor.getColumnIndex(EVENTS_ID)
 			val fromIndex = cursor.getColumnIndex(EVENTS_FROM)
 			val toIndex = cursor.getColumnIndex(EVENTS_TO)
+			val durationIndex = cursor.getColumnIndex(EVENTS_DURATION)
 			var success = true
 			if (cursor.moveToFirst()) {
 				do {
 					val srcId = cursor.getLong(idIndex)
 					val from = cursor.getLong(fromIndex)
-					val to = cursor.getLong(toIndex)
-					if (srcId < 1L || from < 1L || to < 1L ||
-						eventExists(from, to)
+					val duration = if (durationIndex < 0) {
+						cursor.getLong(toIndex) - from
+					} else {
+						cursor.getLong(durationIndex)
+					}
+					if (srcId < 1L || from < 1L || duration < 1L ||
+						eventExists(from, duration)
 					) {
 						continue
 					}
@@ -242,7 +269,7 @@ class Database(context: Context) {
 							null,
 							ContentValues().apply {
 								put(EVENTS_FROM, from)
-								put(EVENTS_TO, to)
+								put(EVENTS_DURATION, duration)
 							}
 						) < 1
 					) {
@@ -256,14 +283,17 @@ class Database(context: Context) {
 			return success
 		}
 
-		private fun SQLiteDatabase.eventExists(from: Long, to: Long): Boolean {
+		private fun SQLiteDatabase.eventExists(
+			from: Long,
+			duration: Long
+		): Boolean {
 			val cursor = rawQuery(
 				"""SELECT $EVENTS_ID
 					FROM $EVENTS
 					WHERE $EVENTS_FROM = ?
-						AND $EVENTS_TO = ?
+						AND $EVENTS_DURATION = ?
 					LIMIT 1""".trimMargin(),
-				arrayOf(from.toString(), to.toString())
+				arrayOf(from.toString(), duration.toString())
 			) ?: return false
 			val exists = cursor.moveToFirst() && cursor.count > 0
 			cursor.close()

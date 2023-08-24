@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.SystemClock
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
@@ -50,6 +51,7 @@ class TrackerService : Service() {
 	private lateinit var powerManager: PowerManager
 
 	private var eventId: Long = 0L
+	private var uptimeFrom: Long = 0L
 	private var lastNotifcation: Long = 0L
 
 	override fun onCreate() {
@@ -137,11 +139,12 @@ class TrackerService : Service() {
 	private fun insertScreenEvent(timestamp: Long, screenOn: Boolean) {
 		if (screenOn) {
 			eventId = db.insertEvent(timestamp)
+			uptimeFrom = SystemClock.uptimeMillis()
 			updateNotification()
 		} else {
 			cancelNotificationUpdate()
 			if (eventId > 0L) {
-				db.updateEvent(eventId, timestamp)
+				updateEvent(eventId)
 			}
 			eventId = 0L
 		}
@@ -185,13 +188,17 @@ class TrackerService : Service() {
 	private fun Context.buildAndScheduleNotification(now: Long): Notification {
 		scheduleNotificationUpdate(msToNextFullMinute(now))
 		if (eventId > 0L) {
-			db.updateEvent(eventId, now)
+			updateEvent(eventId)
 		}
 		return buildNotification(
 			R.drawable.ic_notify,
 			timeRangeColloquial(db.summarizeDay(now) / 1000L),
 			Intent(this, MainActivity::class.java)
 		)
+	}
+
+	private fun updateEvent(eventId: Long) {
+		db.updateEvent(eventId, SystemClock.uptimeMillis() - uptimeFrom)
 	}
 
 	companion object {
