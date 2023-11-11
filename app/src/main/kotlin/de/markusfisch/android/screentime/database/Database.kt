@@ -276,7 +276,6 @@ class Database(context: Context) {
 						success = false
 						break
 					}
-
 				} while (cursor.moveToNext())
 			}
 			cursor.close()
