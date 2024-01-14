@@ -1,0 +1,31 @@
+<resources>
+	<string name="app_name">Screen Time</string>
+	<string name="recording">Запис подій увімкнення/вимкнення екрана</string>
+	<plurals name="days">
+		<item quantity="one">%1$d день</item>
+		<item quantity="few">Останні %1$d дні</item>
+		<item quantity="many">Останні %1$d днів</item>
+		<item quantity="other">Останні %1$d днів</item>
+	</plurals>
+	<plurals name="show_x_days">
+		<item quantity="one">Показати суму за %1$d день</item>
+		<item quantity="few">Показати суму за останні %1$d дні</item>
+		<item quantity="many">Показати суму за останні %1$d днів</item>
+		<item quantity="other">Показати суму за останні %1$d днів</item>
+	</plurals>
+	<string name="day_change_at">Встановити зміну дня на %1$s</string>
+	<string name="disable_battery_optimization">Вимкнути оптимізацію батареї</string>
+	<string name="import_export_database">Імпорт або експорт бази даних</string>
+	<string name="import_database">Імпорт бази даних</string>
+	<string name="cant_find_db">Не вдається знайти базу даних</string>
+	<string name="import_failed">Помилка імпорту: %1$s</string>
+	<string name="import_failed_unknown">Помилка імпорту з невідомих причин</string>
+	<string name="importing">Імпортування…</string>
+	<string name="import_successful">Імпорт пройшов успішно</string>
+	<string name="export_database">Експорт бази даних</string>
+	<string name="exporting">Експортування…</string>
+	<string name="export_successful">Експорт пройшов успішно</string>
+	<string name="export_failed">Помилка експорту</string>
+	<string name="save_as">Зберегти до Завантажень як:</string>
+	<string name="enter_file_name">Введіть назву файлу</string>
+</resources>
