@@ -12,8 +12,14 @@ I've used. Rather, I want to see _when_ I use my phone.
 
 So, primarily this is a "scratch your own itch" app.
 
-<a href="https://f-droid.org/packages/de.markusfisch.android.screentime/"><img alt="Get it on F-Droid" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="80"/></a>
-<a href="https://play.google.com/store/apps/details?id=de.markusfisch.android.screentime"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80"/></a>
+If you find this app useful and wish to support its continued development,
+you can [buy me a coffee](https://www.buymeacoffee.com/markusfisch) or
+send some Bitcoin decimals to `bc1q2guk2rpll587aymrfadkdtpq32448x5khk5j8z`.
+
+<a href="https://www.buymeacoffee.com/markusfisch" target="_blank"><img
+	src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+	alt="Buy Me A Coffee"
+	style="height: 60px !important;width: 217px !important;"/></a>
 
 ## Screenshots
 
@@ -23,3 +29,8 @@ So, primarily this is a "scratch your own itch" app.
 	alt="Screenshot today graph" width="160"/>
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screencap-last3.png"
 	alt="Screenshot last 3 days" width="160"/>
+
+## Download
+
+<a href="https://f-droid.org/packages/de.markusfisch.android.screentime/"><img alt="Get it on F-Droid" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="80"/></a>
+<a href="https://play.google.com/store/apps/details?id=de.markusfisch.android.screentime"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80"/></a>
