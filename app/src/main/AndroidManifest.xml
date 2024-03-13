@@ -11,6 +11,8 @@
 	<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
 		android:maxSdkVersion="28"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+		android:minSdkVersion="34" />
 	<application
 		tools:ignore="UnusedAttribute"
 		android:name=".app.ScreenTimeTrackerApp"
@@ -41,7 +43,8 @@
 		</receiver>
 		<service
 			android:name=".service.TrackerService"
-			android:exported="false"/>
+			android:exported="false"
+			android:foregroundServiceType="specialUse" />
 		<activity
 			android:name=".activity.MainActivity"
 			android:exported="true">
