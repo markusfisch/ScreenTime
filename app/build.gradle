@@ -38,6 +38,12 @@ android {
 			signingConfig signingConfigs.release
 		}
 	}
+
+	compileOptions {
+		// Required for Gradle 8.
+		sourceCompatibility = 17
+		targetCompatibility = 17
+	}
 }
 
 dependencies {
