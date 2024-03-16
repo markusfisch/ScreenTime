@@ -5,6 +5,8 @@
 	<color name="window_background">#082a34</color>
 	<color name="dial">#0c4151</color>
 	<color name="usage">#1c9bbf</color>
+	<color name="usage_dot">#a7f192</color>
+	<color name="month_separator">#f49f45</color>
 	<color name="text">#fff</color>
 	<color name="background_progress">#8000</color>
 </resources>
