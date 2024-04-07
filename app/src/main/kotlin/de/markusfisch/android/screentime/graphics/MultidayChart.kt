@@ -121,9 +121,7 @@ class MultidayChart(
 		val dayUsage = LongArray(days) {0}
 		val dayLastTimestamp = LongArray(days) {0}
 
-		/* Every record is visualized/counted for minimum 1 minute duration.
-		   Not counting overlaps. */
-		val minimumDuration = 1L * 60L * 1000L
+		val minimumDurationLengthen = prefs.minDurationLengthenValue().toLong()
 
 		val width = this.width - padding * 2
 
@@ -155,7 +153,7 @@ class MultidayChart(
 			while (start > dayStarts[day + 1])
 				day++
 
-			val end = start + max(duration, minimumDuration)
+			val end = start + max(duration, minimumDurationLengthen)
 
 			var dayE = day
 			while (end > (dayStarts.getOrNull(dayE + 1) ?: end))

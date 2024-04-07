@@ -1,4 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/scroll"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:scrollbars="none"
@@ -7,9 +8,38 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical" >
+		<LinearLayout
+			android:id="@+id/prefix"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingLeft="16dp"
+			android:paddingStart="16dp"
+			android:paddingRight="16dp"
+			android:paddingEnd="16dp"
+			android:paddingBottom="16dp"
+			android:paddingTop="16dp"
+			android:orientation="vertical" >
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:textSize="16sp"
+				android:text="@string/explain_day_dot" />
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:textSize="16sp"
+				android:text="@string/explain_horizontal_lines" />
+			<SeekBar
+				android:id="@+id/minDurationLengthenBar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingTop="16dp"
+				android:max="28"
+				android:progress="9"/>
+		</LinearLayout>
 		<de.markusfisch.android.screentime.widget.BitmapView
 			android:id="@+id/graph"
 			android:layout_width="match_parent"
-			android:layout_height="0dp" />
+			android:layout_height="2000000dp" />
 	</LinearLayout>
 </ScrollView>
