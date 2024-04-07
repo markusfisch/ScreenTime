@@ -10,6 +10,7 @@ import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.database.DAY_IN_MS
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 class MultidayChart(
@@ -55,13 +56,24 @@ class MultidayChart(
 	}
 
 	private fun Canvas.drawAt(timestamp: Long) {
-		val dayStart = prefs.dayStart(timestamp - DAY_IN_MS * (days - 1))
-		val dayEnd = prefs.dayStart(timestamp) + DAY_IN_MS
+		val dayStarts = LongArray(days + 1) {0}
 
-		drawRecordsBetween(dayStart, dayEnd)
+		var to = prefs.dayStart(timestamp)
+		for (i in 1..48) {
+			to = prefs.dayStart(timestamp + i * DAY_IN_MS / 24)
+			if (to > timestamp)
+				break
+		}
 
+		var from = to
+		for (i in 0..days) {
+			dayStarts[days - i] = from
+			from = prefs.dayStart(from - 1)
+		}
+
+		drawRecords(dayStarts)
 		drawHours(prefs.hourOfDayChange)
-		drawDays(timestamp)
+		drawDays(dayStarts)
 	}
 
 	private fun Canvas.drawHours(hourOffset: Int) {
@@ -82,17 +94,15 @@ class MultidayChart(
 			drawLine(x, offsetY.toFloat(), x, (height + offsetY).toFloat(), paint)
 		}
 	}
-	private fun Canvas.drawDays(timestamp: Long) {
+	private fun Canvas.drawDays(dayStarts: LongArray) {
 		val sX = (padding).toFloat()
 		val eX = (width - padding).toFloat()
-
-		var midday = prefs.dayStart(timestamp) + DAY_IN_MS / 2 + DAY_IN_MS
 
 		val calendar = Calendar.getInstance()
 
 		for (d in 0..days) {
 			val y = d * dayHeight + offsetY
-			calendar.timeInMillis = midday
+			calendar.timeInMillis = dayStarts[days - d]
 
 			val paint = if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
 				monthLinePaint
@@ -102,30 +112,35 @@ class MultidayChart(
 				linePaint
 			}
 			drawLine(sX, y.toFloat(), eX, y.toFloat(), paint)
-			midday -= DAY_IN_MS
 		}
 	}
 
-	private fun Canvas.drawRecordsBetween(
-		from: Long, // day start
-		to: Long, // day start
-	) {
+	/* Q: Why do we iterate over the days?
+	 * A: Because not all days have 24h hours - daytime change. */
+	private fun Canvas.drawRecords(dayStarts: LongArray) {
+		val dayUsage = LongArray(days) {0}
+		val dayLastTimestamp = LongArray(days) {0}
+
 		/* Every record is visualized/counted for minimum 1 minute duration.
 		   Not counting overlaps. */
 		val minimumDuration = 1L * 60L * 1000L
 
 		val width = this.width - padding * 2
-		val days = (to - from) / DAY_IN_MS
 
-		val dayUsage = LongArray(days.toInt()) {0}
-		val dayLastTimestamp = LongArray(days.toInt()) {0}
+		val drawInOneDay = fun(day: Int, start: Long, end: Long) {
+			val dayFromTop = days - 1 - day
 
-		val drawInOneDay = { day: Long, start: Long, end: Long ->
-			val dayFromTop = (days - 1 - day).toInt()
+			/* This happened with daytime change. It should be fixed, but if it happens again,
+			 * the app will not crash. */
+			if (dayFromTop < 0)
+				return
+
 			val start = max(start, dayLastTimestamp[dayFromTop])
 			if (start <= end) {
 				dayUsage[dayFromTop] += end - start
 				dayLastTimestamp[dayFromTop] = end
+
+				val end = min(end, DAY_IN_MS)
 
 				val top = dayFromTop * dayHeight + offsetY
 				val bottom = (dayFromTop + 1) * dayHeight + offsetY
@@ -134,25 +149,35 @@ class MultidayChart(
 				drawRect(Rect(left, top, right, bottom), usagePaint)
 			}
 		}
-		db.forEachRecordBetween(from, to) { start, duration ->
+
+		var day = 0
+		db.forEachRecordBetween(dayStarts.first(), dayStarts.last()) { start, duration ->
+			while (start > dayStarts[day + 1])
+				day++
+
 			val end = start + max(duration, minimumDuration)
-			val dayS = (start - from) / DAY_IN_MS
-			val dayE = (end - from) / DAY_IN_MS
 
-			val s = start - from - dayS * DAY_IN_MS
-			val e = end - from - dayE * DAY_IN_MS
+			var dayE = day
+			while (end > (dayStarts.getOrNull(dayE + 1) ?: end))
+				dayE++
 
-			if (dayS == dayE) {
-				drawInOneDay(dayS, s, e)
+			val s = start - dayStarts[day]
+			val e = end - dayStarts[dayE]
+
+			if (day == dayE) {
+				drawInOneDay(day, s, e)
 			} else {
-				drawInOneDay(dayS, s, DAY_IN_MS)
+				drawInOneDay(day, s, dayStarts[day + 1] - dayStarts[day])
+				for (d in (day+1)..<dayE) {
+					drawInOneDay(dayE, 0, dayStarts[d + 1] - dayStarts[d])
+				}
 				drawInOneDay(dayE, 0, e)
 			}
 		}
 
-		for (d in 0..<days.toInt()) {
+		for (d in 0..<days) {
 			drawCircle(
-				(padding + dayUsage[d] * width / DAY_IN_MS).toFloat(),
+				(padding + min(dayUsage[d], DAY_IN_MS) * width / DAY_IN_MS).toFloat(),
 				offsetY + dayHeight * (d + 0.5f),
 				dayHeight/6f,
 				usageDotPaint
