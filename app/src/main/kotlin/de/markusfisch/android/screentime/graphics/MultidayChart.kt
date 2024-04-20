@@ -1,6 +1,5 @@
 package de.markusfisch.android.screentime.graphics
 
-import java.util.Calendar
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -9,6 +8,7 @@ import android.graphics.Rect
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.database.DAY_IN_MS
+import java.util.Calendar
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -24,7 +24,8 @@ class MultidayChart(
 ) {
 	private val linePaint = Paint(textPaint).also { it.strokeWidth = 1f }
 	private val linePaintBold = Paint(linePaint).also { it.strokeWidth = 2f }
-	private val monthLinePaint = Paint(linePaintBold).also { it.strokeWidth = 4f; it.color = monthColor }
+	private val monthLinePaint =
+		Paint(linePaintBold).also { it.strokeWidth = 4f; it.color = monthColor }
 
 	private val textBounds = Rect()
 
@@ -44,7 +45,7 @@ class MultidayChart(
 	fun draw(timestamp: Long): Bitmap = nextBitmap().apply {
 		Canvas(this).apply {
 			drawColor(0, PorterDuff.Mode.CLEAR)
-			drawAt( timestamp )
+			drawAt(timestamp)
 		}
 	}
 
@@ -56,7 +57,7 @@ class MultidayChart(
 	}
 
 	private fun Canvas.drawAt(timestamp: Long) {
-		val dayStarts = LongArray(days + 1) {0}
+		val dayStarts = LongArray(days + 1) { 0 }
 
 		var to = prefs.dayStart(timestamp)
 		for (i in 1..48) {
@@ -84,7 +85,7 @@ class MultidayChart(
 		for (i in 0..hours) {
 			val x = (i * width / hours + padding).toFloat()
 			val h = (i + hourOffset) % 24
-			val paint = when(h % 6 == 0) {
+			val paint = when (h % 6 == 0) {
 				true -> linePaintBold
 				false -> linePaint
 			}
@@ -94,6 +95,7 @@ class MultidayChart(
 			drawLine(x, offsetY.toFloat(), x, (height + offsetY).toFloat(), paint)
 		}
 	}
+
 	private fun Canvas.drawDays(dayStarts: LongArray) {
 		val sX = (padding).toFloat()
 		val eX = (width - padding).toFloat()
@@ -118,8 +120,8 @@ class MultidayChart(
 	/* Q: Why do we iterate over the days?
 	 * A: Because not all days have 24h hours - daytime change. */
 	private fun Canvas.drawRecords(dayStarts: LongArray) {
-		val dayUsage = LongArray(days) {0}
-		val dayLastTimestamp = LongArray(days) {0}
+		val dayUsage = LongArray(days) { 0 }
+		val dayLastTimestamp = LongArray(days) { 0 }
 
 		val minimumDurationLengthen = prefs.minDurationLengthenValue().toLong()
 
@@ -166,7 +168,7 @@ class MultidayChart(
 				drawInOneDay(day, s, e)
 			} else {
 				drawInOneDay(day, s, dayStarts[day + 1] - dayStarts[day])
-				for (d in (day+1)..<dayE) {
+				for (d in (day + 1)..<dayE) {
 					drawInOneDay(dayE, 0, dayStarts[d + 1] - dayStarts[d])
 				}
 				drawInOneDay(dayE, 0, e)
@@ -177,7 +179,7 @@ class MultidayChart(
 			drawCircle(
 				(padding + min(dayUsage[d], DAY_IN_MS) * width / DAY_IN_MS).toFloat(),
 				offsetY + dayHeight * (d + 0.5f),
-				dayHeight/6f,
+				dayHeight / 6f,
 				usageDotPaint
 			)
 		}

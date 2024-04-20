@@ -2,7 +2,11 @@ package de.markusfisch.android.screentime.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PointF
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -11,7 +15,13 @@ import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.graphics.PI2
 import de.markusfisch.android.screentime.graphics.TAU
 import de.markusfisch.android.screentime.graphics.loadColor
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.hypot
+import kotlin.math.min
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 private const val RAD_PER_HOUR = Math.PI / 12f
 

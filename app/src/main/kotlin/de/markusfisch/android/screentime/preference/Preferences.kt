@@ -25,7 +25,7 @@ class Preferences(context: Context) {
 			field = clamped
 		}
 
-	private val minDurationLengthenChoice = intArrayOf (
+	private val minDurationLengthenChoice = intArrayOf(
 		0, 1000, 5000, 10000, 15000, 20000, 30000, 40000,
 		50000, 60000, 80000, 100000, 120000, 150000, 3 * 60000, 4 * 60000,
 		5 * 60000, 6 * 60000, 7 * 60000, 8 * 60000, 9 * 60000, 10 * 60000, 12 * 60000, 15 * 60000,
@@ -36,6 +36,7 @@ class Preferences(context: Context) {
 			apply(MIN_DURATION_LENGTHEN, value)
 			field = value
 		}
+
 	fun minDurationLengthenValue() = minDurationLengthenChoice.getOrNull(minDurationLengthen) ?: 0
 
 	init {

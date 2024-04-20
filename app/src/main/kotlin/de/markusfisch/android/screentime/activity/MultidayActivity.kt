@@ -67,7 +67,12 @@ class MultidayActivity : Activity() {
 				if (fromUser) {
 					prefs.minDurationLengthen = progress
 					val min = prefs.minDurationLengthenValue()
-					title = "Lengthen duration" + String.format(": %d:%02d:%02d", min/3600000, min/60000 % 60, min/1000 % 60)
+					title = "Lengthen duration: " + String.format(
+						"%d:%02d:%02d",
+						min / 3600000,
+						min / 60000 % 60,
+						min / 1000 % 60
+					)
 					postUsageUpdate()
 				}
 			}

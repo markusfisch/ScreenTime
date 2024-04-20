@@ -142,6 +142,7 @@ class MainActivity : Activity() {
 				startActivity(Intent(this, MultidayActivity::class.java))
 				true
 			}
+
 			R.id.disable_battery_optimization -> {
 				requestDisableBatteryOptimization()
 				true

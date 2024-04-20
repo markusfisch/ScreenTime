@@ -15,14 +15,17 @@ import android.os.SystemClock
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
-import de.markusfisch.android.screentime.database.Database
 import de.markusfisch.android.screentime.database.timeRangeColloquial
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.ACTION
 import de.markusfisch.android.screentime.receiver.EventReceiver
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
-import kotlinx.coroutines.*
-import java.lang.Runnable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 val eventReceiver = EventReceiver()
 
@@ -86,7 +89,11 @@ class TrackerService : Service() {
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
 					startForeground(NOTIFICATION_ID, notification)
 				} else {
-					startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+					startForeground(
+						NOTIFICATION_ID,
+						notification,
+						ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+					)
 				}
 			}
 		}
