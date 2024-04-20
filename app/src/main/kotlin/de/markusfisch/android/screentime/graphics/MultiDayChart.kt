@@ -137,17 +137,17 @@ class MultiDayChart(
 				return
 			}
 
-			val start = max(start, dayLastTimestamp[dayFromTop])
-			if (start <= end) {
-				dayUsage[dayFromTop] += end - start
+			val s = max(start, dayLastTimestamp[dayFromTop])
+			if (s <= end) {
+				dayUsage[dayFromTop] += end - s
 				dayLastTimestamp[dayFromTop] = end
 
-				val end = min(end, DAY_IN_MS)
+				val e = min(end, DAY_IN_MS)
 
 				val top = dayFromTop * dayHeight + offsetY
 				val bottom = (dayFromTop + 1) * dayHeight + offsetY
-				val left = (start * width / DAY_IN_MS + padding).toInt()
-				val right = (end * width / DAY_IN_MS + padding).toInt()
+				val left = (s * width / DAY_IN_MS + padding).toInt()
+				val right = (e * width / DAY_IN_MS + padding).toInt()
 				drawRect(Rect(left, top, right, bottom), usagePaint)
 			}
 		}
