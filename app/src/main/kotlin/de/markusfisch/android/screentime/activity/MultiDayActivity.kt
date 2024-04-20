@@ -1,7 +1,6 @@
 package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
-import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
@@ -11,6 +10,7 @@ import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.graphics.MultiDayChart
+import de.markusfisch.android.screentime.graphics.fillPaint
 import de.markusfisch.android.screentime.graphics.loadColor
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import de.markusfisch.android.screentime.widget.BitmapView
@@ -160,9 +160,4 @@ class MultiDayActivity : Activity() {
 			updateUsageRunnable = null
 		}
 	}
-}
-
-private fun fillPaint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-	color = col
-	style = Paint.Style.FILL
 }

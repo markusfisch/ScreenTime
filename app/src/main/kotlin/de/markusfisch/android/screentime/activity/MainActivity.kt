@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
@@ -26,6 +25,7 @@ import de.markusfisch.android.screentime.database.exportDatabase
 import de.markusfisch.android.screentime.database.importDatabase
 import de.markusfisch.android.screentime.dialog.askForName
 import de.markusfisch.android.screentime.graphics.UsageChart
+import de.markusfisch.android.screentime.graphics.fillPaint
 import de.markusfisch.android.screentime.graphics.loadColor
 import de.markusfisch.android.screentime.os.isIgnoringBatteryOptimizations
 import de.markusfisch.android.screentime.os.requestDisableBatteryOptimization
@@ -348,9 +348,4 @@ class MainActivity : Activity() {
 	companion object {
 		private const val PICK_FILE_RESULT_CODE = 1
 	}
-}
-
-private fun fillPaint(col: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-	color = col
-	style = Paint.Style.FILL
 }
