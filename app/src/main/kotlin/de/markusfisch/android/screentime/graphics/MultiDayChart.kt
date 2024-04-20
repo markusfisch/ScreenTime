@@ -62,8 +62,9 @@ class MultiDayChart(
 		var to = prefs.dayStart(timestamp)
 		for (i in 1..48) {
 			to = prefs.dayStart(timestamp + i * DAY_IN_MS / 24)
-			if (to > timestamp)
+			if (to > timestamp) {
 				break
+			}
 		}
 
 		var from = to
@@ -132,8 +133,9 @@ class MultiDayChart(
 
 			/* This happened with daytime change. It should be fixed, but if it happens again,
 			 * the app will not crash. */
-			if (dayFromTop < 0)
+			if (dayFromTop < 0) {
 				return
+			}
 
 			val start = max(start, dayLastTimestamp[dayFromTop])
 			if (start <= end) {
@@ -152,14 +154,16 @@ class MultiDayChart(
 
 		var day = 0
 		db.forEachRecordBetween(dayStarts.first(), dayStarts.last()) { start, duration ->
-			while (start > dayStarts[day + 1])
+			while (start > dayStarts[day + 1]) {
 				day++
+			}
 
 			val end = start + max(duration, minimumDurationLengthen)
 
 			var dayE = day
-			while (end > (dayStarts.getOrNull(dayE + 1) ?: end))
+			while (end > (dayStarts.getOrNull(dayE + 1) ?: end)) {
 				dayE++
+			}
 
 			val s = start - dayStarts[day]
 			val e = end - dayStarts[dayE]
