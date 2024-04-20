@@ -24,4 +24,8 @@
 	<string name="export_failed">Eksport mislykkedes</string>
 	<string name="save_as">Gem i Downloads som:</string>
 	<string name="enter_file_name">Indtast et filnavn</string>
+	<string name="show_multi_day">Vis statistik over flere dage</string>
+	<string name="explain_day_dot">Hver linje svarer til en dag. Prikkerne svarer til den samlede tid på en given dag.</string>
+	<string name="explain_horizontal_lines">Fede vandrette linjer svarer til en ny uge. Røde vandrette linjer svarer til en ny måned.</string>
+	<string name="lengthen_duration">Forlæng varigheden: %1$d:%2$02d:%3$02d</string>
 </resources>
