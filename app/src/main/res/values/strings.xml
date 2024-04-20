@@ -27,4 +27,5 @@
 	<string name="show_multi_day">Show multi day</string>
 	<string name="explain_day_dot">Each line corresponds to a day. The dots correspond to the total time on a given day.</string>
 	<string name="explain_horizontal_lines">Bold horizontal lines correspond to a new week. Red horizontal lines correspond to a new month.</string>
+	<string name="lengthen_duration">Lengthen duration: %1$d:%2$02d:%3$02d</string>
 </resources>
