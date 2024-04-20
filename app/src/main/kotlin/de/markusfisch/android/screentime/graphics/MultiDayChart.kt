@@ -13,7 +13,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-class MultidayChart(
+class MultiDayChart(
 	val width: Int,
 	private val dp: Float,
 	private val days: Int,

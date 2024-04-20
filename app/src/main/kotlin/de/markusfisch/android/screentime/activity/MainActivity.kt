@@ -123,7 +123,7 @@ class MainActivity : Activity() {
 		menu?.let {
 			val visibility = progressView.visibility == View.GONE
 			arrayOf(
-				R.id.show_multiday,
+				R.id.show_multi_day,
 				R.id.disable_battery_optimization,
 				R.id.import_export_database
 			).forEach {
@@ -138,8 +138,8 @@ class MainActivity : Activity() {
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		return when (item.itemId) {
-			R.id.show_multiday -> {
-				startActivity(Intent(this, MultidayActivity::class.java))
+			R.id.show_multi_day -> {
+				startActivity(Intent(this, MultiDayActivity::class.java))
 				true
 			}
 

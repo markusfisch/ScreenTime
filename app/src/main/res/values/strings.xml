@@ -24,7 +24,7 @@
 	<string name="export_failed">Export failed</string>
 	<string name="save_as">Save to Downloads as:</string>
 	<string name="enter_file_name">Enter a file name</string>
-	<string name="show_multiday">Show multiday</string>
+	<string name="show_multi_day">Show multi day</string>
 	<string name="explain_day_dot">Each line corresponds to a day. The dots correspond to the total time on a given day.</string>
 	<string name="explain_horizontal_lines">Bold horizontal lines correspond to a new week. Red horizontal lines correspond to a new month.</string>
 </resources>

@@ -10,7 +10,7 @@ import android.view.View
 import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.prefs
-import de.markusfisch.android.screentime.graphics.MultidayChart
+import de.markusfisch.android.screentime.graphics.MultiDayChart
 import de.markusfisch.android.screentime.graphics.loadColor
 import de.markusfisch.android.screentime.service.msToNextFullMinute
 import de.markusfisch.android.screentime.widget.BitmapView
@@ -22,7 +22,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MultidayActivity : Activity() {
+class MultiDayActivity : Activity() {
 	private val job = SupervisorJob()
 	private val scope = CoroutineScope(Dispatchers.Default + job)
 	private val usagePaint by lazy {
@@ -45,12 +45,12 @@ class MultidayActivity : Activity() {
 	private lateinit var minDurationLengthenBar: SeekBar
 
 	private var updateUsageRunnable: Runnable? = null
-	private var multidayChart: MultidayChart? = null
+	private var multiDayChart: MultiDayChart? = null
 	private var paused = true
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
-		setContentView(R.layout.multiday)
+		setContentView(R.layout.multi_day)
 		usageView = findViewById(R.id.graph)
 		minDurationLengthenBar = findViewById(R.id.minDurationLengthenBar)
 		minDurationLengthenBar.initMinDurationLengthenBar()
@@ -130,10 +130,10 @@ class MultidayActivity : Activity() {
 		}
 	}
 
-	private fun getUsageChart(width: Int): MultidayChart? {
+	private fun getUsageChart(width: Int): MultiDayChart? {
 		val dp = resources.displayMetrics.density
-		if (multidayChart == null || multidayChart?.width != width) {
-			multidayChart = MultidayChart(
+		if (multiDayChart == null || multiDayChart?.width != width) {
+			multiDayChart = MultiDayChart(
 				width,
 				dp,
 				days,
@@ -143,7 +143,7 @@ class MultidayActivity : Activity() {
 				loadColor(R.color.month_separator)
 			)
 		}
-		return multidayChart
+		return multiDayChart
 	}
 
 	private fun postUsageUpdate(delay: Long = 100L) {
