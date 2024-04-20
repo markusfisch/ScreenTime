@@ -2,7 +2,7 @@
 	<item
 		android:id="@+id/show_multi_day"
 		android:title="@string/show_multi_day"
-		android:icon="@android:drawable/ic_menu_recent_history"
+		android:icon="@drawable/ic_action_multi_day"
 		android:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/disable_battery_optimization"
