@@ -1,0 +1,5 @@
+* Add detailed visualization over multiple days
+* Add Ukrainian translation
+* Declare foreground service for Android 14
+* Fix monochrome icon
+

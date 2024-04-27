@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.0
+* Add detailed visualization over multiple days
+* Add Ukrainian translation
+* Declare foreground service for Android 14
+* Fix monochrome icon
+
 ## 1.2.0
 * Import/export SQLite database
 * Fix initialization at boot time
