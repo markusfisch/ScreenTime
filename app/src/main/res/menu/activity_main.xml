@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item
-		android:id="@+id/show_multi_day"
-		android:title="@string/show_multi_day"
+		android:id="@+id/detailed_list"
+		android:title="@string/detailed_list"
 		android:icon="@drawable/ic_action_multi_day"
 		android:showAsAction="ifRoom"/>
 	<item

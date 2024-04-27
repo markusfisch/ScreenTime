@@ -80,7 +80,7 @@ class MultiDayActivity : Activity() {
 			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				setTitle(R.string.app_name)
+				setTitle(R.string.detailed_list)
 			}
 		})
 		progress = prefs.minDurationLengthen

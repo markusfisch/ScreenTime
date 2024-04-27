@@ -28,7 +28,7 @@
 	<string name="export_failed">Помилка експорту</string>
 	<string name="save_as">Зберегти до Завантажень як:</string>
 	<string name="enter_file_name">Введіть назву файлу</string>
-	<string name="show_multi_day">Показати багатоденну статистику</string>
+	<string name="detailed_list">Детальний лістинг</string>
 	<string name="explain_day_dot">Кожна лінія відповідає одному дню. Крапки відповідають загальному часу в даний день.</string>
 	<string name="explain_horizontal_lines">Жирні горизонтальні лінії відповідають новому тижню. Червоні горизонтальні лінії відповідають новому місяцю.</string>
 	<string name="lengthen_duration">Подовжити тривалість: %1$d:%2$02d:%3$02d</string>
