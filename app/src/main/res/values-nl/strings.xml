@@ -1,0 +1,31 @@
+<resources>
+	<string name="app_name">Screen Time</string>
+	<string name="recording">Scherm-gebeurtenissen bijhouden aan/uit</string>
+	<plurals name="days">
+		<item quantity="one">Vandaag</item>
+		<item quantity="other">Laatste %1$d dagen</item>
+	</plurals>
+	<plurals name="show_x_days">
+		<item quantity="one">Alleen vandaag weergeven</item>
+		<item quantity="other">Totaal van de afgelopen %1$d dagen weergeven</item>
+	</plurals>
+	<string name="day_change_at">Dagwisseling instellen op %1$s</string>
+	<string name="disable_battery_optimization">Batterijoptimalisatie uitschakelen</string>
+	<string name="import_export_database">Gegevens exporteren/importeren</string>
+	<string name="import_database">Gegevens importeren</string>
+	<string name="cant_find_db">Gegevensbestand niet gevonden</string>
+	<string name="import_failed">Import mislukt: %1$s</string>
+	<string name="import_failed_unknown">Import mislukt om onbekende redenen</string>
+	<string name="importing">Importeren…</string>
+	<string name="import_successful">Import voltooid</string>
+	<string name="export_database">Gegevens exporteren</string>
+	<string name="exporting">Exporteren…</string>
+	<string name="export_successful">Export voltooid</string>
+	<string name="export_failed">Export mislukt</string>
+	<string name="save_as">Opslaan in Downloads als:</string>
+	<string name="enter_file_name">Voer een bestandsnaam in</string>
+	<string name="detailed_list">Gedetailleerde lijst</string>
+	<string name="explain_day_dot">Elke regel correspondeert met een dag. De stippen corresponderen met het dagtotaal.</string>
+	<string name="explain_horizontal_lines">Vette horizontale lijnen corresponderen met een nieuwe week. Rode horizontale lijnen corresponderen met een nieuwe maand.</string>
+	<string name="lengthen_duration">Tijdsduur verlengen: %1$d:%2$02d:%3$02d</string>
+</resources>
