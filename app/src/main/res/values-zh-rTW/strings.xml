@@ -1,0 +1,31 @@
+<resources>
+	<string name="app_name">ScreenTime</string>
+	<string name="recording">記錄螢幕開關事件</string>
+	<plurals name="days">
+		<item quantity="one">今天</item>
+		<item quantity="other">過去 %1$d 天</item>
+	</plurals>
+	<plurals name="show_x_days">
+		<item quantity="one">只顯示今天</item>
+		<item quantity="other">顯示最近 %1$d 天的總和</item>
+	</plurals>
+	<string name="day_change_at">設定日期變更為 %1$s</string>
+	<string name="disable_battery_optimization">停用電池最佳化</string>
+	<string name="import_export_database">匯入或匯出資料庫</string>
+	<string name="import_database">匯入資料庫</string>
+	<string name="cant_find_db">找不到資料庫</string>
+	<string name="import_failed">匯入失敗：%1$s</string>
+	<string name="import_failed_unknown">匯入失敗，原因不明</string>
+	<string name="importing">正在匯入…</string>
+	<string name="import_successful">匯入成功</string>
+	<string name="export_database">匯出資料庫</string>
+	<string name="exporting">正在匯出…</string>
+	<string name="export_successful">匯出成功</string>
+	<string name="export_failed">匯出失敗</string>
+	<string name="save_as">儲存至下載資料夾，檔名為：</string>
+	<string name="enter_file_name">輸入檔案名稱</string>
+	<string name="detailed_list">詳細列表</string>
+	<string name="explain_day_dot">每一行代表一天。圓點代表該天的總使用時間。</string>
+	<string name="explain_horizontal_lines">粗橫線代表新的一週。紅色橫線代表新的一個月。</string>
+	<string name="lengthen_duration">延長時間：%1$d:%2$02d:%3$02d</string>
+</resources>
