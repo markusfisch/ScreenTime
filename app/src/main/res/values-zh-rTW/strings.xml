@@ -2,11 +2,9 @@
 	<string name="app_name">ScreenTime</string>
 	<string name="recording">記錄螢幕開關事件</string>
 	<plurals name="days">
-		<item quantity="one">今天</item>
 		<item quantity="other">過去 %1$d 天</item>
 	</plurals>
 	<plurals name="show_x_days">
-		<item quantity="one">只顯示今天</item>
 		<item quantity="other">顯示最近 %1$d 天的總和</item>
 	</plurals>
 	<string name="day_change_at">設定日期變更為 %1$s</string>
