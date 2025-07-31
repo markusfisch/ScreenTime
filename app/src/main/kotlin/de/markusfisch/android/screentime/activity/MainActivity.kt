@@ -38,6 +38,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -229,7 +230,7 @@ class MainActivity : Activity() {
 		onDayChangeChange = { hour ->
 			title = getString(
 				R.string.day_change_at,
-				String.format("%02d:00", hour)
+				String.format(Locale.getDefault(), "%02d:00", hour)
 			)
 		}
 		onStopTrackingTouch = {

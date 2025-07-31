@@ -1,6 +1,7 @@
 package de.markusfisch.android.screentime.database
 
 import java.util.Calendar
+import java.util.Locale
 
 const val DAY_IN_MS = 86400000L
 
@@ -20,9 +21,15 @@ fun startOfDay(
 fun timeRangeColloquial(seconds: Long): String = when (seconds) {
 	0L -> "0"
 	in 1..59 -> "< 1m"
-	in 60..3599 -> String.format("%dm", (seconds / 60) % 60)
+	in 60..3599 -> String.format(
+		Locale.getDefault(),
+		"%dm",
+		(seconds / 60) % 60
+	)
+
 	in 3600..3660 -> "1h"
 	else -> String.format(
+		Locale.getDefault(),
 		"%dh %dm",
 		seconds / 3600,
 		(seconds / 60) % 60
