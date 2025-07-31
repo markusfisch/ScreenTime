@@ -38,7 +38,10 @@ class MultiDayChart(
 		dayHeight * days + offsetY + padding,
 		Bitmap.Config.ARGB_8888
 	)
-	private val bitmapB = bitmapA.copy(bitmapA.config, true)
+	private val bitmapB = bitmapA.copy(
+		bitmapA.config ?: Bitmap.Config.ARGB_8888,
+		true
+	)
 
 	private var even = true
 

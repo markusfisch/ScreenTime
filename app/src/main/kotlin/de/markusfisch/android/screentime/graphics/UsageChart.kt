@@ -30,7 +30,10 @@ class UsageChart(
 		height,
 		Bitmap.Config.ARGB_8888
 	)
-	private val bitmapB = bitmapA.copy(bitmapA.config, true)
+	private val bitmapB = bitmapA.copy(
+		bitmapA.config ?: Bitmap.Config.ARGB_8888,
+		true
+	)
 	private val squareRect = RectF()
 	private val numberBounds = Rect()
 	private val sumBounds = Rect()

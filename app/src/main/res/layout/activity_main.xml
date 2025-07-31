@@ -1,26 +1,32 @@
-<RelativeLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	<de.markusfisch.android.screentime.widget.UsageGraphView
-		android:id="@+id/graph"
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true">
+	<RelativeLayout
+		android:background="@color/window_background"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_above="@+id/days"/>
-	<SeekBar
-		android:id="@+id/days"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_gravity="bottom|start"
-		android:layout_alignParentBottom="true"
-		android:layout_marginBottom="@dimen/bottom_margin"
-		android:paddingLeft="32dp"
-		android:paddingStart="32dp"
-		android:paddingRight="32dp"
-		android:paddingEnd="32dp"
-		android:paddingBottom="16dp"
-		android:paddingTop="16dp"
-		android:max="30"
-		android:progress="6"/>
-	<include layout="@layout/progress_view"/>
-</RelativeLayout>
+		android:layout_height="match_parent">
+		<de.markusfisch.android.screentime.widget.UsageGraphView
+			android:id="@+id/graph"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_above="@+id/days"/>
+		<SeekBar
+			android:id="@+id/days"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|start"
+			android:layout_alignParentBottom="true"
+			android:layout_marginBottom="@dimen/bottom_margin"
+			android:paddingLeft="32dp"
+			android:paddingStart="32dp"
+			android:paddingRight="32dp"
+			android:paddingEnd="32dp"
+			android:paddingBottom="16dp"
+			android:paddingTop="16dp"
+			android:max="30"
+			android:progress="6"/>
+		<include layout="@layout/progress_view"/>
+	</RelativeLayout>
+</FrameLayout>
