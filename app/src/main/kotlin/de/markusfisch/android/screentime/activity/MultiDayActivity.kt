@@ -50,7 +50,7 @@ class MultiDayActivity : Activity() {
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
-		setContentView(R.layout.multi_day)
+		setContentView(R.layout.activity_multi_day)
 		usageView = findViewById(R.id.graph)
 		minDurationLengthenBar = findViewById(R.id.minDurationLengthenBar)
 		minDurationLengthenBar.initMinDurationLengthenBar()
