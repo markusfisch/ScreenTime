@@ -1,5 +1,6 @@
 package de.markusfisch.android.screentime.notification
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Notification
 import android.app.NotificationChannel
@@ -49,6 +50,7 @@ fun Context.buildNotification(
 	}
 }
 
+@SuppressLint("UseRequiresApi")
 @TargetApi(Build.VERSION_CODES.O)
 fun Context.createChannel() {
 	val nm = getSystemService(

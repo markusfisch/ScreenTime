@@ -16,7 +16,7 @@ fun Context.isIgnoringBatteryOptimizations(): Boolean =
 
 // This app does not consume any significant energy and should, by its very
 // nature, always be running to fulfil its purpose.
-@SuppressLint("BatteryLife")
+@SuppressLint("BatteryLife", "UseRequiresApi")
 @TargetApi(Build.VERSION_CODES.M)
 fun Context.requestDisableBatteryOptimization() {
 	startActivity(Intent().apply {
