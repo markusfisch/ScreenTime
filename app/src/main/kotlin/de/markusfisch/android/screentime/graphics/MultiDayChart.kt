@@ -60,7 +60,7 @@ class MultiDayChart(
 	}
 
 	private fun Canvas.drawAt(timestamp: Long) {
-		val dayStarts = LongArray(days + 1) { 0 }
+		val dayStarts = LongArray(days + 1)
 
 		var to = prefs.dayStart(timestamp)
 		for (i in 1..48) {
@@ -124,8 +124,8 @@ class MultiDayChart(
 	/* Q: Why do we iterate over the days?
 	 * A: Because not all days have 24h hours - daytime change. */
 	private fun Canvas.drawRecords(dayStarts: LongArray) {
-		val dayUsage = LongArray(days) { 0 }
-		val dayLastTimestamp = LongArray(days) { 0 }
+		val dayUsage = LongArray(days)
+		val dayLastTimestamp = LongArray(days)
 
 		val minimumDurationLengthen = prefs.minDurationLengthenValue().toLong()
 
