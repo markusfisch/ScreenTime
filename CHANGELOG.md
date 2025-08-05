@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.3.1
+* Target Android 16
+
 ## 1.3.0
 * Add detailed visualization over multiple days
 * Add Ukrainian translation
