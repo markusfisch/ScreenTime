@@ -16,6 +16,7 @@ import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.database.timeRangeColloquial
+import de.markusfisch.android.screentime.os.UsageTracking
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.ACTION
 import de.markusfisch.android.screentime.receiver.EventReceiver
@@ -54,6 +55,9 @@ class TrackerService : Service() {
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
 
+	private val usageTracking by lazy { UsageTracking(this) }
+	private var usesUsageTracking = false
+
 	private var eventId: Long = 0L
 	private var uptimeFrom: Long = 0L
 	private var lastNotifcation: Long = 0L
@@ -79,7 +83,8 @@ class TrackerService : Service() {
 		registerReceiver(eventReceiver, filter)
 
 		val now = System.currentTimeMillis()
-		if (isInteractive()) {
+		usesUsageTracking = usageTracking.update(now, isInteractive())
+		if (!usesUsageTracking && isInteractive()) {
 			insertScreenEvent(now, true)
 		}
 
@@ -114,6 +119,17 @@ class TrackerService : Service() {
 		flags: Int,
 		startId: Int
 	): Int {
+		val previousBackend = usesUsageTracking
+		usesUsageTracking = usageTracking.update(System.currentTimeMillis(), isInteractive())
+		if (usesUsageTracking) {
+			if (eventId > 0L) updateEvent(eventId)
+			eventId = 0L
+			updateNotification()
+			return START_STICKY
+		}
+		if (previousBackend && isInteractive()) {
+			insertScreenEvent(System.currentTimeMillis(), true)
+		}
 		if (intent?.hasExtra(ACTION) == true) {
 			when (intent.getStringExtra(ACTION)) {
 				Intent.ACTION_SCREEN_ON -> updateNotification()
@@ -189,6 +205,15 @@ class TrackerService : Service() {
 			return
 		}
 		lastNotifcation = now
+		val previousBackend = usesUsageTracking
+		usesUsageTracking = usageTracking.update(now, isInteractive())
+		if (usesUsageTracking) {
+			if (eventId > 0L) updateEvent(eventId)
+			eventId = 0L
+		} else if (previousBackend && isInteractive()) {
+			eventId = db.insertEvent(now)
+			uptimeFrom = SystemClock.uptimeMillis()
+		}
 		scope.launch {
 			val notification = buildAndScheduleNotification(now)
 			withContext(Dispatchers.Main) {

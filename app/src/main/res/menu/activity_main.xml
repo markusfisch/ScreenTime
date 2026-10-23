@@ -14,4 +14,8 @@
 		android:title="@string/import_export_database"
 		android:icon="@drawable/ic_action_import_export"
 		android:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/usage_access"
+		android:title="@string/usage_access"
+		android:showAsAction="never"/>
 </menu>

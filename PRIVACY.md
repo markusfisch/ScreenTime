@@ -16,6 +16,12 @@ by the system.
 
 Required from Android 13+ to post notifications.
 
+### PACKAGE_USAGE_STATS
+
+Optional on Android 9 and later. With usage access enabled in Android settings,
+this app reads screen and lock events to record device screen time, including
+when its service was interrupted. It does not store which apps you use.
+
 ### [RECEIVE_BOOT_COMPLETED][RECEIVE_BOOT_COMPLETED]
 
 Required to automatically restart after a boot.

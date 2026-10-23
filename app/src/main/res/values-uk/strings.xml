@@ -32,4 +32,5 @@
 	<string name="explain_day_dot">Кожна лінія відповідає одному дню. Крапки відповідають загальному часу в даний день.</string>
 	<string name="explain_horizontal_lines">Жирні горизонтальні лінії відповідають новому тижню. Червоні горизонтальні лінії відповідають новому місяцю.</string>
 	<string name="lengthen_duration">Подовжити тривалість: %1$d:%2$02d:%3$02d</string>
+	<string name="usage_access">Використовувати облік екранного часу Android</string>
 </resources>

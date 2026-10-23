@@ -28,4 +28,5 @@
 	<string name="explain_day_dot">Elke regel correspondeert met een dag. De stippen corresponderen met het dagtotaal.</string>
 	<string name="explain_horizontal_lines">Vette horizontale lijnen corresponderen met een nieuwe week. Rode horizontale lijnen corresponderen met een nieuwe maand.</string>
 	<string name="lengthen_duration">Tijdsduur verlengen: %1$d:%2$02d:%3$02d</string>
+	<string name="usage_access">Schermtijd bijhouden via Android</string>
 </resources>

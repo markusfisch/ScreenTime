@@ -2,6 +2,7 @@ package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
@@ -9,6 +10,9 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import de.markusfisch.android.screentime.os.hasUsageAccess
+import de.markusfisch.android.screentime.service.startTrackerService
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -134,11 +138,25 @@ class MainActivity : Activity() {
 				) false else visibility
 			}
 		}
+		menu?.findItem(R.id.usage_access)?.isVisible =
+			progressView.visibility == View.GONE &&
+			Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !hasUsageAccess()
 		return super.onPrepareOptionsMenu(menu)
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		return when (item.itemId) {
+			R.id.usage_access -> {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+					try {
+						startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+					} catch (_: ActivityNotFoundException) {
+						// Some devices do not provide usage access settings.
+					}
+				}
+				true
+			}
+
 			R.id.detailed_list -> {
 				startActivity(Intent(this, MultiDayActivity::class.java))
 				true
@@ -266,6 +284,7 @@ class MainActivity : Activity() {
 
 	override fun onResume() {
 		super.onResume()
+		startTrackerService()
 		// Post to run update() after layout.
 		postUsageUpdate(dayBar.progress)
 		paused = false

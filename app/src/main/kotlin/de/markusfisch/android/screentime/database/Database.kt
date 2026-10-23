@@ -71,6 +71,16 @@ class Database(context: Context) {
 		}
 	}
 
+	fun findOrInsertEvent(from: Long): Long {
+		db.rawQuery(
+			"SELECT $EVENTS_ID FROM $EVENTS WHERE $EVENTS_FROM = ? LIMIT 1",
+			arrayOf(from.toString())
+		).use {
+			if (it.moveToFirst()) return it.getLong(0)
+		}
+		return insertEvent(from)
+	}
+
 	fun insertEvent(from: Long): Long = db.insert(
 		EVENTS,
 		null,
