@@ -18,14 +18,14 @@ class MultiDayChart(
 	private val dp: Float,
 	private val days: Int,
 	private val usagePaint: Paint,
+	private val dialPaint: Paint,
 	private val textPaint: Paint,
 	private val usageDotPaint: Paint,
-	private val monthColor: Int
+	monthColor: Int
 ) {
-	private val linePaint = Paint(textPaint).also { it.strokeWidth = 1f }
-	private val linePaintBold = Paint(linePaint).also { it.strokeWidth = 2f }
-	private val monthLinePaint =
-		Paint(linePaintBold).also { it.strokeWidth = 4f; it.color = monthColor }
+	private val columnPaint = Paint(textPaint).apply { alpha = 10 }
+	private val weekPaint = Paint(textPaint).apply { alpha = 20 }
+	private val monthPaint = fillPaint(monthColor).apply { alpha = 48 }
 
 	private val textBounds = Rect()
 
@@ -76,48 +76,46 @@ class MultiDayChart(
 			from = prefs.dayStart(from - 1)
 		}
 
+		drawDays(dayStarts)
 		drawRecords(dayStarts)
 		drawHours(prefs.hourOfDayChange)
-		drawDays(dayStarts)
 	}
 
 	private fun Canvas.drawHours(hourOffset: Int) {
 		val width = this.width - padding * 2
-		val height = days * dayHeight
-
-		val hours = 24
-		for (i in 0..hours) {
-			val x = (i * width / hours + padding).toFloat()
+		for (i in 0..24) {
+			val x = (i * width / 24 + padding).toFloat()
 			val h = (i + hourOffset) % 24
-			val paint = when (h % 6 == 0) {
-				true -> linePaintBold
-				false -> linePaint
-			}
 			if (h % 3 == 0) {
 				drawTextCenteredAbove("$h", x, offsetY.toFloat())
 			}
-			drawLine(x, offsetY.toFloat(), x, (height + offsetY).toFloat(), paint)
+			drawCircle(x, offsetY - 2f * dp, if (h % 6 == 0) dp else dp * .5f, textPaint)
 		}
 	}
 
 	private fun Canvas.drawDays(dayStarts: LongArray) {
-		val sX = (padding).toFloat()
-		val eX = (width - padding).toFloat()
-
+		val left = padding.toFloat()
+		val right = (width - padding).toFloat()
 		val calendar = Calendar.getInstance()
-
-		for (d in 0..days) {
-			val y = d * dayHeight + offsetY
-			calendar.timeInMillis = dayStarts[days - d]
-
-			val paint = if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-				monthLinePaint
-			} else if (calendar.get(Calendar.DAY_OF_WEEK) == calendar.firstDayOfWeek) {
-				linePaintBold
-			} else {
-				linePaint
+		for (d in 0..<days) {
+			val top = d * dayHeight + offsetY + dp
+			val bottom = (d + 1) * dayHeight + offsetY - dp
+			calendar.timeInMillis = dayStarts[days - 1 - d]
+			drawRect(left, top, right, bottom, dialPaint)
+			for (hour in 1..<24 step 2) {
+				drawRect(
+					left + hour * (right - left) / 24f,
+					top,
+					left + (hour + 1) * (right - left) / 24f,
+					bottom,
+					columnPaint
+				)
 			}
-			drawLine(sX, y.toFloat(), eX, y.toFloat(), paint)
+			if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+				drawRect(left, top, right, bottom, monthPaint)
+			} else if (calendar.get(Calendar.DAY_OF_WEEK) == calendar.firstDayOfWeek) {
+				drawRect(left, top, right, bottom, weekPaint)
+			}
 		}
 	}
 
@@ -147,11 +145,11 @@ class MultiDayChart(
 
 				val e = min(end, DAY_IN_MS)
 
-				val top = dayFromTop * dayHeight + offsetY
-				val bottom = (dayFromTop + 1) * dayHeight + offsetY
+				val top = dayFromTop * dayHeight + offsetY + dp
+				val bottom = (dayFromTop + 1) * dayHeight + offsetY - dp
 				val left = (s * width / DAY_IN_MS + padding).toInt()
 				val right = (e * width / DAY_IN_MS + padding).toInt()
-				drawRect(Rect(left, top, right, bottom), usagePaint)
+				drawRect(left.toFloat(), top, right.toFloat(), bottom, usagePaint)
 			}
 		}
 

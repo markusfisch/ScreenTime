@@ -30,6 +30,9 @@ class MultiDayActivity : Activity() {
 			xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
 		}
 	}
+	private val dialPaint by lazy {
+		fillPaint(loadColor(R.color.dial))
+	}
 	private val usageDotPaint by lazy {
 		fillPaint(loadColor(R.color.usage_dot))
 	}
@@ -138,6 +141,7 @@ class MultiDayActivity : Activity() {
 				dp,
 				days,
 				usagePaint,
+				dialPaint,
 				textPaint,
 				usageDotPaint,
 				loadColor(R.color.month_separator)
