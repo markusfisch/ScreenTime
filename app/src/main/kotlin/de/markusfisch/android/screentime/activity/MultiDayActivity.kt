@@ -34,7 +34,7 @@ class MultiDayActivity : Activity() {
 		fillPaint(loadColor(R.color.dial))
 	}
 	private val usageDotPaint by lazy {
-		fillPaint(loadColor(R.color.usage_dot))
+		fillPaint(loadColor(R.color.text))
 	}
 	private val textPaint by lazy {
 		fillPaint(loadColor(R.color.text)).apply {
