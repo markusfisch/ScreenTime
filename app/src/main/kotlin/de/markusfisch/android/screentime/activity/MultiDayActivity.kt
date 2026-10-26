@@ -143,8 +143,7 @@ class MultiDayActivity : Activity() {
 				usagePaint,
 				dialPaint,
 				textPaint,
-				usageDotPaint,
-				loadColor(R.color.month_separator)
+				usageDotPaint
 			)
 		}
 		return multiDayChart

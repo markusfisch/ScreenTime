@@ -24,7 +24,7 @@
 	<string name="enter_file_name">輸入檔案名稱</string>
 	<string name="detailed_list">詳細列表</string>
 	<string name="explain_day_dot">每一行代表一天。圓點代表該天的總使用時間。</string>
-	<string name="explain_horizontal_lines">較亮的列代表一週的開始。橘色的列代表一個月的開始。</string>
+	<string name="explain_horizontal_lines">較亮的列代表一週的開始。</string>
 	<string name="lengthen_duration">延長時間：%1$d:%2$02d:%3$02d</string>
 	<string name="usage_access">使用 Android 螢幕時間追蹤</string>
 </resources>

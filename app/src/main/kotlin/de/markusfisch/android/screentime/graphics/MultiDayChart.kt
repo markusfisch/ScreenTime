@@ -20,12 +20,10 @@ class MultiDayChart(
 	private val usagePaint: Paint,
 	private val dialPaint: Paint,
 	private val textPaint: Paint,
-	private val usageDotPaint: Paint,
-	monthColor: Int
+	private val usageDotPaint: Paint
 ) {
 	private val columnPaint = Paint(textPaint).apply { alpha = 10 }
 	private val weekPaint = Paint(textPaint).apply { alpha = 20 }
-	private val monthPaint = fillPaint(monthColor).apply { alpha = 48 }
 
 	private val textBounds = Rect()
 
@@ -111,9 +109,7 @@ class MultiDayChart(
 					columnPaint
 				)
 			}
-			if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-				drawRect(left, top, right, bottom, monthPaint)
-			} else if (calendar.get(Calendar.DAY_OF_WEEK) == calendar.firstDayOfWeek) {
+			if (calendar.get(Calendar.DAY_OF_WEEK) == calendar.firstDayOfWeek) {
 				drawRect(left, top, right, bottom, weekPaint)
 			}
 		}
