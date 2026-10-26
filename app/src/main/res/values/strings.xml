@@ -27,6 +27,5 @@
 	<string name="detailed_list">Detailed listing</string>
 	<string name="explain_day_dot">Each line corresponds to a day. The dots correspond to the total time on a given day.</string>
 	<string name="explain_horizontal_lines">Lighter rows mark the start of a week.</string>
-	<string name="lengthen_duration">Lengthen duration: %1$d:%2$02d:%3$02d</string>
 	<string name="usage_access">Use Android screen time tracking</string>
 </resources>

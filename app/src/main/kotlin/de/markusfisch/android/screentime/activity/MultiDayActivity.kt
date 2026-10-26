@@ -6,9 +6,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
-import android.widget.SeekBar
 import de.markusfisch.android.screentime.R
-import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.graphics.MultiDayChart
 import de.markusfisch.android.screentime.graphics.fillPaint
 import de.markusfisch.android.screentime.graphics.loadColor
@@ -45,7 +43,6 @@ class MultiDayActivity : Activity() {
 	private val days = 90
 
 	private lateinit var usageView: BitmapView
-	private lateinit var minDurationLengthenBar: SeekBar
 
 	private var updateUsageRunnable: Runnable? = null
 	private var multiDayChart: MultiDayChart? = null
@@ -55,38 +52,6 @@ class MultiDayActivity : Activity() {
 		super.onCreate(state)
 		setContentView(R.layout.activity_multi_day)
 		usageView = findViewById(R.id.graph)
-		minDurationLengthenBar = findViewById(R.id.minDurationLengthenBar)
-		minDurationLengthenBar.initMinDurationLengthenBar()
-	}
-
-	private fun SeekBar.initMinDurationLengthenBar() {
-		setOnSeekBarChangeListener(object :
-			SeekBar.OnSeekBarChangeListener {
-			override fun onProgressChanged(
-				seekBar: SeekBar,
-				progress: Int,
-				fromUser: Boolean
-			) {
-				if (fromUser) {
-					prefs.minDurationLengthen = progress
-					val min = prefs.minDurationLengthenValue()
-					title = getString(
-						R.string.lengthen_duration,
-						min / 3600000,
-						min / 60000 % 60,
-						min / 1000 % 60
-					)
-					postUsageUpdate()
-				}
-			}
-
-			override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
-
-			override fun onStopTrackingTouch(seekBar: SeekBar) {
-				setTitle(R.string.detailed_list)
-			}
-		})
-		progress = prefs.minDurationLengthen
 	}
 
 	override fun onResume() {
@@ -105,7 +70,6 @@ class MultiDayActivity : Activity() {
 	override fun onDestroy() {
 		super.onDestroy()
 		job.cancelChildren()
-		prefs.minDurationLengthen = minDurationLengthenBar.progress
 	}
 
 	private var first = true

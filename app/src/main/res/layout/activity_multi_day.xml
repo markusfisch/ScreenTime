@@ -31,13 +31,6 @@
 				android:layout_width="wrap_content"
 				android:textSize="16sp"
 				android:text="@string/explain_horizontal_lines" />
-			<SeekBar
-				android:id="@+id/minDurationLengthenBar"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingTop="16dp"
-				android:max="28"
-				android:progress="9"/>
 		</LinearLayout>
 		<de.markusfisch.android.screentime.widget.BitmapView
 			android:id="@+id/graph"

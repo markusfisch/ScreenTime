@@ -121,8 +121,6 @@ class MultiDayChart(
 		val dayUsage = LongArray(days)
 		val dayLastTimestamp = LongArray(days)
 
-		val minimumDurationLengthen = prefs.minDurationLengthenValue().toLong()
-
 		val width = this.width - padding * 2
 
 		val drawInOneDay = fun(day: Int, start: Long, end: Long) {
@@ -155,7 +153,7 @@ class MultiDayChart(
 				day++
 			}
 
-			val end = start + max(duration, minimumDurationLengthen)
+			val end = start + duration
 
 			var dayE = day
 			while (end > (dayStarts.getOrNull(dayE + 1) ?: end)) {
