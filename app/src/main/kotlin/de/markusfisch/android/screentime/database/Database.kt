@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.prefs
 import java.io.File
-import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,8 +21,7 @@ class Database(context: Context) {
 	): Int {
 		val earliestTimestamp = db.getEarliestTimestamp()
 		if (earliestTimestamp > -1) {
-			val msBetween = prefs.dayStart(now) - prefs.dayStart(earliestTimestamp)
-			return ceil(msBetween / 86400000.0).toInt()
+			return daysBetween(prefs.dayStart(earliestTimestamp), prefs.dayStart(now))
 		}
 		return 0
 	}
@@ -41,7 +39,7 @@ class Database(context: Context) {
 		callback: (start: Long, duration: Long) -> Unit
 	) {
 		val dayStart = prefs.dayStart(timestamp)
-		val dayEnd = dayStart + DAY_IN_MS
+		val dayEnd = prefs.dayStart(timestamp, 1)
 		return forEachRecordBetween(dayStart, dayEnd, callback)
 	}
 

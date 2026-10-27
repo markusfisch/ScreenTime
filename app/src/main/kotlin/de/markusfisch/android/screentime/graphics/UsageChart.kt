@@ -9,7 +9,7 @@ import android.graphics.RectF
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.database.DAY_IN_MS
-import de.markusfisch.android.screentime.database.startOfDay
+import de.markusfisch.android.screentime.database.forEachClockInterval
 import de.markusfisch.android.screentime.database.timeRangeColloquial
 import kotlin.math.cos
 import kotlin.math.min
@@ -76,8 +76,8 @@ class UsageChart(
 		lastDaysString: String
 	) {
 		drawCircle(centerX, centerY, radius, dialPaint)
-		val dayStart = prefs.dayStart(timestamp - DAY_IN_MS * days)
-		val dayEnd = prefs.dayStart(timestamp) + DAY_IN_MS
+		val dayStart = prefs.dayStart(timestamp, -days)
+		val dayEnd = prefs.dayStart(timestamp, 1)
 		val seconds = drawRecordsBetween(
 			dayStart,
 			dayEnd,
@@ -190,17 +190,18 @@ private fun Canvas.drawRecordsBetween(
 	rect: RectF,
 	paint: Paint
 ): Long {
-	val dayStart = startOfDay(from)
 	var total = 0L
 	db.forEachRecordBetween(from, to) { start, duration ->
 		total += duration
-		drawArc(
-			rect,
-			dayTimeToAngle(start - dayStart) - 90f,
-			dayTimeToAngle(duration),
-			true,
-			paint
-		)
+		forEachClockInterval(start, start + duration) { time, length ->
+			drawArc(
+				rect,
+				dayTimeToAngle(time) - 90f,
+				dayTimeToAngle(length),
+				true,
+				paint
+			)
+		}
 	}
 	return total / 1000L
 }

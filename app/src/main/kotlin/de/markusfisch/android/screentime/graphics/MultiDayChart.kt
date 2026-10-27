@@ -8,6 +8,7 @@ import android.graphics.Rect
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.database.DAY_IN_MS
+import de.markusfisch.android.screentime.database.forEachClockInterval
 import java.util.Calendar
 import kotlin.math.max
 import kotlin.math.min
@@ -60,18 +61,8 @@ class MultiDayChart(
 	private fun Canvas.drawAt(timestamp: Long) {
 		val dayStarts = LongArray(days + 1)
 
-		var to = prefs.dayStart(timestamp)
-		for (i in 1..48) {
-			to = prefs.dayStart(timestamp + i * DAY_IN_MS / 24)
-			if (to > timestamp) {
-				break
-			}
-		}
-
-		var from = to
 		for (i in 0..days) {
-			dayStarts[days - i] = from
-			from = prefs.dayStart(from - 1)
+			dayStarts[days - i] = prefs.dayStart(timestamp, 1 - i)
 		}
 
 		drawDays(dayStarts)
@@ -137,13 +128,15 @@ class MultiDayChart(
 				dayUsage[dayFromTop] += end - s
 				dayLastTimestamp[dayFromTop] = end
 
-				val e = min(end, DAY_IN_MS)
-
 				val top = dayFromTop * dayHeight + offsetY + dp
 				val bottom = (dayFromTop + 1) * dayHeight + offsetY - dp
-				val left = (s * width / DAY_IN_MS + padding).toInt()
-				val right = (e * width / DAY_IN_MS + padding).toInt()
-				drawRect(left.toFloat(), top, right.toFloat(), bottom, usagePaint)
+				forEachClockInterval(
+					dayStarts[day] + s, dayStarts[day] + end, prefs.hourOfDayChange
+				) { time, duration ->
+					val left = (time * width / DAY_IN_MS + padding).toFloat()
+					val right = ((time + duration) * width / DAY_IN_MS + padding).toFloat()
+					drawRect(left, top, right, bottom, usagePaint)
+				}
 			}
 		}
 

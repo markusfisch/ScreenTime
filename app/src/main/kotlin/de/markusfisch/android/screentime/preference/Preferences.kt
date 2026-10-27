@@ -3,9 +3,7 @@ package de.markusfisch.android.screentime.preference
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import de.markusfisch.android.screentime.app.prefs
-import de.markusfisch.android.screentime.database.startOfDay
-import java.util.Calendar
+import de.markusfisch.android.screentime.database.dayStart
 import kotlin.math.max
 import kotlin.math.min
 
@@ -33,12 +31,8 @@ class Preferences(context: Context) {
 		)
 	}
 
-	fun dayStart(timestamp: Long): Long = startOfDay(timestamp) { cal ->
-		cal.set(Calendar.HOUR_OF_DAY, prefs.hourOfDayChange)
-		if (cal.timeInMillis > timestamp) {
-			cal.add(Calendar.DAY_OF_MONTH, -1)
-		}
-	}
+	fun dayStart(timestamp: Long, days: Int = 0): Long =
+		dayStart(timestamp, hourOfDayChange, days)
 
 	private fun apply(label: String, value: Int) {
 		preferences.edit().putInt(label, value).apply()
