@@ -8,6 +8,9 @@ debug:
 lint:
 	./gradlew lintDebug
 
+test:
+	./gradlew test
+
 release: lint
 	./gradlew assembleRelease
 
