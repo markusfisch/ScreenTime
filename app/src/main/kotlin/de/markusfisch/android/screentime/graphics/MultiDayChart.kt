@@ -140,31 +140,8 @@ class MultiDayChart(
 			}
 		}
 
-		var day = 0
 		db.forEachRecordBetween(dayStarts.first(), dayStarts.last()) { start, duration ->
-			while (start > dayStarts[day + 1]) {
-				day++
-			}
-
-			val end = start + duration
-
-			var dayE = day
-			while (end > (dayStarts.getOrNull(dayE + 1) ?: end)) {
-				dayE++
-			}
-
-			val s = start - dayStarts[day]
-			val e = end - dayStarts[dayE]
-
-			if (day == dayE) {
-				drawInOneDay(day, s, e)
-			} else {
-				drawInOneDay(day, s, dayStarts[day + 1] - dayStarts[day])
-				for (d in (day + 1)..<dayE) {
-					drawInOneDay(dayE, 0, dayStarts[d + 1] - dayStarts[d])
-				}
-				drawInOneDay(dayE, 0, e)
-			}
+			forEachDayInterval(dayStarts, start, start + duration, drawInOneDay)
 		}
 
 		for (d in 0..<days) {
