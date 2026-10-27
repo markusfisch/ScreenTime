@@ -227,6 +227,9 @@ class Database(context: Context) {
 					ExternalDatabaseContext(context),
 					fileName
 				).readableDatabase
+				if (!edb.hasImportColumns()) {
+					return context.getString(R.string.import_failed_invalid_database)
+				}
 				beginTransaction()
 				if (importEventsFrom(edb)) {
 					setTransactionSuccessful()
@@ -242,6 +245,17 @@ class Database(context: Context) {
 				}
 				edb?.close()
 			}
+		}
+
+		private fun SQLiteDatabase.hasImportColumns(): Boolean {
+			val columns = mutableSetOf<String>()
+			rawQuery("PRAGMA table_info($EVENTS)", null).use { cursor ->
+				while (cursor.moveToNext()) {
+					columns.add(cursor.getString(cursor.getColumnIndexOrThrow("name")))
+				}
+			}
+			return EVENTS_ID in columns && EVENTS_FROM in columns &&
+				(EVENTS_DURATION in columns || EVENTS_TO in columns)
 		}
 
 		private fun SQLiteDatabase.importEventsFrom(

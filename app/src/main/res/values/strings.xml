@@ -28,4 +28,5 @@
 	<string name="explain_day_dot">Each line corresponds to a day. The dots correspond to the total time on a given day.</string>
 	<string name="explain_horizontal_lines">Lighter rows mark the start of a week.</string>
 	<string name="usage_access">Use Android screen time tracking</string>
+	<string name="import_failed_invalid_database">The selected file is not a compatible screen time database.</string>
 </resources>

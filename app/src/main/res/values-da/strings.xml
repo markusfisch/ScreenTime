@@ -28,4 +28,5 @@
 	<string name="explain_day_dot">Hver linje svarer til en dag. Prikkerne svarer til den samlede tid på en given dag.</string>
 	<string name="explain_horizontal_lines">Lysere rækker markerer starten på en uge.</string>
 	<string name="usage_access">Brug Androids skærmtidsregistrering</string>
+	<string name="import_failed_invalid_database">Den valgte fil er ikke en kompatibel skærmtidsdatabase.</string>
 </resources>

@@ -6,6 +6,7 @@ android {
 
 	defaultConfig {
 		minSdkVersion 11
+		testInstrumentationRunner 'de.markusfisch.android.screentime.database.DatabaseImportTest'
 		targetSdkVersion sdk_version
 
 		versionCode 15

@@ -32,4 +32,5 @@
 	<string name="explain_day_dot">Кожна лінія відповідає одному дню. Крапки відповідають загальному часу в даний день.</string>
 	<string name="explain_horizontal_lines">Світліші рядки позначають початок тижня.</string>
 	<string name="usage_access">Використовувати облік екранного часу Android</string>
+	<string name="import_failed_invalid_database">Вибраний файл не є сумісною базою даних екранного часу.</string>
 </resources>

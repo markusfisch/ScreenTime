@@ -1,0 +1,115 @@
+package de.markusfisch.android.screentime.database
+
+import android.app.Activity
+import android.app.Instrumentation
+import android.content.ContextWrapper
+import android.database.sqlite.SQLiteDatabase
+import android.os.Bundle
+import de.markusfisch.android.screentime.R
+import java.io.File
+
+// Uses platform instrumentation so database regression tests need no extra
+// runtime libraries. All fixtures live in a separate debug cache directory.
+class DatabaseImportTest : Instrumentation() {
+	private val directory by lazy {
+		File(targetContext.cacheDir, "import-tests").apply { mkdirs() }
+	}
+	private val storage by lazy {
+		object : ContextWrapper(targetContext) {
+			override fun getDatabasePath(name: String) = File(directory, name)
+			override fun getFilesDir() = directory
+		}
+	}
+
+	override fun onCreate(arguments: Bundle?) {
+		super.onCreate(arguments)
+		start()
+	}
+
+	override fun onStart() {
+		check(context.packageName.endsWith(".debug.test"))
+		check(targetContext.packageName == "de.markusfisch.android.screentime.debug")
+		directory.listFiles()?.forEach { it.delete() }
+		val database = Database(storage)
+		val source = File(storage.filesDir, "fixture.db")
+		val tests = listOf(
+			"currentFormat" to {
+				fixture(source, "_id INTEGER, _from INTEGER, _duration INTEGER", "1, 1000, 500")
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 500L)
+			},
+			"legacyFormatAndDuplicateImport" to {
+				fixture(source, "_id INTEGER, _from INTEGER, _to INTEGER", "1, 2000, 2400")
+				check(database.importDatabase(storage, source.name) == null)
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 900L)
+			},
+			"missingStart" to {
+				fixture(source, "_id INTEGER, _duration INTEGER", "1, 300")
+				checkInvalid(database, source)
+			},
+			"missingDuration" to {
+				fixture(source, "_id INTEGER, _from INTEGER", "1, 3000")
+				checkInvalid(database, source)
+			},
+			"emptyInvalidSchema" to {
+				fixture(source, "_id INTEGER, _from INTEGER", null)
+				checkInvalid(database, source)
+			},
+			"missingTable" to {
+				source.delete()
+				SQLiteDatabase.openOrCreateDatabase(source, null).close()
+				checkInvalid(database, source)
+			},
+			"nonSqliteFile" to {
+				source.writeText("not a database")
+				check(database.importDatabase(storage, source.name) != null)
+				check(total(database) == 900L)
+			}
+		)
+		var failures = 0
+		for ((index, test) in tests.withIndex()) {
+			val status = Bundle().apply {
+				putString("class", DatabaseImportTest::class.java.name)
+				putString("test", test.first)
+				putInt("numtests", tests.size)
+				putInt("current", index + 1)
+			}
+			sendStatus(1, status)
+			try {
+				test.second()
+				sendStatus(0, status)
+			} catch (failure: Throwable) {
+				failures++
+				status.putString("stack", failure.stackTraceToString())
+				sendStatus(-2, status)
+			}
+		}
+		source.delete()
+		finish(Activity.RESULT_OK, Bundle().apply {
+			putString("stream", "Import tests: ${tests.size}, failures: $failures")
+		})
+	}
+
+	private fun fixture(file: File, columns: String, values: String?) {
+		file.delete()
+		SQLiteDatabase.openOrCreateDatabase(file, null).use {
+			it.execSQL("CREATE TABLE screen_events ($columns)")
+			if (values != null) {
+				it.execSQL("INSERT INTO screen_events VALUES ($values)")
+			}
+		}
+	}
+
+	private fun checkInvalid(database: Database, source: File) {
+		check(database.importDatabase(storage, source.name) ==
+			storage.getString(R.string.import_failed_invalid_database))
+		check(total(database) == 900L)
+	}
+
+	private fun total(database: Database): Long {
+		var total = 0L
+		database.forEachRecordBetween(0L, 10000L) { _, duration -> total += duration }
+		return total
+	}
+}
