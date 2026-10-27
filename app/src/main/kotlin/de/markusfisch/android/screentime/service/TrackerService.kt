@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.SystemClock
+import android.os.UserManager
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
@@ -33,6 +34,11 @@ val eventReceiver = EventReceiver()
 fun Context.startTrackerService(
 	callback: ((intent: Intent) -> Any)? = null
 ) {
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+		!(getSystemService(Context.USER_SERVICE) as UserManager).isUserUnlocked
+	) {
+		return
+	}
 	val intent = Intent(this, TrackerService::class.java)
 	callback?.let {
 		callback(intent)
@@ -77,6 +83,7 @@ class TrackerService : Service() {
 		filter.addAction(Intent.ACTION_SCREEN_OFF)
 		filter.addAction(Intent.ACTION_USER_PRESENT)
 		filter.addAction(Intent.ACTION_SHUTDOWN)
+		filter.addAction(Intent.ACTION_TIME_CHANGED)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 			filter.addAction(Intent.ACTION_DREAMING_STARTED)
 		}
@@ -200,11 +207,12 @@ class TrackerService : Service() {
 
 	private fun updateNotification() {
 		val now = System.currentTimeMillis()
-		if (now - lastNotifcation < 500L) {
+		val elapsed = SystemClock.elapsedRealtime()
+		if (elapsed - lastNotifcation < 500L) {
 			// Skip this update as there is probably no change.
 			return
 		}
-		lastNotifcation = now
+		lastNotifcation = elapsed
 		val previousBackend = usesUsageTracking
 		usesUsageTracking = usageTracking.update(now, isInteractive())
 		if (usesUsageTracking) {
