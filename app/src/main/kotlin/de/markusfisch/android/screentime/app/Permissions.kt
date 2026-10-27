@@ -35,7 +35,7 @@ fun Activity.requestWritePermission(callback: () -> Any): Boolean {
 private fun Activity.requestPermission(
 	permission: String,
 	requestCode: Int
-) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
 	checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
 ) {
 	requestPermissions(arrayOf(permission), requestCode)
