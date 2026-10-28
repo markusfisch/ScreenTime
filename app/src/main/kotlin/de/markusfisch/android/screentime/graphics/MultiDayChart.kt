@@ -54,8 +54,11 @@ class MultiDayChart(
 	private fun nextBitmap(): Bitmap {
 		// Double buffering to avoid modifying the
 		// currently displayed bitmap.
-		even = even xor true
 		return if (even) bitmapA else bitmapB
+	}
+
+	fun swapBuffers() {
+		even = even xor true
 	}
 
 	private fun Canvas.drawAt(timestamp: Long) {

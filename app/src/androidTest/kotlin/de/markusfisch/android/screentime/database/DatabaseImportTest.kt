@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import de.markusfisch.android.screentime.R
+import de.markusfisch.android.screentime.graphics.checkChartBuffers
 import java.io.File
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicReference
@@ -89,6 +90,9 @@ class DatabaseImportTest : Instrumentation() {
 			},
 			"consistentSnapshotDuringWrites" to {
 				checkSnapshot(database)
+			},
+			"discardedFramesPreserveDisplayedBitmaps" to {
+				checkChartBuffers()
 			}
 
 		)

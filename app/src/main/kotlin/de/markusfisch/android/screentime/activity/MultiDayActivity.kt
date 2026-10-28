@@ -16,7 +16,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -44,6 +46,8 @@ class MultiDayActivity : Activity() {
 
 	private lateinit var usageView: BitmapView
 
+	private val renderMutex = Mutex()
+	private var renderJob: Job? = null
 	private var updateUsageRunnable: Runnable? = null
 	private var multiDayChart: MultiDayChart? = null
 	private var paused = true
@@ -65,11 +69,12 @@ class MultiDayActivity : Activity() {
 		super.onPause()
 		paused = true
 		cancelUsageUpdate()
+		renderJob?.cancel()
 	}
 
 	override fun onDestroy() {
 		super.onDestroy()
-		job.cancelChildren()
+		job.cancel()
 	}
 
 	private var first = true
@@ -80,10 +85,12 @@ class MultiDayActivity : Activity() {
 			return
 		}
 		val chart = getUsageChart(width) ?: return
-		scope.launch {
-			val bitmap = chart.draw(timestamp)
-			withContext(Dispatchers.Main) {
+		renderJob?.cancel()
+		renderJob = scope.launch(Dispatchers.Main.immediate) {
+			renderMutex.withLock {
+				val bitmap = withContext(Dispatchers.Default) { chart.draw(timestamp) }
 				usageView.setBitmap(bitmap)
+				chart.swapBuffers()
 				if (first) {
 					val scroll: View = findViewById(R.id.scroll)
 					val prefix: View = findViewById(R.id.prefix)

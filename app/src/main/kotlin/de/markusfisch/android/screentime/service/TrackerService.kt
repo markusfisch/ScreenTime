@@ -55,7 +55,7 @@ fun Context.startTrackerService(
 
 class TrackerService : Service() {
 	private val job = SupervisorJob()
-	private val scope = CoroutineScope(Dispatchers.Default + job)
+	private val scope = CoroutineScope(Dispatchers.Main.immediate + job)
 	private val handler by lazy { Handler(mainLooper) }
 	private val updateNotificationRunnable = Runnable {
 		updateNotification()
@@ -240,14 +240,15 @@ class TrackerService : Service() {
 		}
 	}
 
-	private fun Context.buildAndScheduleNotification(now: Long): Notification {
+	private suspend fun Context.buildAndScheduleNotification(now: Long): Notification {
 		scheduleNotificationUpdate(msToNextFullMinute(now))
 		if (eventId > 0L) {
 			updateEvent(eventId)
 		}
+		val total = withContext(Dispatchers.IO) { db.summarizeDay(now) }
 		return buildNotification(
 			R.drawable.ic_notify,
-			timeRangeColloquial(db.summarizeDay(now) / 1000L),
+			timeRangeColloquial(total / 1000L),
 			Intent(this, MainActivity::class.java)
 		)
 	}

@@ -39,7 +39,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -67,6 +69,8 @@ class MainActivity : Activity() {
 	private lateinit var dayBar: SeekBar
 	private lateinit var progressView: View
 
+	private val renderMutex = Mutex()
+	private var renderJob: Job? = null
 	private var updateUsageRunnable: Runnable? = null
 	private var usageChart: UsageChart? = null
 	private var paused = true
@@ -291,11 +295,12 @@ class MainActivity : Activity() {
 		super.onPause()
 		paused = true
 		cancelUsageUpdate()
+		renderJob?.cancel()
 	}
 
 	override fun onDestroy() {
 		super.onDestroy()
-		job.cancelChildren()
+		job.cancel()
 		prefs.graphRange = dayBar.progress
 	}
 
@@ -314,11 +319,14 @@ class MainActivity : Activity() {
 		val chart = getUsageChart(width, height) ?: return
 		val d = days + 1
 		val daysString = resources.getQuantityString(R.plurals.days, d, d)
-		scope.launch {
-			val max = min(30, db.getAvailableHistoryInDays())
-			val bitmap = chart.draw(timestamp, days, daysString)
-			withContext(Dispatchers.Main) {
+		renderJob?.cancel()
+		renderJob = scope.launch(Dispatchers.Main.immediate) {
+			renderMutex.withLock {
+				val (max, bitmap) = withContext(Dispatchers.Default) {
+					min(30, db.getAvailableHistoryInDays()) to chart.draw(timestamp, days, daysString)
+				}
 				usageView.setGraphBitmap(bitmap)
+				chart.swapBuffers()
 				if (dayBar.max != max) {
 					dayBar.max = max
 				}
