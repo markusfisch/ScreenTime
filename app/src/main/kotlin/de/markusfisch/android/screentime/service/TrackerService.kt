@@ -18,6 +18,7 @@ import de.markusfisch.android.screentime.activity.MainActivity
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.database.timeRangeColloquial
 import de.markusfisch.android.screentime.os.UsageTracking
+import de.markusfisch.android.screentime.os.TrackingStatus
 import de.markusfisch.android.screentime.notification.buildNotification
 import de.markusfisch.android.screentime.receiver.ACTION
 import de.markusfisch.android.screentime.receiver.EventReceiver
@@ -30,6 +31,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 val eventReceiver = EventReceiver()
+
+var trackingStatus: TrackingStatus? = null
+	private set
 
 fun Context.startTrackerService(
 	callback: ((intent: Intent) -> Any)? = null
@@ -91,6 +95,7 @@ class TrackerService : Service() {
 
 		val now = System.currentTimeMillis()
 		usesUsageTracking = usageTracking.update(now, isInteractive())
+		trackingStatus = usageTracking.status
 		if (!usesUsageTracking && isInteractive()) {
 			insertScreenEvent(now, true)
 		}
@@ -113,6 +118,7 @@ class TrackerService : Service() {
 
 	override fun onDestroy() {
 		super.onDestroy()
+		trackingStatus = null
 		unregisterReceiver(eventReceiver)
 		job.cancelChildren()
 	}
@@ -128,6 +134,7 @@ class TrackerService : Service() {
 	): Int {
 		val previousBackend = usesUsageTracking
 		usesUsageTracking = usageTracking.update(System.currentTimeMillis(), isInteractive())
+		trackingStatus = usageTracking.status
 		if (usesUsageTracking) {
 			if (eventId > 0L) updateEvent(eventId)
 			eventId = 0L
@@ -215,6 +222,7 @@ class TrackerService : Service() {
 		lastNotifcation = elapsed
 		val previousBackend = usesUsageTracking
 		usesUsageTracking = usageTracking.update(now, isInteractive())
+		trackingStatus = usageTracking.status
 		if (usesUsageTracking) {
 			if (eventId > 0L) updateEvent(eventId)
 			eventId = 0L

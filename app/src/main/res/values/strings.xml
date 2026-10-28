@@ -27,6 +27,16 @@
 	<string name="detailed_list">Detailed listing</string>
 	<string name="explain_day_dot">Each line corresponds to a day. The dots correspond to the total time on a given day.</string>
 	<string name="explain_horizontal_lines">Lighter rows mark the start of a week.</string>
-	<string name="usage_access">Use Android screen time tracking</string>
+	<string name="usage_access">Manage usage access</string>
 	<string name="import_failed_invalid_database">The selected file is not a compatible screen time database.</string>
+	<string name="tracking_status">Permissions</string>
+	<string name="tracking_android">Active: Android usage events.</string>
+	<string name="tracking_screen_unsupported">Active: Screen events.\n\nAndroid usage events require Android 9 or later.</string>
+	<string name="tracking_screen_permission">Active: Screen events.\n\nUsage access has not been granted.</string>
+	<string name="tracking_screen_unavailable">Active: Screen events.\n\nAndroid usage events are currently unavailable.</string>
+	<string name="tracking_unavailable">Tracking status is currently unavailable.</string>
+	<string name="usage_access_unavailable">Usage access settings are unavailable on this device.</string>
+	<string name="usage_access_explanation">With Android usage access, Screen Time can recover screen time after interruptions to the app. You can allow access in Android settings. Without it, screen time is still recorded while the tracker is running.</string>
+	<string name="allow_usage_access">Allow access</string>
+	<string name="later">Later</string>
 </resources>

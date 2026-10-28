@@ -25,6 +25,16 @@
 	<string name="detailed_list">詳細列表</string>
 	<string name="explain_day_dot">每一行代表一天。圓點代表該天的總使用時間。</string>
 	<string name="explain_horizontal_lines">較亮的列代表一週的開始。</string>
-	<string name="usage_access">使用 Android 螢幕時間追蹤</string>
+	<string name="usage_access">管理使用情況存取權</string>
 	<string name="import_failed_invalid_database">所選檔案不是相容的螢幕時間資料庫。</string>
+	<string name="tracking_status">權限</string>
+	<string name="tracking_android">使用中：Android 使用情況事件。</string>
+	<string name="tracking_screen_unsupported">使用中：螢幕事件。\n\nAndroid 使用情況事件需要 Android 9 以上版本。</string>
+	<string name="tracking_screen_permission">使用中：螢幕事件。\n\n尚未授予使用情況存取權。</string>
+	<string name="tracking_screen_unavailable">使用中：螢幕事件。\n\nAndroid 使用情況事件目前無法使用。</string>
+	<string name="tracking_unavailable">目前無法取得追蹤狀態。</string>
+	<string name="usage_access_unavailable">此裝置無法開啟使用情況存取權設定。</string>
+	<string name="usage_access_explanation">授予 Android 使用情況存取權後，Screen Time 就能補回應用程式中斷期間的螢幕使用時間。您可以在 Android 設定中授予存取權。未授權時，只要追蹤服務仍在執行，就會繼續記錄螢幕使用時間。</string>
+	<string name="allow_usage_access">允許存取</string>
+	<string name="later">稍後</string>
 </resources>

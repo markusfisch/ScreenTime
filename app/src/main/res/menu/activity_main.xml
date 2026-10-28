@@ -16,6 +16,6 @@
 		android:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/usage_access"
-		android:title="@string/usage_access"
+		android:title="@string/tracking_status"
 		android:showAsAction="never"/>
 </menu>

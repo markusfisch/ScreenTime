@@ -2,7 +2,6 @@ package de.markusfisch.android.screentime.activity
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
@@ -10,8 +9,6 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import de.markusfisch.android.screentime.os.hasUsageAccess
 import de.markusfisch.android.screentime.service.startTrackerService
 import android.view.Menu
 import android.view.MenuItem
@@ -19,6 +16,7 @@ import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
 import de.markusfisch.android.screentime.R
+import de.markusfisch.android.screentime.app.PERMISSION_POST_NOTIFICATIONS
 import de.markusfisch.android.screentime.app.PERMISSION_WRITE
 import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
@@ -28,6 +26,8 @@ import de.markusfisch.android.screentime.app.runPermissionCallback
 import de.markusfisch.android.screentime.database.exportDatabase
 import de.markusfisch.android.screentime.database.importDatabase
 import de.markusfisch.android.screentime.dialog.askForName
+import de.markusfisch.android.screentime.dialog.requestUsageAccessOnce
+import de.markusfisch.android.screentime.dialog.showTrackingStatus
 import de.markusfisch.android.screentime.graphics.UsageChart
 import de.markusfisch.android.screentime.graphics.fillPaint
 import de.markusfisch.android.screentime.graphics.loadColor
@@ -77,6 +77,7 @@ class MainActivity : Activity() {
 		grantResults: IntArray
 	) {
 		when (requestCode) {
+			PERMISSION_POST_NOTIFICATIONS -> requestUsageAccessOnce()
 			PERMISSION_WRITE -> if (grantResults.isNotEmpty() &&
 				grantResults[0] == PackageManager.PERMISSION_GRANTED
 			) {
@@ -116,7 +117,9 @@ class MainActivity : Activity() {
 		dayBar = findViewById(R.id.days)
 		dayBar.initDayBar()
 		progressView = findViewById(R.id.progress_view)
-		requestNotificationPermission()
+		if (requestNotificationPermission()) {
+			requestUsageAccessOnce()
+		}
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -130,7 +133,8 @@ class MainActivity : Activity() {
 			arrayOf(
 				R.id.detailed_list,
 				R.id.disable_battery_optimization,
-				R.id.import_export_database
+				R.id.import_export_database,
+				R.id.usage_access
 			).forEach {
 				menu.findItem(it).isVisible = if (
 					it == R.id.disable_battery_optimization &&
@@ -138,22 +142,13 @@ class MainActivity : Activity() {
 				) false else visibility
 			}
 		}
-		menu?.findItem(R.id.usage_access)?.isVisible =
-			progressView.visibility == View.GONE &&
-			Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !hasUsageAccess()
 		return super.onPrepareOptionsMenu(menu)
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		return when (item.itemId) {
 			R.id.usage_access -> {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-					try {
-						startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-					} catch (_: ActivityNotFoundException) {
-						// Some devices do not provide usage access settings.
-					}
-				}
+				showTrackingStatus()
 				true
 			}
 

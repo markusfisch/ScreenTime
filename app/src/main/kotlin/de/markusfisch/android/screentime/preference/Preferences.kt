@@ -23,6 +23,12 @@ class Preferences(context: Context) {
 			field = clamped
 		}
 
+	var usageAccessPromptShown: Boolean
+		get() = preferences.getBoolean(USAGE_ACCESS_PROMPT_SHOWN, false)
+		set(value) {
+			preferences.edit().putBoolean(USAGE_ACCESS_PROMPT_SHOWN, value).apply()
+		}
+
 	init {
 		graphRange = preferences.getInt(GRAPH_RANGE, graphRange)
 		hourOfDayChange = preferences.getInt(
@@ -40,6 +46,7 @@ class Preferences(context: Context) {
 
 	companion object {
 		private const val GRAPH_RANGE = "graph_range"
+		private const val USAGE_ACCESS_PROMPT_SHOWN = "usage_access_prompt_shown"
 		private const val HOUR_OF_DAY_CHANGE = "hour_of_day_change"
 	}
 }

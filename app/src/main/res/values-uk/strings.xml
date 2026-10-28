@@ -31,6 +31,16 @@
 	<string name="detailed_list">Детальний лістинг</string>
 	<string name="explain_day_dot">Кожна лінія відповідає одному дню. Крапки відповідають загальному часу в даний день.</string>
 	<string name="explain_horizontal_lines">Світліші рядки позначають початок тижня.</string>
-	<string name="usage_access">Використовувати облік екранного часу Android</string>
+	<string name="usage_access">Керувати доступом до даних використання</string>
 	<string name="import_failed_invalid_database">Вибраний файл не є сумісною базою даних екранного часу.</string>
+	<string name="tracking_status">Дозволи</string>
+	<string name="tracking_android">Активний метод: події використання Android.</string>
+	<string name="tracking_screen_unsupported">Активний метод: події екрана.\n\nДля подій використання Android потрібна версія Android 9 або новіша.</string>
+	<string name="tracking_screen_permission">Активний метод: події екрана.\n\nДоступ до даних використання не надано.</string>
+	<string name="tracking_screen_unavailable">Активний метод: події екрана.\n\nПодії використання Android наразі недоступні.</string>
+	<string name="tracking_unavailable">Стан обліку наразі недоступний.</string>
+	<string name="usage_access_unavailable">Налаштування доступу до даних використання недоступні на цьому пристрої.</string>
+	<string name="usage_access_explanation">Доступ до даних використання Android дає змогу Screen Time відновлювати екранний час після перерв у роботі застосунку. Надати доступ можна в налаштуваннях Android. Без нього екранний час і далі записується, поки працює служба обліку.</string>
+	<string name="allow_usage_access">Надати доступ</string>
+	<string name="later">Пізніше</string>
 </resources>

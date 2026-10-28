@@ -24,10 +24,15 @@ fun Context.hasUsageAccess(): Boolean =
 class UsageTracking(private val context: Context) {
 	private val state = context.getSharedPreferences("usage_tracking", Context.MODE_PRIVATE)
 
+	var status = TrackingStatus.ANDROID_UNAVAILABLE
+		private set
+
 	fun update(now: Long, interactive: Boolean): Boolean {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || !context.hasUsageAccess()) {
-			state.edit().clear().apply()
-			return false
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+			return fallback(TrackingStatus.UNSUPPORTED_ANDROID)
+		}
+		if (!context.hasUsageAccess()) {
+			return fallback(TrackingStatus.USAGE_ACCESS_DENIED)
 		}
 		val manager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 		val clock = UsageClock(
@@ -46,10 +51,7 @@ class UsageTracking(private val context: Context) {
 			manager.queryEvents(from.coerceAtMost(now), now)
 		} catch (_: SecurityException) {
 			null
-		} ?: run {
-			state.edit().clear().apply()
-			return false
-		}
+		} ?: return fallback(TrackingStatus.ANDROID_UNAVAILABLE)
 		var start = if (canReplay) state.getLong("start", 0L) else 0L
 		var id = if (canReplay) state.getLong("id", 0L) else 0L
 		val unlocked = !(context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
@@ -91,6 +93,13 @@ class UsageTracking(private val context: Context) {
 			.putLong("elapsed", clock.elapsed).putInt("boot_count", clock.bootCount)
 			.putLong("id", id).putBoolean("screen_on", screenOn)
 			.putBoolean("keyguard_hidden", keyguardHidden).apply()
+		status = TrackingStatus.ANDROID
 		return true
+	}
+
+	private fun fallback(reason: TrackingStatus): Boolean {
+		status = reason
+		state.edit().clear().apply()
+		return false
 	}
 }
