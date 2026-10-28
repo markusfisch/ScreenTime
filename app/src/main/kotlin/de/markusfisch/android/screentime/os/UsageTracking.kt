@@ -24,10 +24,7 @@ fun Context.hasUsageAccess(): Boolean =
 class UsageTracking(private val context: Context) {
 	private val state = context.getSharedPreferences("usage_tracking", Context.MODE_PRIVATE)
 
-	var status = TrackingStatus.ANDROID_UNAVAILABLE
-		private set
-
-	fun update(now: Long, interactive: Boolean): Boolean {
+	fun update(now: Long, interactive: Boolean): TrackingStatus {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
 			return fallback(TrackingStatus.UNSUPPORTED_ANDROID)
 		}
@@ -93,13 +90,11 @@ class UsageTracking(private val context: Context) {
 			.putLong("elapsed", clock.elapsed).putInt("boot_count", clock.bootCount)
 			.putLong("id", id).putBoolean("screen_on", screenOn)
 			.putBoolean("keyguard_hidden", keyguardHidden).apply()
-		status = TrackingStatus.ANDROID
-		return true
+		return TrackingStatus.ANDROID
 	}
 
-	private fun fallback(reason: TrackingStatus): Boolean {
-		status = reason
+	private fun fallback(reason: TrackingStatus): TrackingStatus {
 		state.edit().clear().apply()
-		return false
+		return reason
 	}
 }

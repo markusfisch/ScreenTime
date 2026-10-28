@@ -1,6 +1,5 @@
 package de.markusfisch.android.screentime.service
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -25,6 +24,7 @@ import de.markusfisch.android.screentime.receiver.EventReceiver
 import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,14 +58,14 @@ class TrackerService : Service() {
 	private val scope = CoroutineScope(Dispatchers.Main.immediate + job)
 	private val handler by lazy { Handler(mainLooper) }
 	private val updateNotificationRunnable = Runnable {
-		updateNotification()
+		updateTracking()
 	}
 
 	private lateinit var notificationManager: NotificationManager
 	private lateinit var powerManager: PowerManager
 
 	private val usageTracking by lazy { UsageTracking(this) }
-	private var usesUsageTracking = false
+	private var notificationJob: Job? = null
 
 	private var eventId: Long = 0L
 	private var uptimeFrom: Long = 0L
@@ -92,26 +92,17 @@ class TrackerService : Service() {
 		}
 		registerReceiver(eventReceiver, filter)
 
-		val now = System.currentTimeMillis()
-		usesUsageTracking = usageTracking.update(now, isInteractive())
-		trackingStatus = usageTracking.status
-		if (!usesUsageTracking && isInteractive()) {
-			insertScreenEvent(now, true)
-		}
-
-		scope.launch {
-			val notification = buildAndScheduleNotification(now)
-			withContext(Dispatchers.Main) {
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-					startForeground(NOTIFICATION_ID, notification)
-				} else {
-					startForeground(
-						NOTIFICATION_ID,
-						notification,
-						ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-					)
-				}
-			}
+		val notification = buildNotification(
+			R.drawable.ic_notify, getString(R.string.recording),
+			Intent(this, MainActivity::class.java)
+		)
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+			startForeground(NOTIFICATION_ID, notification)
+		} else {
+			startForeground(
+				NOTIFICATION_ID, notification,
+				ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+			)
 		}
 	}
 
@@ -132,43 +123,50 @@ class TrackerService : Service() {
 		flags: Int,
 		startId: Int
 	): Int {
-		val previousBackend = usesUsageTracking
-		usesUsageTracking = usageTracking.update(System.currentTimeMillis(), isInteractive())
-		trackingStatus = usageTracking.status
-		if (usesUsageTracking) {
-			if (eventId > 0L) updateEvent(eventId)
+		updateTracking(intent)
+		return START_STICKY
+	}
+
+	private fun updateTracking(intent: Intent? = null) {
+		val now = System.currentTimeMillis()
+		val previous = trackingStatus
+		trackingStatus = usageTracking.update(now, isInteractive())
+		if (trackingStatus == TrackingStatus.ANDROID) {
+			if (eventId > 0L) {
+				updateEvent(eventId)
+			}
 			eventId = 0L
-			updateNotification()
-			return START_STICKY
-		}
-		if (previousBackend && isInteractive()) {
-			insertScreenEvent(System.currentTimeMillis(), true)
-		}
-		if (intent?.hasExtra(ACTION) == true) {
-			when (intent.getStringExtra(ACTION)) {
-				Intent.ACTION_SCREEN_ON -> updateNotification()
-				// Ignore ACTION_SCREEN_OFF events when the device is still
-				// interactive (e.g. when the camera app was opened by double
-				// pressing on/off there's a ACTION_SCREEN_OFF event directly
-				// followed by ACTION_SCREEN_ON).
-				Intent.ACTION_SCREEN_OFF -> if (!isInteractive()) {
-					intent.insertScreenEvent(false)
-				}
-
-				Intent.ACTION_SHUTDOWN,
-				QUICKBOOT_POWER_OFF,
-				QUICKBOOT_POWER_OFF_HTC -> intent.insertScreenEvent(false)
-
-				Intent.ACTION_DREAMING_STARTED -> intent.insertScreenEvent(false)
-				Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
-				Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
-					// Since the app was just started by the system, we
-					// have missed any previous ACTION_USER_PRESENT.
-					intent.insertScreenEvent(true)
-				}
+		} else {
+			if ((previous == null || previous == TrackingStatus.ANDROID) && isInteractive()) {
+				insertScreenEvent(now, true)
+			}
+			if (intent != null) {
+				handleScreenEvent(intent)
+			}
+			if (eventId > 0L) {
+				updateEvent(eventId)
 			}
 		}
-		return START_STICKY
+		scheduleNotificationUpdate(msToNextFullMinute(now))
+		updateNotification(now)
+	}
+
+	private fun handleScreenEvent(intent: Intent) {
+		when (intent.getStringExtra(ACTION)) {
+			// Some devices send SCREEN_OFF immediately followed by SCREEN_ON
+			// when launching the camera. Ignore it while still interactive.
+			Intent.ACTION_SCREEN_OFF -> if (!isInteractive()) {
+				intent.insertScreenEvent(false)
+			}
+			Intent.ACTION_SHUTDOWN,
+			QUICKBOOT_POWER_OFF,
+			QUICKBOOT_POWER_OFF_HTC,
+			Intent.ACTION_DREAMING_STARTED -> intent.insertScreenEvent(false)
+			Intent.ACTION_USER_PRESENT -> intent.insertScreenEvent(true)
+			Intent.ACTION_BOOT_COMPLETED -> if (isInteractive()) {
+				intent.insertScreenEvent(true)
+			}
+		}
 	}
 
 	private fun Intent.insertScreenEvent(screenOn: Boolean) {
@@ -180,9 +178,10 @@ class TrackerService : Service() {
 
 	private fun insertScreenEvent(timestamp: Long, screenOn: Boolean) {
 		if (screenOn) {
-			eventId = db.insertEvent(timestamp)
-			uptimeFrom = SystemClock.uptimeMillis()
-			updateNotification()
+			if (eventId == 0L) {
+				eventId = db.insertEvent(timestamp)
+				uptimeFrom = SystemClock.uptimeMillis()
+			}
 		} else {
 			cancelNotificationUpdate()
 			if (eventId > 0L) {
@@ -199,7 +198,7 @@ class TrackerService : Service() {
 	private fun scheduleNotificationUpdate(delay: Long) {
 		scope.launch(Dispatchers.Main.immediate) {
 			cancelNotificationUpdate()
-			if (isInteractive()) {
+			if (isInteractive() && (trackingStatus == TrackingStatus.ANDROID || eventId > 0L)) {
 				handler.postDelayed(updateNotificationRunnable, delay)
 			}
 		}
@@ -214,43 +213,22 @@ class TrackerService : Service() {
 		powerManager.isScreenOn
 	}
 
-	private fun updateNotification() {
-		val now = System.currentTimeMillis()
+	private fun updateNotification(now: Long) {
 		val elapsed = SystemClock.elapsedRealtime()
 		if (elapsed - lastNotifcation < 500L) {
-			// Skip this update as there is probably no change.
 			return
 		}
 		lastNotifcation = elapsed
-		val previousBackend = usesUsageTracking
-		usesUsageTracking = usageTracking.update(now, isInteractive())
-		trackingStatus = usageTracking.status
-		if (usesUsageTracking) {
-			if (eventId > 0L) updateEvent(eventId)
-			eventId = 0L
-		} else if (previousBackend && isInteractive()) {
-			eventId = db.insertEvent(now)
-			uptimeFrom = SystemClock.uptimeMillis()
+		notificationJob?.cancel()
+		notificationJob = scope.launch {
+			val total = withContext(Dispatchers.IO) { db.summarizeDay(now) }
+			val notification = buildNotification(
+				R.drawable.ic_notify,
+				timeRangeColloquial(total / 1000L),
+				Intent(this@TrackerService, MainActivity::class.java)
+			)
+			notificationManager.notify(NOTIFICATION_ID, notification)
 		}
-		scope.launch {
-			val notification = buildAndScheduleNotification(now)
-			withContext(Dispatchers.Main) {
-				notificationManager.notify(NOTIFICATION_ID, notification)
-			}
-		}
-	}
-
-	private suspend fun Context.buildAndScheduleNotification(now: Long): Notification {
-		scheduleNotificationUpdate(msToNextFullMinute(now))
-		if (eventId > 0L) {
-			updateEvent(eventId)
-		}
-		val total = withContext(Dispatchers.IO) { db.summarizeDay(now) }
-		return buildNotification(
-			R.drawable.ic_notify,
-			timeRangeColloquial(total / 1000L),
-			Intent(this, MainActivity::class.java)
-		)
 	}
 
 	private fun updateEvent(eventId: Long) {
