@@ -68,7 +68,7 @@ fun timeRangeColloquial(seconds: Long): String = when (seconds) {
 		(seconds / 60) % 60
 	)
 
-	in 3600..3660 -> "1h"
+	in 3600..3659 -> "1h"
 	else -> String.format(
 		Locale.getDefault(),
 		"%dh %dm",

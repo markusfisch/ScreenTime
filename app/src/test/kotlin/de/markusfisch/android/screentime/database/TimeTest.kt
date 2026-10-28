@@ -5,6 +5,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.util.Calendar
+import java.util.Locale
 import java.util.TimeZone
 
 class TimeTest {
@@ -60,4 +61,12 @@ class TimeTest {
 		}
 		assertEquals(listOf(19L, 20L).map { it * 3600000L }, intervals.map { it.first })
 	}
+	@Test fun displaysTheFirstMinuteAfterAnHour() {
+		assertEquals("1h", timeRangeColloquial(3600L))
+		assertEquals("1h", timeRangeColloquial(3659L))
+		val expected = String.format(Locale.getDefault(), "%dh %dm", 1, 1)
+		assertEquals(expected, timeRangeColloquial(3660L))
+		assertEquals(expected, timeRangeColloquial(3661L))
+	}
+
 }
