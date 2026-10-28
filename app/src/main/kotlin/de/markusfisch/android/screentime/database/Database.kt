@@ -281,20 +281,10 @@ class Database(context: Context) {
 					} else {
 						cursor.getLong(durationIndex)
 					}
-					if (srcId < 1L || from < 1L || duration < 1L ||
-						eventExists(from, duration)
-					) {
+					if (srcId < 1L || from < 1L || duration < 1L) {
 						continue
 					}
-					if (insert(
-							EVENTS,
-							null,
-							ContentValues().apply {
-								put(EVENTS_FROM, from)
-								put(EVENTS_DURATION, duration)
-							}
-						) < 1
-					) {
+					if (!mergeEvent(from, duration)) {
 						success = false
 						break
 					}
@@ -304,21 +294,30 @@ class Database(context: Context) {
 			return success
 		}
 
-		private fun SQLiteDatabase.eventExists(
-			from: Long,
-			duration: Long
-		): Boolean {
-			val cursor = rawQuery(
-				"""SELECT $EVENTS_ID
-					FROM $EVENTS
-					WHERE $EVENTS_FROM = ?
-						AND $EVENTS_DURATION = ?
-					LIMIT 1""".trimMargin(),
-				arrayOf(from.toString(), duration.toString())
-			) ?: return false
-			val exists = cursor.moveToFirst() && cursor.count > 0
-			cursor.close()
-			return exists
+		private fun SQLiteDatabase.mergeEvent(from: Long, duration: Long): Boolean {
+			var id = 0L
+			var longest = duration
+			rawQuery(
+				"SELECT MIN($EVENTS_ID), MAX($EVENTS_DURATION) FROM $EVENTS WHERE $EVENTS_FROM = ?",
+				arrayOf(from.toString())
+			).use {
+				if (it.moveToFirst()) {
+					id = it.getLong(0)
+					longest = max(longest, it.getLong(1))
+				}
+			}
+			val values = ContentValues().apply {
+				put(EVENTS_FROM, from)
+				put(EVENTS_DURATION, longest)
+			}
+			if (id == 0L) {
+				return insert(EVENTS, null, values) > 0L
+			}
+			if (update(EVENTS, values, "$EVENTS_ID = ?", arrayOf(id.toString())) != 1) {
+				return false
+			}
+			delete(EVENTS, "$EVENTS_FROM = ? AND $EVENTS_ID != ?", arrayOf(from.toString(), id.toString()))
+			return true
 		}
 	}
 }

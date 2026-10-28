@@ -44,6 +44,24 @@ class DatabaseImportTest : Instrumentation() {
 				check(database.importDatabase(storage, source.name) == null)
 				check(total(database) == 900L)
 			},
+			"growingSessionAndShorterBackup" to {
+				fixture(source, "_id INTEGER, _from INTEGER, _duration INTEGER", "1, 1000, 700")
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 1100L)
+				fixture(source, "_id INTEGER, _from INTEGER, _duration INTEGER", "1, 1000, 100")
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 1100L)
+			},
+			"mergeExistingDuplicates" to {
+				SQLiteDatabase.openDatabase(
+					storage.getDatabasePath(Database.FILE_NAME).path, null, SQLiteDatabase.OPEN_READWRITE
+				).use {
+					it.execSQL("INSERT INTO screen_events (_from, _duration) VALUES (1000, 600)")
+				}
+				fixture(source, "_id INTEGER, _from INTEGER, _duration INTEGER", "1, 1000, 700")
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 1100L)
+			},
 			"missingStart" to {
 				fixture(source, "_id INTEGER, _duration INTEGER", "1, 300")
 				checkInvalid(database, source)
@@ -64,7 +82,7 @@ class DatabaseImportTest : Instrumentation() {
 			"nonSqliteFile" to {
 				source.writeText("not a database")
 				check(database.importDatabase(storage, source.name) != null)
-				check(total(database) == 900L)
+				check(total(database) == 1100L)
 			}
 		)
 		var failures = 0
@@ -104,7 +122,7 @@ class DatabaseImportTest : Instrumentation() {
 	private fun checkInvalid(database: Database, source: File) {
 		check(database.importDatabase(storage, source.name) ==
 			storage.getString(R.string.import_failed_invalid_database))
-		check(total(database) == 900L)
+		check(total(database) == 1100L)
 	}
 
 	private fun total(database: Database): Long {
