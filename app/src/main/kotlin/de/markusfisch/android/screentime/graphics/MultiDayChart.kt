@@ -10,7 +10,6 @@ import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.database.DAY_IN_MS
 import de.markusfisch.android.screentime.database.forEachClockInterval
 import java.util.Calendar
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -113,33 +112,21 @@ class MultiDayChart(
 	 * A: Because not all days have 24h hours - daytime change. */
 	private fun Canvas.drawRecords(dayStarts: LongArray) {
 		val dayUsage = LongArray(days)
-		val dayLastTimestamp = LongArray(days)
 
 		val width = this.width - padding * 2
 
 		val drawInOneDay = fun(day: Int, start: Long, end: Long) {
 			val dayFromTop = days - 1 - day
 
-			/* This happened with daytime change. It should be fixed, but if it happens again,
-			 * the app will not crash. */
-			if (dayFromTop < 0) {
-				return
-			}
-
-			val s = max(start, dayLastTimestamp[dayFromTop])
-			if (s <= end) {
-				dayUsage[dayFromTop] += end - s
-				dayLastTimestamp[dayFromTop] = end
-
-				val top = dayFromTop * dayHeight + offsetY + dp
-				val bottom = (dayFromTop + 1) * dayHeight + offsetY - dp
-				forEachClockInterval(
-					dayStarts[day] + s, dayStarts[day] + end, prefs.hourOfDayChange
-				) { time, duration ->
-					val left = (time * width / DAY_IN_MS + padding).toFloat()
-					val right = ((time + duration) * width / DAY_IN_MS + padding).toFloat()
-					drawRect(left, top, right, bottom, usagePaint)
-				}
+			dayUsage[dayFromTop] += end - start
+			val top = dayFromTop * dayHeight + offsetY + dp
+			val bottom = (dayFromTop + 1) * dayHeight + offsetY - dp
+			forEachClockInterval(
+				dayStarts[day] + start, dayStarts[day] + end, prefs.hourOfDayChange
+			) { time, duration ->
+				val left = (time * width / DAY_IN_MS + padding).toFloat()
+				val right = ((time + duration) * width / DAY_IN_MS + padding).toFloat()
+				drawRect(left, top, right, bottom, usagePaint)
 			}
 		}
 

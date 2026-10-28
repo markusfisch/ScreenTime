@@ -88,6 +88,24 @@ class DatabaseImportTest : Instrumentation() {
 				check(database.importDatabase(storage, source.name) != null)
 				check(total(database) == 1100L)
 			},
+			"overlappingAndAdjacentIntervals" to {
+				fixture(source, "_id INTEGER, _from INTEGER, _duration INTEGER", "1, 3000, 2000")
+				SQLiteDatabase.openDatabase(source.path, null, SQLiteDatabase.OPEN_READWRITE).use {
+					it.execSQL("INSERT INTO screen_events VALUES (2, 4000, 2000), (3, 4500, 100), (4, 6000, 1000)")
+				}
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 5100L)
+				val intervals = mutableListOf<Pair<Long, Long>>()
+				database.forEachRecordBetween(3500L, 5500L) { start, duration ->
+					intervals.add(start to duration)
+				}
+				check(intervals == listOf(3500L to 2000L))
+				intervals.clear()
+				database.forEachRecordBetween(7000L, 7000L) { start, duration ->
+					intervals.add(start to duration)
+				}
+				check(intervals.isEmpty())
+			},
 			"consistentSnapshotDuringWrites" to {
 				checkSnapshot(database)
 			},

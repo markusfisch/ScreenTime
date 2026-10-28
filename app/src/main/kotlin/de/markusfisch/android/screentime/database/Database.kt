@@ -14,7 +14,6 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.OutputStream
 import kotlin.math.max
-import kotlin.math.min
 
 class Database(context: Context) {
 	private val db: SQLiteDatabase = OpenHelper(context).writableDatabase
@@ -51,6 +50,7 @@ class Database(context: Context) {
 		to: Long,
 		callback: (start: Long, duration: Long) -> Unit
 	) {
+		val intervals = MergedIntervals(from, to, callback)
 		db.rawQuery(
 			"""SELECT * FROM $EVENTS
 				WHERE $EVENTS_FROM + $EVENTS_DURATION >= $from
@@ -63,13 +63,11 @@ class Database(context: Context) {
 			if (it.moveToFirst()) {
 				do {
 					val recordStart = it.getLong(fromIndex)
-					val start = max(from, recordStart)
-					val duration = it.getLong(durationIndex)
-					val stop = min(to, recordStart + duration)
-					callback(start, stop - start)
+					intervals.add(recordStart, recordStart + it.getLong(durationIndex))
 				} while (it.moveToNext())
 			}
 		}
+		intervals.finish()
 	}
 
 	fun findOrInsertEvent(from: Long): Long {
