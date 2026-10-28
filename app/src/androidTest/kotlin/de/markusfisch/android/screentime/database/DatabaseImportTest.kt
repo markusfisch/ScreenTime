@@ -106,6 +106,40 @@ class DatabaseImportTest : Instrumentation() {
 				}
 				check(intervals.isEmpty())
 			},
+			"invalidValuesRollbackWholeImport" to {
+				for ((column, value) in listOf(
+					"_duration" to "9223372036854775807",
+					"_duration" to "-1",
+					"_duration" to "1.5",
+					"_duration" to "'invalid'",
+					"_to" to "-9223372036854775808"
+				)) {
+					val validTime = if (column == "_to") "9100" else "100"
+					fixture(source, "_id INTEGER, _from INTEGER, $column", "1, 9000, $validTime")
+					SQLiteDatabase.openDatabase(source.path, null, SQLiteDatabase.OPEN_READWRITE).use {
+						it.execSQL("INSERT INTO screen_events VALUES (2, 10000, $value)")
+					}
+					check(database.importDatabase(storage, source.name) ==
+						storage.getString(R.string.import_failed_invalid_database))
+					check(total(database) == 5100L)
+				}
+			},
+			"unfinishedRecordsAreSkipped" to {
+				fixture(source, "_id INTEGER, _from INTEGER, _duration INTEGER", "1, 9000, NULL")
+				check(database.importDatabase(storage, source.name) == null)
+				fixture(source, "_id INTEGER, _from INTEGER, _to INTEGER", "1, 9000, NULL")
+				check(database.importDatabase(storage, source.name) == null)
+				check(total(database) == 5100L)
+			},
+			"invalidStoredDurationIsIgnored" to {
+				SQLiteDatabase.openDatabase(
+					storage.getDatabasePath(Database.FILE_NAME).path, null, SQLiteDatabase.OPEN_READWRITE
+				).use {
+					it.execSQL("INSERT INTO screen_events (_from, _duration) VALUES (8000, 9223372036854775807)")
+					check(total(database) == 5100L)
+					it.execSQL("DELETE FROM screen_events WHERE _from = 8000")
+				}
+			},
 			"consistentSnapshotDuringWrites" to {
 				checkSnapshot(database)
 			},

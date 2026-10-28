@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.database.DatabaseErrorHandler
+import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -63,7 +64,8 @@ class Database(context: Context) {
 			if (it.moveToFirst()) {
 				do {
 					val recordStart = it.getLong(fromIndex)
-					intervals.add(recordStart, recordStart + it.getLong(durationIndex))
+					val end = validRecordEnd(recordStart, it.getLong(durationIndex)) ?: continue
+					intervals.add(recordStart, end)
 				} while (it.moveToNext())
 			}
 		}
@@ -284,6 +286,8 @@ class Database(context: Context) {
 				} else {
 					context.getString(R.string.import_failed_unknown)
 				}
+			} catch (e: IllegalArgumentException) {
+				context.getString(R.string.import_failed_invalid_database)
 			} catch (e: SQLException) {
 				e.message
 			} finally {
@@ -305,41 +309,39 @@ class Database(context: Context) {
 				(EVENTS_DURATION in columns || EVENTS_TO in columns)
 		}
 
-		private fun SQLiteDatabase.importEventsFrom(
-			src: SQLiteDatabase
-		): Boolean {
-			val cursor = src.rawQuery(
-				"""SELECT *
-				FROM $EVENTS
-				ORDER BY $EVENTS_ID""".trimIndent(),
-				null
-			) ?: return false
-			val idIndex = cursor.getColumnIndex(EVENTS_ID)
-			val fromIndex = cursor.getColumnIndex(EVENTS_FROM)
-			val toIndex = cursor.getColumnIndex(EVENTS_TO)
-			val durationIndex = cursor.getColumnIndex(EVENTS_DURATION)
-			var success = true
-			if (cursor.moveToFirst()) {
-				do {
+		private fun SQLiteDatabase.importEventsFrom(src: SQLiteDatabase): Boolean =
+			src.rawQuery("SELECT * FROM $EVENTS ORDER BY $EVENTS_ID", null).use { cursor ->
+				val idIndex = cursor.getColumnIndexOrThrow(EVENTS_ID)
+				val fromIndex = cursor.getColumnIndexOrThrow(EVENTS_FROM)
+				val durationIndex = cursor.getColumnIndex(EVENTS_DURATION)
+				val timeIndex = if (durationIndex >= 0) durationIndex else cursor.getColumnIndexOrThrow(EVENTS_TO)
+				while (cursor.moveToNext()) {
+					require(cursor.getType(idIndex) == Cursor.FIELD_TYPE_INTEGER &&
+						cursor.getType(fromIndex) == Cursor.FIELD_TYPE_INTEGER)
 					val srcId = cursor.getLong(idIndex)
 					val from = cursor.getLong(fromIndex)
-					val duration = if (durationIndex < 0) {
-						cursor.getLong(toIndex) - from
-					} else {
-						cursor.getLong(durationIndex)
-					}
-					if (srcId < 1L || from < 1L || duration < 1L) {
+					if (srcId < 1L || from < 1L || cursor.isNull(timeIndex)) {
 						continue
 					}
-					if (!mergeEvent(from, duration)) {
-						success = false
-						break
+					require(cursor.getType(timeIndex) == Cursor.FIELD_TYPE_INTEGER)
+					val time = cursor.getLong(timeIndex)
+					val duration = if (durationIndex >= 0) {
+						require(time >= 0L)
+						time
+					} else {
+						require(time >= from)
+						time - from
 					}
-				} while (cursor.moveToNext())
+					if (duration == 0L) {
+						continue
+					}
+					requireNotNull(validRecordEnd(from, duration))
+					if (!mergeEvent(from, duration)) {
+						return@use false
+					}
+				}
+				true
 			}
-			cursor.close()
-			return success
-		}
 
 		private fun SQLiteDatabase.mergeEvent(from: Long, duration: Long): Boolean {
 			var id = 0L
