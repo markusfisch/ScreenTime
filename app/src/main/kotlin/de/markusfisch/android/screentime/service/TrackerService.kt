@@ -26,7 +26,6 @@ import de.markusfisch.android.screentime.receiver.TIMESTAMP
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -120,7 +119,8 @@ class TrackerService : Service() {
 		super.onDestroy()
 		trackingStatus = null
 		unregisterReceiver(eventReceiver)
-		job.cancelChildren()
+		cancelNotificationUpdate()
+		job.cancel()
 	}
 
 	override fun onBind(intent: Intent): IBinder? {
@@ -197,9 +197,11 @@ class TrackerService : Service() {
 	}
 
 	private fun scheduleNotificationUpdate(delay: Long) {
-		cancelNotificationUpdate()
-		if (isInteractive()) {
-			handler.postDelayed(updateNotificationRunnable, delay)
+		scope.launch(Dispatchers.Main.immediate) {
+			cancelNotificationUpdate()
+			if (isInteractive()) {
+				handler.postDelayed(updateNotificationRunnable, delay)
+			}
 		}
 	}
 
