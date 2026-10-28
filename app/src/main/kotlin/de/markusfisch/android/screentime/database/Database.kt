@@ -10,6 +10,9 @@ import android.database.sqlite.SQLiteOpenHelper
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.app.prefs
 import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
+import java.io.OutputStream
 import kotlin.math.max
 import kotlin.math.min
 
@@ -96,12 +99,56 @@ class Database(context: Context) {
 		arrayOf(id.toString())
 	)
 
+	fun writeSnapshot(context: Context, output: OutputStream) {
+		val file = File.createTempFile("screen_time_", ".db", context.cacheDir)
+		try {
+			val snapshot = SQLiteDatabase.openOrCreateDatabase(file, null)
+			try {
+				snapshot.createEvents()
+				snapshot.version = VERSION
+				db.beginTransactionNonExclusive()
+				try {
+					snapshot.beginTransaction()
+					try {
+						db.rawQuery(
+							"SELECT $EVENTS_ID, $EVENTS_FROM, $EVENTS_DURATION FROM $EVENTS", null
+						).use { cursor ->
+							while (cursor.moveToNext()) {
+								snapshot.insertOrThrow(EVENTS, null, ContentValues().apply {
+									put(EVENTS_ID, cursor.getLong(0))
+									put(EVENTS_FROM, cursor.getLong(1))
+									if (cursor.isNull(2)) {
+										putNull(EVENTS_DURATION)
+									} else {
+										put(EVENTS_DURATION, cursor.getLong(2))
+									}
+								})
+							}
+						}
+						snapshot.setTransactionSuccessful()
+					} finally {
+						snapshot.endTransaction()
+					}
+				} finally {
+					db.endTransaction()
+				}
+			} finally {
+				snapshot.close()
+			}
+			FileInputStream(file).use { it.copyTo(output) }
+		} catch (e: SQLException) {
+			throw IOException("Cannot create database snapshot", e)
+		} finally {
+			file.delete()
+		}
+	}
+
 	fun importDatabase(context: Context, fileName: String): String? {
 		return db.importDatabase(context, fileName)
 	}
 
 	private class OpenHelper(context: Context) :
-		SQLiteOpenHelper(context, FILE_NAME, null, 4) {
+		SQLiteOpenHelper(context, FILE_NAME, null, VERSION) {
 		override fun onCreate(db: SQLiteDatabase) {
 			db.createEvents()
 		}
@@ -126,6 +173,8 @@ class Database(context: Context) {
 
 	companion object {
 		const val FILE_NAME = "events.db"
+
+		private const val VERSION = 4
 
 		private const val EVENTS = "screen_events"
 		private const val EVENTS_ID = "_id"

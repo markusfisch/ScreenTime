@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import de.markusfisch.android.screentime.R
 import java.io.File
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
 // Uses platform instrumentation so database regression tests need no extra
 // runtime libraries. All fixtures live in a separate debug cache directory.
@@ -83,7 +86,11 @@ class DatabaseImportTest : Instrumentation() {
 				source.writeText("not a database")
 				check(database.importDatabase(storage, source.name) != null)
 				check(total(database) == 1100L)
+			},
+			"consistentSnapshotDuringWrites" to {
+				checkSnapshot(database)
 			}
+
 		)
 		var failures = 0
 		for ((index, test) in tests.withIndex()) {
@@ -107,6 +114,61 @@ class DatabaseImportTest : Instrumentation() {
 		finish(Activity.RESULT_OK, Bundle().apply {
 			putString("stream", "Import tests: ${tests.size}, failures: $failures")
 		})
+	}
+
+	private fun checkSnapshot(database: Database) {
+		val path = storage.getDatabasePath(Database.FILE_NAME).path
+		SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE).use { source ->
+			source.beginTransaction()
+			try {
+				for (index in 0..<1000) {
+					source.execSQL("INSERT INTO screen_events (_from, _duration) VALUES (?, 100)",
+						arrayOf(100000L + index * 1000L))
+				}
+				source.setTransactionSuccessful()
+			} finally {
+				source.endTransaction()
+			}
+		}
+		val failure = AtomicReference<Throwable?>()
+		val writer = thread {
+			try {
+				SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE).use { source ->
+					for (index in 0..<20) {
+						source.execSQL("UPDATE screen_events SET _duration = ? WHERE _from >= 100000",
+							arrayOf(if (index % 2 == 0) 100 else 200))
+					}
+				}
+			} catch (error: Throwable) {
+				failure.set(error)
+			}
+		}
+		try {
+			repeat(3) {
+				val output = ByteArrayOutputStream()
+				database.writeSnapshot(storage, output)
+				val file = File(directory, "snapshot.db")
+				file.writeBytes(output.toByteArray())
+				SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { snapshot ->
+					check(snapshot.version == 4)
+					snapshot.rawQuery("PRAGMA integrity_check", null).use {
+						check(it.moveToFirst() && it.getString(0) == "ok")
+					}
+					snapshot.rawQuery(
+						"SELECT COUNT(*), MIN(_duration), MAX(_duration) FROM screen_events WHERE _from >= 100000",
+						null
+					).use {
+						check(it.moveToFirst() && it.getInt(0) == 1000)
+						check(it.getLong(1) == it.getLong(2))
+						check(it.getLong(1) in listOf(100L, 200L))
+					}
+				}
+				file.delete()
+			}
+		} finally {
+			writer.join()
+		}
+		check(failure.get() == null) { failure.get().toString() }
 	}
 
 	private fun fixture(file: File, columns: String, values: String?) {
