@@ -22,7 +22,6 @@ import de.markusfisch.android.screentime.app.db
 import de.markusfisch.android.screentime.app.prefs
 import de.markusfisch.android.screentime.app.requestNotificationPermission
 import de.markusfisch.android.screentime.app.requestWritePermission
-import de.markusfisch.android.screentime.app.runPermissionCallback
 import de.markusfisch.android.screentime.database.exportDatabase
 import de.markusfisch.android.screentime.database.importDatabase
 import de.markusfisch.android.screentime.dialog.askForName
@@ -85,7 +84,7 @@ class MainActivity : Activity() {
 			PERMISSION_WRITE -> if (grantResults.isNotEmpty() &&
 				grantResults[0] == PackageManager.PERMISSION_GRANTED
 			) {
-				runPermissionCallback()
+				askToExportToFile()
 			}
 		}
 	}
@@ -205,7 +204,7 @@ class MainActivity : Activity() {
 	private fun askToExportToFile() {
 		// Write permission is only required before Android Q.
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
-			!requestWritePermission() { askToExportToFile() }
+			!requestWritePermission()
 		) {
 			return
 		}
