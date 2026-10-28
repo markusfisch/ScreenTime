@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.graphics.checkChartBuffers
+import de.markusfisch.android.screentime.io.checkMediaStoreCleanup
 import java.io.File
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicReference
@@ -145,6 +146,9 @@ class DatabaseImportTest : Instrumentation() {
 			},
 			"discardedFramesPreserveDisplayedBitmaps" to {
 				checkChartBuffers()
+			},
+			"failedExportsLeaveNoDownloads" to {
+				checkMediaStoreCleanup(targetContext)
 			}
 
 		)
