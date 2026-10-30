@@ -1,5 +1,6 @@
 package de.markusfisch.android.screentime.service
 
+import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -178,6 +179,16 @@ class TrackerService : Service() {
 
 	private fun insertScreenEvent(timestamp: Long, screenOn: Boolean) {
 		if (screenOn) {
+			val keyguard = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+			val locked = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				keyguard.isKeyguardLocked
+			} else {
+				@Suppress("DEPRECATION")
+				keyguard.inKeyguardRestrictedInputMode()
+			}
+			if (locked) {
+				return
+			}
 			if (eventId == 0L) {
 				eventId = db.insertEvent(timestamp)
 				uptimeFrom = SystemClock.uptimeMillis()
