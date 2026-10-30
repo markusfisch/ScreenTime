@@ -39,4 +39,5 @@
 	<string name="usage_access_explanation">Med adgang til Android-brugsdata kan Screen Time genskabe skærmtid efter afbrydelser af appen. Du kan give adgang i Android-indstillingerne. Uden adgang registreres skærmtiden stadig, mens registreringen kører.</string>
 	<string name="allow_usage_access">Tillad adgang</string>
 	<string name="later">Senere</string>
+	<string name="day_reset">Dagskifte</string>
 </resources>

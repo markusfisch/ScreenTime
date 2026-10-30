@@ -37,4 +37,5 @@
 	<string name="usage_access_explanation">授予 Android 使用情況存取權後，Screen Time 就能補回應用程式中斷期間的螢幕使用時間。您可以在 Android 設定中授予存取權。未授權時，只要追蹤服務仍在執行，就會繼續記錄螢幕使用時間。</string>
 	<string name="allow_usage_access">允許存取</string>
 	<string name="later">稍後</string>
+	<string name="day_reset">每日重設</string>
 </resources>

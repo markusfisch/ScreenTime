@@ -39,4 +39,5 @@
 	<string name="usage_access_explanation">Met toegang tot Android-gebruiksgegevens kan Screen Time schermtijd herstellen na onderbrekingen van de app. Je kunt toegang toestaan in de Android-instellingen. Zonder toegang wordt schermtijd nog steeds bijgehouden zolang de registratieservice actief is.</string>
 	<string name="allow_usage_access">Toegang toestaan</string>
 	<string name="later">Later</string>
+	<string name="day_reset">Dagwissel</string>
 </resources>

@@ -39,4 +39,5 @@
 	<string name="usage_access_explanation">With Android usage access, Screen Time can recover screen time after interruptions to the app. You can allow access in Android settings. Without it, screen time is still recorded while the tracker is running.</string>
 	<string name="allow_usage_access">Allow access</string>
 	<string name="later">Later</string>
+	<string name="day_reset">Day Reset</string>
 </resources>

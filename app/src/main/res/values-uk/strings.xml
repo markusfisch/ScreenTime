@@ -43,4 +43,5 @@
 	<string name="usage_access_explanation">Доступ до даних використання Android дає змогу Screen Time відновлювати екранний час після перерв у роботі застосунку. Надати доступ можна в налаштуваннях Android. Без нього екранний час і далі записується, поки працює служба обліку.</string>
 	<string name="allow_usage_access">Надати доступ</string>
 	<string name="later">Пізніше</string>
+	<string name="day_reset">Початок дня</string>
 </resources>

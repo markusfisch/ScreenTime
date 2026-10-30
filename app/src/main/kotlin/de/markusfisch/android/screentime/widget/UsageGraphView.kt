@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import de.markusfisch.android.screentime.R
@@ -32,6 +33,14 @@ class UsageGraphView : View {
 	private val markerSizeRadius = 6f * dp
 	private val markerPos = PointF()
 	private val markerColor = context.loadColor(R.color.accent)
+	private val resetLabel = context.getString(R.string.day_reset)
+	private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+		color = markerColor
+		textSize = TypedValue.applyDimension(
+			TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics
+		)
+		textAlign = Paint.Align.CENTER
+	}
 	private val markerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 		style = Paint.Style.FILL
 	}
@@ -59,8 +68,10 @@ class UsageGraphView : View {
 	fun setGraphBitmap(bitmap: Bitmap) {
 		usageGraph = bitmap
 		usageGraphRect.set(0, 0, bitmap.width, bitmap.height)
-		markerRadius = min(usageGraphRect.centerX(), usageGraphRect.centerY()) * .95f
-		markerPos.setFromHour(prefs.hourOfDayChange)
+		markerRadius = min(viewRect.width(), viewRect.height()) * .475f
+		if (!markerGrabbed) {
+			markerPos.setFromHour(prefs.hourOfDayChange)
+		}
 		invalidate()
 	}
 
@@ -72,9 +83,16 @@ class UsageGraphView : View {
 		bottom: Int
 	) {
 		super.onLayout(changed, left, top, right, bottom)
-		viewRect.set(left, top, right, bottom)
-		val padding = (16f * dp).roundToInt()
+		val angle = angleFromPos(markerPos.x, markerPos.y)
+		viewRect.set(0, 0, right - left, bottom - top)
+		val padding = (32f * dp).roundToInt()
 		viewRect.inset(padding, padding)
+		markerRadius = min(viewRect.width(), viewRect.height()) * .475f
+		if (markerGrabbed) {
+			markerPos.setFromAngle(angle)
+		} else {
+			markerPos.setFromHour(prefs.hourOfDayChange)
+		}
 	}
 
 	override fun onDraw(canvas: Canvas) {
@@ -107,6 +125,20 @@ class UsageGraphView : View {
 				color = markerColor
 			}
 		)
+		val angle = angleFromPos(markerPos.x, markerPos.y)
+		val bottomHalf = sin(angle) > 0f
+		val labelRadius = markerRadius + markerSizeRadius + 4f * dp
+		canvas.save()
+		canvas.translate(viewRect.centerX().toFloat(), viewRect.centerY().toFloat())
+		canvas.rotate(Math.toDegrees(angle.toDouble()).toFloat() +
+			if (bottomHalf) -90f else 90f)
+		canvas.drawText(
+			resetLabel,
+			0f,
+			if (bottomHalf) labelRadius - labelPaint.ascent() else -labelRadius,
+			labelPaint
+		)
+		canvas.restore()
 	}
 
 	@SuppressLint("ClickableViewAccessibility")

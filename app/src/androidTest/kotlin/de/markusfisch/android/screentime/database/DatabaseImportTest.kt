@@ -8,6 +8,7 @@ import android.os.Bundle
 import de.markusfisch.android.screentime.R
 import de.markusfisch.android.screentime.graphics.checkChartBuffers
 import de.markusfisch.android.screentime.io.checkMediaStoreCleanup
+import de.markusfisch.android.screentime.widget.checkResetMarkerDrag
 import java.io.File
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicReference
@@ -146,6 +147,17 @@ class DatabaseImportTest : Instrumentation() {
 			},
 			"discardedFramesPreserveDisplayedBitmaps" to {
 				checkChartBuffers()
+			},
+			"resetMarkerSurvivesLayoutDuringDrag" to {
+				val failure = AtomicReference<Throwable?>()
+				runOnMainSync {
+					try {
+						checkResetMarkerDrag(targetContext)
+					} catch (error: Throwable) {
+						failure.set(error)
+					}
+				}
+				failure.get()?.let { throw it }
 			},
 			"failedExportsLeaveNoDownloads" to {
 				checkMediaStoreCleanup(targetContext)

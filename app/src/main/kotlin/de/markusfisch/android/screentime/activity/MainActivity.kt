@@ -308,7 +308,7 @@ class MainActivity : Activity() {
 		timestamp: Long = System.currentTimeMillis()
 	) {
 		val dp = resources.displayMetrics.density
-		val padding = (16f * dp).roundToInt() * 2
+		val padding = (32f * dp).roundToInt() * 2
 		val width = usageView.measuredWidth - padding
 		val height = usageView.measuredHeight - padding
 		if (width < 1 || height < 1) {
