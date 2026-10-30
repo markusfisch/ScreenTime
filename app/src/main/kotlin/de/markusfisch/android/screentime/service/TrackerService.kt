@@ -69,7 +69,7 @@ class TrackerService : Service() {
 
 	private var eventId: Long = 0L
 	private var uptimeFrom: Long = 0L
-	private var lastNotifcation: Long = 0L
+	private var lastNotification: Long = 0L
 
 	override fun onCreate() {
 		super.onCreate()
@@ -215,10 +215,10 @@ class TrackerService : Service() {
 
 	private fun updateNotification(now: Long) {
 		val elapsed = SystemClock.elapsedRealtime()
-		if (elapsed - lastNotifcation < 500L) {
+		if (elapsed - lastNotification < 500L) {
 			return
 		}
-		lastNotifcation = elapsed
+		lastNotification = elapsed
 		notificationJob?.cancel()
 		notificationJob = scope.launch {
 			val total = withContext(Dispatchers.IO) { db.summarizeDay(now) }
