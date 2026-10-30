@@ -1,0 +1,5 @@
+* Track screen time with Android usage events if possible
+* Label the day reset marker outside the clock
+* Improve design of multi-day chart
+* Improve time tracking
+

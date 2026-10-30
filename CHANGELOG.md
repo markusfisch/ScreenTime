@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.0
+* Track screen time with Android usage events if possible
+* Label the day reset marker outside the clock
+* Improve design of multi-day chart
+* Improve time tracking
+
 ## 1.3.1
 * Target Android 16
 
